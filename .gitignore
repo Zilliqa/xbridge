@@ -1,0 +1,9 @@
+node_modules/
+Debug/
+*~
+**/~
+**/*~
+**/node_modules
+._*
+**/._*
+
