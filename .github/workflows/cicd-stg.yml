@@ -21,10 +21,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        application:
-          [
-            zilliqa-bridge-validator,
-          ]
+        application: [zilliqa-bridge-validator]
         include:
           - application: zilliqa-bridge-validator
             image_name: zilliqa-bridge-validator
@@ -70,8 +67,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        application:
-          [zilliqa-bridge-web]
+        application: [zilliqa-bridge-web]
         include:
           - application: zilliqa-bridge-web
             image_name: zilliqa-bridge-web
