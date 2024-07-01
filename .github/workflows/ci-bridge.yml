@@ -1,10 +1,7 @@
 name: "CI for Product Bridge"
 
 on:
-  push:
-    paths:
-      - products/bridge/**
-      - ".github/workflows/**"
+  push: {}
 
 jobs:
   testing:
@@ -18,11 +15,11 @@ jobs:
 
       - name: Install nodes packages
         run: npm ci
-        working-directory: products/bridge/bridge-web
+        working-directory: bridge-web
 
       - name: Check bridge-web build
         run: npm run build
-        working-directory: products/bridge/bridge-web
+        working-directory: bridge-web
 
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
@@ -31,4 +28,4 @@ jobs:
 
       - name: Run Foundry tests
         run: forge test
-        working-directory: products/bridge/smart-contracts
+        working-directory: smart-contracts
