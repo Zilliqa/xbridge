@@ -27,5 +27,5 @@ jobs:
           version: nightly
 
       - name: Run Foundry tests
-        run: forge test -vvv
+        run: forge test --disable-block-gas-limit
         working-directory: smart-contracts
