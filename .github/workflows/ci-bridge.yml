@@ -27,5 +27,5 @@ jobs:
           version: nightly
 
       - name: Run Foundry tests
-        run: forge test
+        run: forge test -vvv
         working-directory: smart-contracts
