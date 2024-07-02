@@ -1,0 +1,11 @@
+node_modules/
+Debug/
+*~
+**/~
+**/*~
+**/node_modules
+._*
+**/._*
+
+.trunk/**
+!.trunk/trunk.yaml
