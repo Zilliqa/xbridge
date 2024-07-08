@@ -134,6 +134,22 @@ Currently periphery only features ERC20 bridge that is `LockAndRelease` on one e
 
 To deploy the `TokenManagers` on new chains the `LockAndReleaseTokenManagerUpgradeableV3` and `MintAndBurnTokenManagerUpgradeableV3` on each end of the chain if not already there. The initializer function needs to be added to these functions to initialize the owner and setting the gateways necessary. Then a new deployment script can be created and used accordingly.
 
+### ZilBridge
+
+`zilbridge` contains contracts used to assume the functionality of
+ZilBridge. The tests for zilbridge are mostly over in the parallel
+`zilbridge-hardhat` directory, because a lot of them depend on Scilla
+contracts and forge does not yet support Scilla.
+
+`zilbridge/1` are taken from:
+
+ - [lockproxy.sol](https://etherscan.io/address/0x9a016ce184a22dbf6c17daa59eb7d3140dbd1c54#code)
+ - [ccmproxy.sol](https://etherscan.io/address/0x5a51E2ebF8D136926b9cA7b59B60464E7C44d2Eb#code)
+ - [ccmCrossChainManager.sol](https://etherscan.io/address/0x14413419452Aaf089762A0c5e95eD2A13bBC488C#code)
+
+And modified for a modern solc so that they will run in our environment.
+
+
 ## Creating custom cross-chain messaging protocols
 
 Essentially there are 2 main interfaces on contracts that need to be satisfied to send a cross-chain message from a source chain to the target chain:
