@@ -6,7 +6,6 @@
 
 // SPDX-License-Identifier: MIT
 
-//pragma solidity 0.6.12;
 pragma solidity 0.8.20;
 
 /**
@@ -32,7 +31,7 @@ library ZeroCopySource {
     function NextBool(bytes memory buff, uint256 offset) internal pure returns(bool, uint256) {
         require(offset + 1 <= buff.length && offset < offset + 1, "Offset exceeds limit");
         // byte === bytes1
-        uint8 v;
+        bytes1 v;
         assembly{
             v := mload(add(add(buff, 0x20), offset))
         }
@@ -52,9 +51,9 @@ library ZeroCopySource {
     *  @param offset        The position from where we read the byte value
     *  @return              The read byte value and new offset
     */
-    function NextByte(bytes memory buff, uint256 offset) internal pure returns (uint8, uint256) {
+    function NextByte(bytes memory buff, uint256 offset) internal pure returns (bytes1, uint256) {
         require(offset + 1 <= buff.length && offset < offset + 1, "NextByte, Offset exceeds maximum");
-        uint8 v;
+        bytes1 v;
         assembly{
             v := mload(add(add(buff, 0x20), offset))
         }
@@ -273,7 +272,7 @@ library ZeroCopySource {
     }
 
     function NextVarUint(bytes memory buff, uint256 offset) internal pure returns(uint, uint256) {
-        uint8 v;
+        bytes1 v;
         (v, offset) = NextByte(buff, offset);
 
         uint value;
@@ -302,7 +301,6 @@ library ZeroCopySource {
 }
 
 // File: contracts/libs/common/ZeroCopySink.sol
-
 
 
 /**
@@ -347,7 +345,7 @@ library ZeroCopySink {
     *  @param b         The byte value
     *  @return          Converted bytes array
     */
-    function WriteByte(uint8 b) internal pure returns (bytes memory) {
+    function WriteByte(bytes1 b) internal pure returns (bytes memory) {
         return WriteUint8(uint8(b));
     }
 
@@ -492,7 +490,6 @@ library ZeroCopySink {
 // File: contracts/libs/utils/ReentrancyGuard.sol
 
 
-
 /**
  * @dev Contract module that helps prevent reentrant calls to a function.
  *
@@ -545,7 +542,6 @@ abstract contract ReentrancyGuard {
 }
 
 // File: contracts/libs/utils/Utils.sol
-
 
 
 library Utils {
@@ -632,7 +628,7 @@ library Utils {
     *  @return          Hashed value in bytes32 format
     */
     function hashLeaf(bytes memory _data) internal pure returns (bytes32 result)  {
-        result = sha256(abi.encodePacked(uint8(0x0), _data));
+        result = sha256(abi.encodePacked(bytes1(0x0), _data));
     }
 
     /* @notice          Do hash children as the multi-chain does
@@ -1130,13 +1126,6 @@ contract Wallet {
 // File: contracts/LockProxy.sol
 
 
-
-
-
-
-
-
-
 interface CCM {
     function crossChain(uint64 _toChainId, bytes calldata _toContract, bytes calldata _method, bytes calldata _txData) external returns (bool);
 }
@@ -1212,7 +1201,7 @@ contract LockProxy is ReentrancyGuard {
         bytes txArgs
     );
 
-    constructor(address _ccmProxyAddress, uint64 _counterpartChainId) {
+    constructor(address _ccmProxyAddress, uint64 _counterpartChainId) public {
         require(_counterpartChainId > 0, "counterpartChainId cannot be zero");
         require(_ccmProxyAddress != address(0), "ccmProxyAddress cannot be empty");
         counterpartChainId = _counterpartChainId;
