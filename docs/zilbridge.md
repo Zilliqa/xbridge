@@ -3,21 +3,25 @@
 
 ## CrossChainManager extensions
 
-The CCM contains state; the current approach to retaining this state
-is to replace the ccm in the ccmProxy with a shim contract that
-forwards requests to the underlying contract but additionally allows
-an owner to register extensions.
+The currently deployed CCM on Ethereum does not contain functions to register lockProxy extensions.
 
-This works, and has the advantage that you don't need to change the
-address of the ccm baked into the relayers, but it breaks the
-invariant that cross-chain events come from the contract referred to
-by the ccmProxy. If there is software that reads the address of the
-CCM from the ccmProxy and then expects cross-chain events to come from
-it, we will need to replace the ccm entirely.
+These can be run remotely from the `counterpartChainId` (in `lockProxy`), currently set to 5 (which is presumably Carbon).
 
-This is not as straightforward as it looks because the deployed CCM on
-ethereum is quite old and we would need to test that it still works
-with zilBridge 1 when upgraded or updated for a reasonably modern
-solidity version.
+This means we need to either proxy or replace it.
+
+Replacing it is undesirable, because the address of the CCM is baked into the configuration files for the relayers.
+
+My first attempt was to proxy it with a `CCMExtendProxy`, but this doesn't work, because:
+
+ * To upgrade you have to call `ccmProxy::upgradeEthCrossChainManager()`
+ * (side-note: this calls the _current_ `eccm.upgradeToNew()` which hands ownership of the CCM data (proxied by the CCM contract) to the CCMExtendProxty, which now needs to hand it back to the old `ccm`)
+ * Subsequent calls through the `CCMExtendProxy` need to use the original `ccm` state, and therefore have the `CCMExtendProxy` as `msg.sender`.
+ * But there is no way to make the `CCMExtendProxy` an owner of the `ccm`.
+
+The second attempt is to write a new CCM contract which duplicates the
+original CCM and contains the new functions. Sadly, this means that
+someone needs to remember what the whitelist parameters were, because
+it is a map that does not emit events and we thus can't work out what
+is in it.
 
 

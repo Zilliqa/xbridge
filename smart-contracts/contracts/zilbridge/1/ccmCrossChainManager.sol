@@ -2,11 +2,12 @@
  *Submitted for verification at Etherscan.io on 2021-10-19
 */
 
-pragma solidity 0.8.20;
-//pragma solidity ^0.5.0;
-//pragma experimental ABIEncoderV2;
+pragma solidity ^0.8.2;
 
 abstract contract Context {
+    // Empty internal constructor, to prevent people from mistakenly deploying
+    // an instance of this contract, which should be used via inheritance.
+    constructor () { }
     // solhint-disable-previous-line no-empty-blocks
 
     function _msgSender() internal view returns (address payable) {
@@ -181,7 +182,7 @@ library ZeroCopySink {
     *  @param b         The byte value
     *  @return          Converted bytes array
     */
-    function WriteByte(uint8 b) internal pure returns (bytes memory) {
+    function WriteByte(bytes1 b) internal pure returns (bytes memory) {
         return WriteUint8(uint8(b));
     }
 
@@ -332,7 +333,7 @@ library ZeroCopySource {
     function NextBool(bytes memory buff, uint256 offset) internal pure returns(bool, uint256) {
         require(offset + 1 <= buff.length && offset < offset + 1, "Offset exceeds limit");
         // byte === bytes1
-        uint8 v;
+        bytes1 v;
         assembly{
             v := mload(add(add(buff, 0x20), offset))
         }
@@ -352,9 +353,9 @@ library ZeroCopySource {
     *  @param offset        The position from where we read the byte value
     *  @return              The read byte value and new offset
     */
-    function NextByte(bytes memory buff, uint256 offset) internal pure returns (uint8, uint256) {
+    function NextByte(bytes memory buff, uint256 offset) internal pure returns (bytes1, uint256) {
         require(offset + 1 <= buff.length && offset < offset + 1, "NextByte, Offset exceeds maximum");
-        uint8 v;
+        bytes1 v;
         assembly{
             v := mload(add(add(buff, 0x20), offset))
         }
@@ -573,7 +574,7 @@ library ZeroCopySource {
     }
     
     function NextVarUint(bytes memory buff, uint256 offset) internal pure returns(uint, uint256) {
-        uint8 v;
+        bytes1 v;
         (v, offset) = NextByte(buff, offset);
 
         uint value;
@@ -828,7 +829,7 @@ library Utils {
     *  @return          Hashed value in bytes32 format
     */
     function hashLeaf(bytes memory _data) internal pure returns (bytes32 result)  {
-        result = sha256(abi.encodePacked(uint8(0x0), _data));
+        result = sha256(abi.encodePacked(bytes1(0x0), _data));
     }
 
     /* @notice          Do hash children as the multi-chain does
@@ -1101,7 +1102,7 @@ library ECCUtils {
         bytes32 hash = Utils.hashLeaf(value);
         uint size = _auditPath.length.sub(off).div(33);
         bytes32 nodeHash;
-        uint8 pos;
+        bytes1 pos;
         for (uint i = 0; i < size; i++) {
             (pos, off) = ZeroCopySource.NextByte(_auditPath, off);
             (nodeHash, off) = ZeroCopySource.NextHash(_auditPath, off);
@@ -1302,10 +1303,10 @@ interface IEthCrossChainData {
 }
 
 interface IUpgradableECCM is IOwnable, IPausable {
-    function upgradeToNew(address) external returns (bool);
-    function setChainId(uint64 _newChainId) external returns (bool);
     function pause() external returns (bool);
     function unpause() external returns (bool);
+    function upgradeToNew(address) external returns (bool);
+    function setChainId(uint64 _newChainId) external returns (bool);
 }
 
 
@@ -1313,15 +1314,14 @@ interface IEthCrossChainManager {
     function crossChain(uint64 _toChainId, bytes calldata _toContract, bytes calldata _method, bytes calldata _txData) external returns (bool);
 }
 
-contract UpgradableECCM is Ownable, Pausable, IUpgradableECCM {
+contract UpgradableECCM is IUpgradableECCM, Ownable, Pausable {
     address public EthCrossChainDataAddress;
-    uint64 public chainId;  
+    uint64 public chainId;
 
     constructor (address ethCrossChainDataAddr, uint64 _chainId) Pausable() Ownable() {
         EthCrossChainDataAddress = ethCrossChainDataAddr;
         chainId = _chainId;
     }
-
     function pause() onlyOwner public returns (bool) {
         if (!paused()) {
             _pause();
@@ -1332,7 +1332,7 @@ contract UpgradableECCM is Ownable, Pausable, IUpgradableECCM {
         }
         return true;
     }
-    
+
     function unpause() onlyOwner public returns (bool) {
         if (paused()) {
             _unpause();
@@ -1359,7 +1359,7 @@ contract UpgradableECCM is Ownable, Pausable, IUpgradableECCM {
 
 contract EthCrossChainManager is IEthCrossChainManager, UpgradableECCM {
     using SafeMath for uint256;
-
+    
     address public whiteLister;
     mapping(address => bool) public whiteListFromContract;
     mapping(address => mapping(bytes => bool)) public whiteListContractMethodMap;
@@ -1373,7 +1373,7 @@ contract EthCrossChainManager is IEthCrossChainManager, UpgradableECCM {
         uint64 _chainId, 
         address[] memory fromContractWhiteList, 
         bytes[] memory contractMethodWhiteList
-    ) UpgradableECCM(_eccd,_chainId) {
+    ) UpgradableECCM(_eccd,_chainId)  {
         whiteLister = msg.sender;
         for (uint i=0;i<fromContractWhiteList.length;i++) {
             whiteListFromContract[fromContractWhiteList[i]] = true;
