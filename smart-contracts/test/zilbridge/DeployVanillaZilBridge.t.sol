@@ -5,7 +5,7 @@ import "forge-std/console.sol";
 import {Tester} from "test/Tester.sol";
 import {TestToken} from "test/Helpers.sol";
 import { LockProxy } from "contracts/zilbridge/1/lockProxy.sol";
-import { EthCrossChainManagerProxy } from "contracts/zilbridge/1/ccmproxy.sol";
+import { EthCrossChainManagerProxy } from "contracts/zilbridge/1/ccmProxy.sol";
 import { EthCrossChainManager } from "contracts/zilbridge/1/ccmCrossChainManager.sol";
 import { EthCrossChainData } from "contracts/zilbridge/1/ethCrossChainData.sol";
 import { EthExtendCrossChainManager } from "contracts/zilbridge/2/ccmExtendCrossChainManager.sol";
@@ -54,10 +54,10 @@ abstract contract ZilBridgeFixture is Tester {
     console.log("eccd owner = %s", eccd.owner());
     console.log("ccm = %s", address(ccm));
     ccmProxy.pauseEthCrossChainManager();
-    //require(ccmProxy.upgradeEthCrossChainManager(address(extendCCM)));
-    //extendCCM.handCrossChainDataBackToImplementation();
-    //ccmProxy.unpauseEthCrossChainManager();
-    //vm.stopPrank();
+    require(ccmProxy.upgradeEthCrossChainManager(address(extendCCM)));
+    extendCCM.handCrossChainDataBackToImplementation();
+    ccmProxy.unpauseEthCrossChainManager();
+    vm.stopPrank();
  }
 }
 
@@ -65,19 +65,40 @@ contract ZilBridgeVanillaTests is ZilBridgeFixture {
   function test_ZilBridgeDeploy() external {
     setUp();
     deployOriginalContracts();
-    require(ccmProxy.getEthCrossChainManager() == address(ccm));
-    require(ccm.owner() == address(ccmProxy));
+    // The owner of the proxy is us
     require(ccmProxy.owner() == owner);
+    // The ccmProxy's ccm is the ccm we installed.
+    require(ccmProxy.getEthCrossChainManager() == address(ccm));
+    // The owner of the ccm is the ccmProxy
+    require(ccm.owner() == address(ccmProxy));
+    // the eccd is installed
+    require(ccm.EthCrossChainDataAddress() == address(eccd));
+    // the eccd's owner is the ccm
+    require(eccd.owner() == address(ccm));
   }
 
   function test_ZilBridgeUpgrade() external {
     setUp();
     deployOriginalContracts();
     installExtendCrossChainManager(owner);
-    //require(ccmProxy.getEthCrossChainManager() == address(extendCCM));
-    //require(extendCCM.originalCCM.address == address(ccm));
-    //require(!ccm.paused());
-    //require(extendCCM.proxyOwner() == address(ccmProxy));
-    //require(ccm.owner() == address(ccmProxy));
+
+    // The owner of the proxy is us
+    require(ccmProxy.owner() == owner);
+    // The ccmProxy's ccm is the new CCM
+    require(ccmProxy.getEthCrossChainManager() == address(extendCCM));
+    // The owner of the extended CCM is us (NOT the ccmProxy!)
+    require(extendCCM.proxyOwner() == address(owner));
+    // The extendCCM 's chained CCM is the previous ccm
+    require(extendCCM.originalCCM() == address(ccm));
+    // The ccm's owner is the ccm Proxy
+    require(ccm.owner() == address(ccmProxy));
+    // The ccm's eccd is intact
+    require(ccm.EthCrossChainDataAddress() == address(eccd));
+    // The eccd's owner is the ccm.
+    require(eccd.owner() == address(ccm));
+
+    // We're unpaused
+    require(!ccm.paused());
+    require(!ccmProxy.paused());
   }
 }
