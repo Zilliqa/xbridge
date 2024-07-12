@@ -46,7 +46,16 @@ contract LockProxyTokenManagerUpgradeableV3 is TokenManagerUpgradeableV3, ILockP
     LockProxy lp = LockProxy(payable(lockProxyAddress));
     // Sadly, extensionTransfer() takes the same arguments as the withdrawn event but in a
     // different order. This will automagically transfer native token if token==0.
-    lp.extensionTransfer(recipient, token, amount);
+
+    // Native tokens are transferred by the call; for everyone else, it sets an allowance and we
+    // then do the transfer from here.
+    if (token == address(0)) {
+      lp.extensionTransfer(recipient, address(0), amount);
+    } else {
+      lp.extensionTransfer(address(this), token, amount);
+      IERC20 erc20token = IERC20(token);
+      erc20token.transferFrom(address(lp), recipient, amount);
+    }
     emit WithdrawnFromLockProxy(token, recipient, amount);
   }
 

@@ -180,6 +180,7 @@ contract ZilBridgeTokenBridgeIntegrationTest is ZilBridgeTokenBridgeIntegrationF
         // To
         abi.encode(ITokenManagerStructs.AcceptArgs(address(remoteNativelyOnSource), remoteUser, amount)));
 
+    // approval goes to the token manager, which will transfer value to/from the lock proxy for you.
     nativelyOnSource.approve(address(sourceTokenManager), amount);
 
     // Ask the source token manager to take the source tokens and emit a relayed event
