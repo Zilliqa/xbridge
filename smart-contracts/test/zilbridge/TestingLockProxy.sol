@@ -1,12 +1,16 @@
+// SPDX-License-Identifier: MIT
+pragma solidity 0.8.20;
+
+// This is a real LockProxy extended with methods for testing which are
+// WOEFULLY INSECURE - they allow you to synthetically lock and unlock funds
+// so we can test the cases where we bridge tokens over XBridge that were
+// previously bridged on ZilBridge.
+
 /**
  *Submitted for verification at Etherscan.io on 2020-11-09
 */
 
 // File: contracts/libs/common/ZeroCopySource.sol
-
-// SPDX-License-Identifier: MIT
-
-pragma solidity 0.8.20;
 
 /**
  * @dev Wrappers over decoding and deserialization operation from bytes into bassic types in Solidity for PolyNetwork cross chain utility.
@@ -1138,7 +1142,7 @@ interface CCMProxy {
 /// @author Switcheo Network
 /// @notice This contract faciliates deposits and withdrawals to Switcheo TradeHub.
 /// @dev The contract also allows for additional features in the future through "extension" contracts.
-contract LockProxy is ReentrancyGuard {
+contract TestingLockProxy is ReentrancyGuard {
     using SafeMath for uint256;
 
     // used for cross-chain addExtension and removeExtension methods
@@ -1881,4 +1885,12 @@ contract LockProxy is ReentrancyGuard {
         assembly { codehash := extcodehash(account) }
         return (codehash != accountHash && codehash != 0x0);
     }
+
+  function testing_transferIn(address assetHash, uint256 amount, uint callAmount) public {
+    _transferIn(assetHash, amount, callAmount);
+  }
+
+  function testing_transferOut(address toAddress, address assetHash, uint amount) public {
+    _transferOut(toAddress, assetHash, amount);
+  }
 }

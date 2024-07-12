@@ -24,4 +24,54 @@ someone needs to remember what the whitelist parameters were, because
 it is a map that does not emit events and we thus can't work out what
 is in it.
 
+## LockProxyTokenManager
 
+There is a `LockProxyTokenManager` which is registered as an extension and interacts with the lock proxy to bridge tokens. 
+
+zilBridge itself doesn't know which tokens are mint/burn and which are
+lock/release - the lockproxy simply transfers tokens to and from
+itself and the contracts it talks to either mint and burn, or don't,
+when they spot that it's the lock proxy asking.
+
+We test it against a stubbed out LockProxyTokenManager which apes what the
+Scilla side will do eventually, but with stubbed interop calls.
+
+## Current outstanding issues
+
+### Parallel ZilBridge operations
+
+If we can't get someone (Polynet?) to install our extension remotely,
+we will have to replace the non-Zilliqa `ccm` and this will break
+ZilBridge. Polynet will have to reset their `ccm` address to recover
+functionality.
+
+If we do replace the non-Zilliqa `ccm`, I suggest that we do so with a
+CCM that doesn't accept cross-chain events; this will make sure that
+old keys from zilbridge/polynet can't compromise us in the future.
+
+### Native ZIL operations
+
+It's not possible to send native tokens via interop calls on
+Zilliqa. Thus, the only way to unwrap wrapped ZIL is natively.
+
+Because signature verification is carried out on chain, we can't easily modify the verifier to make native calls.
+
+So, the best we can do is to:
+
+ * Issue a wrapped ZIL (`wZIL` itself is owned by Jun Hao - we could take over)
+ * Withdraw all the ZIL from the `lockProxy` and deposit it in wZIL
+ * Give that wZIL to the `lockProxy`
+ * Register wZIL as the `lockProxy` corresponding token for wrapped ZIL on other chains.
+ * `lockProxy` will then give you `wZIL` for your wrapped ZIL on other chains and you can issue a native call to get ZIL back for it.
+
+Unfortunately, we have to live (probably permanently unless we can
+think of a way around it) with `lockProxy` accepting ZIL - if you send
+your ZIL to `lockProxy`, we will have to recover it for you with our
+admin rights, because obviously you won't be able to bridge it to
+anywhere else.
+
+
+## TODO
+
+ - Move the test code for zilbrige into `test/`
+ - Refactor out `SafeMath` etc. - we could have only one copy of these (probably!)

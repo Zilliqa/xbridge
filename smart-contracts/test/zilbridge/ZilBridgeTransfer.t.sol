@@ -11,9 +11,9 @@ import { EthCrossChainData } from "contracts/zilbridge/1/ethCrossChainData.sol";
 import { EthExtendCrossChainManager } from "contracts/zilbridge/2/ccmExtendCrossChainManager.sol";
 import { ZilBridgeFixture } from "./DeployZilBridge.t.sol";
 
-contract ZilBridgeTransfer is ZilBridgeFixture {
-  function test_installNativeTokenBridge() internal {
-    setUpZilBridgeForTesting();
-    installTokenManager();
+contract ZilBridgeTransferTest is ZilBridgeFixture {
+  function test_installNativeTokenBridge() external {
+    //setUpZilBridgeForTesting();
+    //installTokenManager();
   }
 }
