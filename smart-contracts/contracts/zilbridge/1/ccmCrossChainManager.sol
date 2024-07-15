@@ -2,6 +2,7 @@
  *Submitted for verification at Etherscan.io on 2021-10-19
 */
 
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.2;
 
 abstract contract Context {

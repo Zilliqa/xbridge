@@ -70,6 +70,36 @@ your ZIL to `lockProxy`, we will have to recover it for you with our
 admin rights, because obviously you won't be able to bridge it to
 anywhere else.
 
+##  BSC Testnet Deployment
+
+There are a group of scripts that allow you to deploy the EVM half of the ZilBridge transition code into BSC Testnet.
+
+The `smart-contracts/README.md` contains predeployed addresses; if you
+decide to redeploy you will need to change the constants in the `
+scripts, since this is how the addresses of previous contracts are
+baked in (sorry!).
+
+ * `mockZilBridge.s.sol` - this is basically what `ZilBridgeFixture::deployOriginalContracts()` does; it deploys via `PRIVATE_KEY_ZILBRIDGE`.
+ * 
+
+
+Run with:
+
+```sh
+export PRIVATE_KEY_ZILBRIDGE=<zilbridge_owner_privkey>
+forge script script/bsc-testnet/deployMockZilBridge.s.sol --rpc-url https://bsc-testnet.bnbchain.org --broadcast
+
+forge verify-contract <address> --rpc-url https://bsc-testnet.bnbchain.org --chain-id 97
+
+
+# now put the data from ^^ into deployXBridgeOverMockZilBridge.s.sol
+forge script script/bsc-testnet/deployXBridgeOverMockZilBridge.s.sol --rpc-url https://bsc-testnet.bnbchain.org --broadcast
+
+
+```
+
+
+
 
 ## TODO
 

@@ -301,6 +301,11 @@ Deterministic deployer not available, simple CREATE was used
 
 Deterministic deployer not available, simple CREATE was used
 
+Zilliqa side tokens:
+
+
+
+
 ### BSC Testnet
 
 - `ChainId`: 97
@@ -308,3 +313,18 @@ Deterministic deployer not available, simple CREATE was used
 - `ValidatorManager`: `0xCc1CB36d981ae2907cea385F615e879434D20B1C`
 - `MintAndBurnTokenManager`: `0xA6D73210AF20a59832F264fbD991D2abf28401d0`
 - `BridgedTestToken`: `0x5190e8b4Bbe8C3a732BAdB600b57fD42ACbB9F4B`
+
+ZilBridge ChainID 6, bridging to ZilBridge chain ID 18.
+
+```
+  Owner: 0x29543Acb166B6044B67979B858e743701C9bd1df
+  ECCD: 0xd677494525D25238Fedd554796eEa5733a9B86a2
+  CCM: 0xff4AC43f368676765de511F82B816EED9b9D780c
+  CCMProxy: 0xd7a76e4454c4f4F80E6409DF361B7926a1789d93
+  LockProxy: 0x218D8aFE24bb2a0d1DE483Ff67aCADB45Ac8Bd2d
+
+  extendCCM: 0xF2eeaceDB35776412fe999D45aA81Ea674030aE1
+  zilbridge tokenmanager: 0x103617938D41f7bea62F0B5b4E8e50585083048F
+```
+
+

@@ -4,6 +4,7 @@
 
 // File: eth-contracts/contracts/core/cross_chain_manager/interface/IEthCrossChainData.sol
 
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.2;
 
 
