@@ -183,4 +183,42 @@ contract ZilBridgeTokenBridgeCompatibilityTest is ZilBridgeTokenBridgeCompatibil
                            sourceUser, remoteUser, amount);
   }
 
+  function test_wrappedCompatibilityNative() external {
+    // Get am amount
+    uint256 amount = originalTokenSupply; 
+    startHoax(sourceUser);
+    uint256 gas = 1 ether;
+    vm.deal(sourceUser, amount + gas);
+
+    uint256 sourceBalance = sourceUser.balance;
+    uint256 lockBalance = address(lockProxy).balance;
+    lockProxy.testing_transferIn{value: originalTokenSupply}(address(0), amount, amount);
+    mockRemoteLockProxy.testing_transferOut(remoteUser, address(remoteBridgedGasToken), amount);
+
+    assertEq(remoteBridgedGasToken.balanceOf(remoteUser), amount);
+    assertLe(sourceUser.balance, sourceBalance - amount);
+    assertEq(address(lockProxy).balance, lockBalance + amount);
+
+    // OK. Now transfer it back again.
+    transferFromRemoteUser(address(0), address(remoteBridgedGasToken),
+                           sourceUser, remoteUser, amount);
+  }
+
+  function test_wrappedCompatibilityBackward() external {
+    // Get an amount
+    uint256 amount = originalTokenSupply;
+    // Transfer it synthetically to the lock proxy at the remote
+    startHoax(remoteUser);
+    nativelyOnRemote.approve(address(mockRemoteLockProxy), amount);
+    mockRemoteLockProxy.testing_transferIn(address(nativelyOnRemote), amount, amount);
+    lockProxy.testing_transferOut(sourceUser, address(sourceNativelyOnRemote), amount);
+
+    assertEq(sourceNativelyOnRemote.balanceOf(sourceUser), amount);
+    assertEq(nativelyOnRemote.balanceOf(remoteUser), 0);
+    assertEq(nativelyOnRemote.balanceOf(address(mockRemoteLockProxy)), amount);
+
+    // Now transfer it back again
+    transferToRemoteUser(address(sourceNativelyOnRemote), address(nativelyOnRemote),
+                         sourceUser, remoteUser, originalTokenSupply);
+  }
 }

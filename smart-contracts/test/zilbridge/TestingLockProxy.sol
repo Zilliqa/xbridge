@@ -1886,7 +1886,7 @@ contract TestingLockProxy is ReentrancyGuard {
         return (codehash != accountHash && codehash != 0x0);
     }
 
-  function testing_transferIn(address assetHash, uint256 amount, uint callAmount) public {
+  function testing_transferIn(address assetHash, uint256 amount, uint callAmount) public payable {
     _transferIn(assetHash, amount, callAmount);
   }
 
