@@ -19,144 +19,15 @@ import {LockAndReleaseTokenManagerDeployer} from "test/periphery/TokenManagerDep
 import { SwitcheoToken } from "contracts/zilbridge/token/tokens/SwitcheoTokenETH.sol";
 import { ZilBridgeFixture } from "test/zilbridge/DeployZilBridge.t.sol";
 import { MockLockProxy } from "./MockLockProxy.sol";
+import { ZilBridgeTokenBridgeIntegrationFixture } from "./ZilBridgeTokenIntegrationFixture.t.sol";
 
-
-// This deploys a bridge that is ZilBridge token manager on one side and lock-and-release on the other.
-// We do this so we can test ZilBridge integration end to end, though in fact the "other side" of the bridge will be provided
-// by the code in the Scilla half of this repo.
-contract ZilBridgeTokenBridgeIntegrationFixture is
-Tester, IRelayerEvents, LockAndReleaseTokenManagerDeployer, LockProxyTokenManagerDeployer, ZilBridgeFixture {
-  using MessageHashUtils for bytes;
-
-  ZilBridgeFixture zilBridge;
-
-  // Gateway shared between the two chains
-  Vm.Wallet validatorWallet = vm.createWallet(1);
-  address validator = validatorWallet.addr;
-  address[] validators = [ validator ];
-  address sourceUser = vm.addr(2);
-  address remoteUser = vm.addr(3);
-  uint originalTokenSupply = 1000 ether;
-  uint fees = 0.1 ether;
-
-  LockProxyTokenManagerUpgradeableV3 sourceTokenManager;
-  // There are "actually" three of these - native (which is lock/release), a mint/burn token and a conventional token.
-  // This means we need a remote lock manager and a remote mint burn manager.
-  TestToken nativelyOnSource;
-  SwitcheoToken nativelyOnRemote;
-  ChainGateway sourceChainGateway;
-  ValidatorManager sourceValidatorManager;
-
-  // see doc/zilbridge.md
-  MockLockProxy mockRemoteLockProxy;
-  LockProxyTokenManagerUpgradeableV3 remoteTokenManager;
-  SwitcheoToken remoteNativelyOnSource;
-  TestToken remoteBridgedGasToken;
-
-  ChainGateway remoteChainGateway;
-  ValidatorManager remoteValidatorManager;
-
-  function installContracts() public {
-    setUpZilBridgeForTesting();
-
-    vm.startPrank(validator);
-    // Deploy source infra
-    sourceValidatorManager = new ValidatorManager(validator);
-    sourceValidatorManager.initialize(validators);
-    sourceChainGateway = new ChainGateway(address(sourceValidatorManager), validator);
-
-    // Deploy target infra
-    remoteValidatorManager = new ValidatorManager(validator);
-    remoteValidatorManager.initialize(validators);
-    remoteChainGateway = new ChainGateway(address(remoteValidatorManager), validator);
-
-    // Deploy the token managers
-    sourceTokenManager = deployLatestLockProxyTokenManager(address(sourceChainGateway), address(lockProxy), fees);
-    mockRemoteLockProxy = new MockLockProxy();
-    remoteTokenManager = deployLatestLockProxyTokenManager(address(remoteChainGateway), address(mockRemoteLockProxy), fees);
-
-    vm.stopPrank();
-    // Make the token manager an extension.
-    installTokenManager(address(sourceTokenManager));
-
-    // That involved a prank, so we need to reset our caller to the validator.
-    vm.startPrank(validator);
-
-    // Register contracts to chaingateway
-    sourceChainGateway.register(address(sourceTokenManager));
-    remoteChainGateway.register(address(remoteTokenManager));
-
-    // Deploy the test tokens.
-    nativelyOnSource = new TestToken(originalTokenSupply);
-    nativelyOnSource.transfer(sourceUser, originalTokenSupply);
-    nativelyOnRemote = new SwitcheoToken(address(lockProxy));
-
-    remoteNativelyOnSource = new SwitcheoToken(address(mockRemoteLockProxy));
-    // When coins arrive at the remote token manager for remoteNativelyOnSource, send them to nativelyOnSource's
-    // manager at sourceTokenManager.
-    ITokenManagerStructs.RemoteToken memory sourceNOSStruct = ITokenManagerStructs.RemoteToken({
-     token: address(nativelyOnSource),
-     tokenManager: address(sourceTokenManager),
-     chainId: block.chainid });
-    remoteTokenManager.registerToken(address(remoteNativelyOnSource), sourceNOSStruct);
-
-    // When coins arrive at nativelyOnSource, send them to remoteNativelyOnSource's manager at remoteTokenManager
-    ITokenManagerStructs.RemoteToken memory remoteNOSStruct = ITokenManagerStructs.RemoteToken({
-     token: address(remoteNativelyOnSource),
-     tokenManager: address(remoteTokenManager),
-     chainId: block.chainid });
-    sourceTokenManager.registerToken(address(nativelyOnSource), remoteNOSStruct);
-    vm.stopPrank();
-  }
-
-  /* function test_Debug() external { */
-  /*   console.log("Hello world!"); */
-  /*   setUpZilBridgeForTesting(); */
-  /*       vm.startPrank(validator); */
-  /*   // Deploy source infra */
-  /*   sourceValidatorManager = new ValidatorManager(validator); */
-  /*   sourceValidatorManager.initialize(validators); */
-  /*   sourceChainGateway = new ChainGateway(address(sourceValidatorManager), validator); */
-
-  /*   // Deploy target infra */
-  /*   remoteValidatorManager = new ValidatorManager(validator); */
-  /*   remoteValidatorManager.initialize(validators); */
-  /*   remoteChainGateway = new ChainGateway(address(remoteValidatorManager), validator); */
-
-  /*   // Deploy the token managers */
-  /*   sourceTokenManager = deployLatestLockProxyTokenManager(address(sourceChainGateway), address(lockProxy), fees); */
-  /*   remoteMintBurnManager = deployLatestMintAndBurnTokenManager(address(remoteChainGateway), fees); */
-
-  /*   vm.stopPrank(); */
-  /*   // Make the token manager an extension. */
-  /*   installTokenManager(address(sourceTokenManager)); */
-
-  /*   // That involved a prank, so we need to reset our caller to the validator. */
-  /*   vm.startPrank(validator); */
-
-  /*   // Register contracts to chaingateway */
-  /*   sourceChainGateway.register(address(sourceTokenManager)); */
-  /*   remoteChainGateway.register(address(remoteMintBurnManager)); */
-
-  /*   // Deploy the test tokens. */
-  /*   nativelyOnSource = new TestToken(originalTokenSupply); */
-  /*   nativelyOnSource.transfer(sourceUser, originalTokenSupply); */
-  /*   nativelyOnRemote = new SwitcheoToken(address(lockProxy)); */
-
-  /*   remoteNativelyOnSource = remoteMintBurnManager.deployToken("NativelyOnSource", "NOST", */
-  /*                                                                  address(nativelyOnSource), */
-  /*                                                                  address(sourceTokenManager), */
-  /*                                                                  block.chainid); */
-  /*   ITokenManagerStructs.RemoteToken memory remoteNOSStruct = ITokenManagerStructs.RemoteToken({ */
-  /*    token: address(remoteNativelyOnSource), */
-  /*    tokenManager: address(remoteMintBurnManager), */
-  /*    chainId: block.chainid }); */
-  /*   sourceTokenManager.registerToken(address(nativelyOnSource), remoteNOSStruct); */
-  /*   vm.stopPrank(); */
-  /* } */
-
-}
-
+/// @title A general integration test for ZilBridge.
+/// @author rrw
+/*** @notice Tests some of the basic transfer routes: TestToken -> SwitcheoToken and back,
+ *  and native token -> SwitcheoToken and back. Testing SwitcheoToken -> nativetoken is
+ *  skipped, partly because it is symmetric and partly because it's not possible in zq1
+ *  anyway.
+ */
 contract ZilBridgeTokenBridgeIntegrationTest is ZilBridgeTokenBridgeIntegrationFixture {
   using MessageHashUtils for bytes;
 
@@ -165,7 +36,8 @@ contract ZilBridgeTokenBridgeIntegrationTest is ZilBridgeTokenBridgeIntegrationF
     installContracts();
   }
 
-  function test_happyPath() external {
+  /// @notice test the happy path for a wrapped token to wrapped token exchange from TestToken to SwitcheoToken and back.
+  function test_happyPathWrappedToRemote() external {
     startHoax(sourceUser);
     uint amount = originalTokenSupply;
     uint sourceChainId = block.chainid;
@@ -245,4 +117,85 @@ contract ZilBridgeTokenBridgeIntegrationTest is ZilBridgeTokenBridgeIntegrationF
     assertEq(remoteNativelyOnSource.balanceOf(remoteUser), 0);
     assertEq(nativelyOnSource.balanceOf(sourceUser), amount);
   }
+
+
+  /// @notice Test native token to SwitcheoToken and back.
+  function test_happyPathNativeToken() external {
+    startHoax(sourceUser);
+    uint256 amount = originalTokenSupply;
+
+    // add some to account for gas.
+    uint accountForGas = 1 ether;
+    vm.deal(sourceUser, amount + accountForGas);
+    vm.deal(remoteUser, accountForGas);
+    uint256 initialSourceBalance = sourceUser.balance;
+    uint sourceChainId = block.chainid;
+    uint remoteChainId = block.chainid;
+    assertGt(sourceUser.balance, originalTokenSupply);
+
+    bytes memory data = abi.encodeWithSelector(
+        TokenManagerUpgradeable.accept.selector,
+        // From
+        CallMetadata(sourceChainId, address(sourceTokenManager)),
+        // To
+        abi.encode(ITokenManagerStructs.AcceptArgs(address(remoteBridgedGasToken), remoteUser, amount)));
+    vm.expectEmit(address(sourceChainGateway));
+    emit IRelayerEvents.Relayed(remoteChainId,
+                                address(remoteTokenManager), data, 1_000_000, 0);
+    sourceTokenManager.transfer{ value: fees + originalTokenSupply }(
+        address(0), remoteChainId, remoteUser, amount);
+
+    // Bridge!
+    vm.startPrank(validator);
+    bytes[] memory signatures = new bytes[](1);
+    signatures[0] = sign(validatorWallet, abi.encode(sourceChainId, remoteChainId,
+                                                     address(remoteTokenManager),
+                                                     data,
+                                                     1_000_000, 0)
+                         .toEthSignedMessageHash());
+
+    remoteChainGateway.dispatch(sourceChainId, address(remoteTokenManager), data, 1_000_000, 0, signatures);
+
+    // The source user should now have less balance then accountForGas
+    assertLe(sourceUser.balance, initialSourceBalance - amount);
+    uint256 sourceUserBalanceAfterTransfer = sourceUser.balance;
+    // The lock proxy should have the balance.
+    assertEq(address(lockProxy).balance, amount);
+    // The remote user should have the right number of wrapped tokens
+    assertEq(remoteBridgedGasToken.balanceOf(sourceUser), 0);
+    assertEq(remoteBridgedGasToken.balanceOf(remoteUser), amount);
+    assertEq(remoteBridgedGasToken.totalSupply(), amount);
+
+    // ..aaand send them all back again
+    vm.startPrank(remoteUser);
+    remoteBridgedGasToken.approve(address(remoteTokenManager), amount);
+    remoteTokenManager.transfer{value: fees}(
+        address(remoteBridgedGasToken), sourceChainId, sourceUser, amount);
+    vm.startPrank(validator);
+    data = abi.encodeWithSelector(
+        TokenManagerUpgradeable.accept.selector,
+        // From
+        CallMetadata(remoteChainId, address(remoteTokenManager)),
+        // To
+        abi.encode(
+            ITokenManagerStructs.AcceptArgs(address(0), sourceUser, amount)));
+    signatures[0] = sign(
+        validatorWallet,
+        abi.encode(remoteChainId, sourceChainId,
+                   address(sourceTokenManager),
+                   data,
+                   1_000_000, 0).toEthSignedMessageHash());
+    sourceChainGateway.dispatch(remoteChainId,
+                                address(sourceTokenManager),
+                                data,
+                                1_000_000,
+                                0,
+                                signatures);
+    // Balances should now be back
+    assertEq(sourceUser.balance, sourceUserBalanceAfterTransfer + amount);
+    assertEq(remoteBridgedGasToken.balanceOf(remoteUser), 0);
+    // Weirdly, the supply is nondecreasing - this seems to be intentional in SwitcheoToken...
+    assertEq(remoteBridgedGasToken.totalSupply(), amount);
+  }
+
 }
