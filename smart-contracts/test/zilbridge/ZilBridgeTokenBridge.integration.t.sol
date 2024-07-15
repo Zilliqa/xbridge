@@ -164,9 +164,8 @@ contract ZilBridgeTokenBridgeIntegrationTest is ZilBridgeTokenBridgeIntegrationF
   function setUp() external {
     installContracts();
   }
-  
-  function test_happyPath() external {
 
+  function test_happyPath() external {
     startHoax(sourceUser);
     uint amount = originalTokenSupply;
     uint sourceChainId = block.chainid;
@@ -218,7 +217,7 @@ contract ZilBridgeTokenBridgeIntegrationTest is ZilBridgeTokenBridgeIntegrationF
     startHoax(remoteUser);
     remoteNativelyOnSource.approve(address(remoteTokenManager), amount);
     remoteTokenManager.transfer{value: fees}(
-        address(nativelyOnSource), sourceChainId, sourceUser, amount);
+         address(remoteNativelyOnSource), sourceChainId, sourceUser, amount);
 
     vm.startPrank(validator);
     data = abi.encodeWithSelector(
