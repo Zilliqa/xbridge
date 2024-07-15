@@ -31,8 +31,6 @@ contract ZilBridgeTokenBridgeIntegrationFixture is
 Tester, IRelayerEvents, LockAndReleaseTokenManagerDeployer, LockProxyTokenManagerDeployer, ZilBridgeFixture {
   using MessageHashUtils for bytes;
 
-  ZilBridgeFixture zilBridge;
-
   // Gateway shared between the two chains
   Vm.Wallet validatorWallet = vm.createWallet(1);
   address validator = validatorWallet.addr;
@@ -46,6 +44,7 @@ Tester, IRelayerEvents, LockAndReleaseTokenManagerDeployer, LockProxyTokenManage
   // There are "actually" three of these - native (which is lock/release), a mint/burn token and a conventional token.
   // This means we need a remote lock manager and a remote mint burn manager.
   TestToken nativelyOnSource;
+  SwitcheoToken sourceNativelyOnRemote;
   ChainGateway sourceChainGateway;
   ValidatorManager sourceValidatorManager;
 
@@ -54,6 +53,7 @@ Tester, IRelayerEvents, LockAndReleaseTokenManagerDeployer, LockProxyTokenManage
   LockProxyTokenManagerUpgradeableV3 remoteTokenManager;
   SwitcheoToken remoteNativelyOnSource;
   SwitcheoToken remoteBridgedGasToken;
+  TestToken nativelyOnRemote;
 
   ChainGateway remoteChainGateway;
   ValidatorManager remoteValidatorManager;
@@ -113,7 +113,7 @@ Tester, IRelayerEvents, LockAndReleaseTokenManagerDeployer, LockProxyTokenManage
     remoteBridgedGasToken = new SwitcheoToken(address(mockRemoteLockProxy));
     console.log("remoteBridgedGasToken = %s", address(remoteBridgedGasToken));
     console.log("mockLockProxy = %s", address(mockRemoteLockProxy));
-    // When coins arrive at the remote token anager, send them to 0 on the source token manager.
+    // When coins arrive at the remote token manager, send them to 0 on the source token manager.
     ITokenManagerStructs.RemoteToken memory sourceGasStruct = ITokenManagerStructs.RemoteToken({
      token: address(0),
      tokenManager: address(sourceTokenManager),
@@ -126,6 +126,25 @@ Tester, IRelayerEvents, LockAndReleaseTokenManagerDeployer, LockProxyTokenManage
      tokenManager: address(remoteTokenManager),
      chainId: block.chainid });
     sourceTokenManager.registerToken(address(0), remoteGasStruct);
+
+    nativelyOnRemote = new TestToken(originalTokenSupply);
+    sourceNativelyOnRemote = new SwitcheoToken(address(lockProxy));
+    nativelyOnRemote.transfer(remoteUser, originalTokenSupply);
+    
+    // When tokens arrive at the remote token manager, send them to the source
+    ITokenManagerStructs.RemoteToken memory sourceBackStruct = ITokenManagerStructs.RemoteToken({
+     token: address(sourceNativelyOnRemote),
+     tokenManager: address(sourceTokenManager),
+     chainId: block.chainid });
+    remoteTokenManager.registerToken(address(nativelyOnRemote), sourceBackStruct);
+
+    // When tokens arrive at the source token manager, send them to the remote
+    ITokenManagerStructs.RemoteToken memory remoteBackStruct = ITokenManagerStructs.RemoteToken({
+     token: address(nativelyOnRemote),
+     tokenManager: address(remoteTokenManager),
+     chainId: block.chainid });
+    sourceTokenManager.registerToken(address(sourceNativelyOnRemote), remoteBackStruct);
+
     vm.stopPrank();
   }
 

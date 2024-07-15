@@ -73,6 +73,11 @@ abstract contract ZilBridgeFixture is Tester, LockProxyTokenManagerDeployer {
     extendCCM.forciblyAddExtension(address(lockProxy), address(lpTokenManager), COUNTERPART_CHAIN_ID);
     vm.stopPrank();
   }
+
+  function getLockProxy() public returns (TestingLockProxy) {
+    return lockProxy;
+  }
+
 }
 
 contract DeployZilBridgeTest is ZilBridgeFixture {
@@ -109,6 +114,7 @@ contract DeployZilBridgeTest is ZilBridgeFixture {
     require(!extendCCM.paused());
     require(!ccmProxy.paused());
   }
+
 
 
   function test_installTokenManager() external {

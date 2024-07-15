@@ -87,6 +87,67 @@ contract ZilBridgeTokenBridgeCompatibilityFixture is ZilBridgeTokenBridgeIntegra
       assertEq(IERC20(sourceToken_).balanceOf(sourceUser_), sourceBalance - amount_);
     }
   }
+
+  /// @notice send amount wrapped tokens to a source user.
+  function transferFromRemoteUser(address sourceToken_, address remoteToken_,
+                                            address sourceUser_, address remoteUser_, uint256 amount_) public {
+    startHoax(remoteUser_);
+    uint sourceChainId_ = block.chainid;
+    uint remoteChainId_ = block.chainid;
+    uint valueToSend = fees;
+    uint remoteBalance;
+    if (remoteToken_ == address(0)) {
+      // Check for native
+      assertGe(remoteUser_.balance, amount_);
+      remoteBalance = remoteUser_.balance;
+      valueToSend += amount_;
+    } else {
+      // Check that the source user has the funds.
+      remoteBalance = IERC20(remoteToken_).balanceOf(remoteUser_);
+      assertGe(remoteBalance, amount_);
+      // Set up an allowance
+      IERC20(remoteToken_).approve(address(remoteTokenManager), amount_);
+    }
+    uint sourceBalance;
+    if (sourceToken_ == address(0)) {
+      sourceBalance = sourceUser_.balance;
+    } else {
+      sourceBalance = IERC20(sourceToken_).balanceOf(sourceUser_);
+    }
+
+    bytes memory data = abi.encodeWithSelector(
+        TokenManagerUpgradeable.accept.selector,
+        // From
+        CallMetadata(remoteChainId_, address(remoteTokenManager)),
+        // To
+        abi.encode(ITokenManagerStructs.AcceptArgs(address(sourceToken_), sourceUser_, amount_)));
+
+    vm.expectEmit(address(remoteChainGateway));
+    emit IRelayerEvents.Relayed(sourceChainId_,
+                                address(sourceTokenManager), data, 1_000_000, 0);
+    remoteTokenManager.transfer{value: valueToSend} (
+        address(remoteToken_), sourceChainId_, sourceUser_, amount_);
+    vm.startPrank(validator);
+    bytes[] memory signatures = new bytes[](1);
+    signatures[0] = sign(validatorWallet, abi.encode(remoteChainId_, sourceChainId_,
+                                                     address(sourceTokenManager), data,
+                                                     1_000_000, 0)
+                         .toEthSignedMessageHash());
+    sourceChainGateway.dispatch(remoteChainId_,
+                                address(sourceTokenManager),
+                                data, 1_000_000, 0, signatures);
+    if (sourceToken_ == address(0)) {
+      assertGe(sourceUser_.balance, sourceBalance + amount_);
+    } else {
+      assertEq(IERC20(sourceToken_).balanceOf(sourceUser_), sourceBalance + amount_);
+    }
+    if (remoteToken_ == address(0)) {
+      assertLe(remoteUser_.balance, remoteBalance - amount_);
+    } else {
+      assertEq(IERC20(remoteToken_).balanceOf(remoteUser_), remoteBalance - amount_);
+    }
+  }
+
 }
 
 /// @title Test that assets bridged via ZilBridge can be recovered via XBridge
@@ -102,9 +163,24 @@ contract ZilBridgeTokenBridgeCompatibilityTest is ZilBridgeTokenBridgeCompatibil
     installContracts();
   }
 
-  function test_wrappedCompatibility() external {
-    // Amusingly, because of the way SwitcheoToken works, we need to do a bridge transfer to get funds to the remote user that they can then
-    // synthetically lock.
-    transferToRemoteUser(address(nativelyOnSource), address(remoteNativelyOnSource), sourceUser, remoteUser, originalTokenSupply);
+  function test_wrappedCompatibilityForward() external {
+    // Get an amount
+    uint256 amount = originalTokenSupply;
+    // Transfer it synthetically to the lock proxy at the source end.
+    startHoax(sourceUser);
+    nativelyOnSource.approve(address(lockProxy), amount);
+    lockProxy.testing_transferIn(address(nativelyOnSource), amount, amount);
+
+    // Use the mock lock proxy to simulate transferring that to the remote user.
+    mockRemoteLockProxy.testing_transferOut(remoteUser, address(remoteNativelyOnSource), amount);
+
+    assertEq(remoteNativelyOnSource.balanceOf(remoteUser), amount);
+    assertEq(nativelyOnSource.balanceOf(sourceUser), 0);
+    assertEq(nativelyOnSource.balanceOf(address(lockProxy)), amount);
+
+    // OK. Now transfer it back again.
+    transferFromRemoteUser(address(nativelyOnSource), address(remoteNativelyOnSource),
+                           sourceUser, remoteUser, amount);
   }
+
 }

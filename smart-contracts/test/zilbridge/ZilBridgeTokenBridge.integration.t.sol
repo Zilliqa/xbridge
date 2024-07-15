@@ -198,4 +198,43 @@ contract ZilBridgeTokenBridgeIntegrationTest is ZilBridgeTokenBridgeIntegrationF
     assertEq(remoteBridgedGasToken.totalSupply(), amount);
   }
 
+  /// @notice test the happy path for a remote wrapped token back to the source. 
+  function test_happyPathFromRemote() external {
+    startHoax(remoteUser);
+    uint amount = originalTokenSupply;
+    uint sourceChainId = block.chainid;
+    uint remoteChainId = block.chainid;
+    assertEq(nativelyOnRemote.balanceOf(remoteUser), amount);
+
+    bytes memory data = abi.encodeWithSelector(
+        TokenManagerUpgradeable.accept.selector,
+        // From
+        CallMetadata(remoteChainId, address(remoteTokenManager)),
+        // To
+        abi.encode(ITokenManagerStructs.AcceptArgs(address(sourceNativelyOnRemote), sourceUser, amount)));
+
+    nativelyOnRemote.approve(address(remoteTokenManager), amount);
+
+    vm.expectEmit(address(remoteChainGateway));
+    emit IRelayerEvents.Relayed(sourceChainId,
+                                address(sourceTokenManager), data, 1_000_000, 0);
+    remoteTokenManager.transfer{value: fees} (
+        address(nativelyOnRemote), sourceChainId, sourceUser, amount);
+
+    vm.startPrank(validator);
+    bytes[] memory signatures = new bytes[](1);
+    signatures[0] = sign(validatorWallet, abi.encode(remoteChainId, sourceChainId,
+                                                     address(sourceTokenManager),
+                                                     data,
+                                                     1_000_000, 0).toEthSignedMessageHash());
+    sourceChainGateway.dispatch(remoteChainId,
+                                address(sourceTokenManager),
+                                data,
+                                1_000_000, 0, signatures);
+    // OK. Now ...
+    assertEq(sourceNativelyOnRemote.balanceOf(sourceUser), amount);
+    assertEq(sourceNativelyOnRemote.totalSupply(), amount);
+    assertEq(nativelyOnRemote.totalSupply(), amount);
+    assertEq(nativelyOnRemote.balanceOf(remoteUser), 0);
+  }
 }
