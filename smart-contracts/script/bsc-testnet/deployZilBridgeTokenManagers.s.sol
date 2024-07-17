@@ -34,10 +34,10 @@ contract deployZilBridgeTokenManagers is Script, LockProxyTokenManagerDeployer {
   uint64 constant COUNTERPART_CHAIN_ID = 18;
 
   function run() external {
-    uint256 validatorPrivateKey = vm.envUint("PRIVATE_KEY_VALIDATOR");
+    uint256 validatorPrivateKey = vm.envUint("PRIVATE_KEY_TESTNET");
     uint256 bridgePrivateKey = vm.envUint("PRIVATE_KEY_ZILBRIDGE");
-    address validator = vm.addr(validatorPrivateKey);
-    address bridgeOwner = vm.addr(bridgePrivateKey);
+    // address validator = vm.addr(validatorPrivateKey);
+    // address bridgeOwner = vm.addr(bridgePrivateKey);
     // token managers are apparently not pausable, so ..
     vm.startBroadcast(validatorPrivateKey);
     LockProxyTokenManagerUpgradeableV3 tokenManager = deployLatestLockProxyTokenManager(address(chainGateway), address(lockProxy), fees);

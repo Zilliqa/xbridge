@@ -13,7 +13,9 @@ interface ILockProxyTokenManager is ILockProxyTokenManagerStorage {
   event WithdrawnFromLockProxy(address indexed token, address indexed receipient, uint amount);
 }
 
-// This is the lock proxy token manager that runs on Zilliqa chains. It talks to a Scilla LockProxy via interop.
+/*** @notice This is the lock proxy token manager that runs on Zilliqa chains.
+ *  @TODO rename this - it's really just a LockAndReleaseTokenManager but with a native token escape.
+ */
 contract ZilliqaLockProxyTokenManagerUpgradeableV3 is TokenManagerUpgradeableV3, ILockProxyTokenManager, LockProxyTokenManagerStorage {
   address public constant NATIVE_ASSET_HASH = address(0);
 

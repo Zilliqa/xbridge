@@ -20,7 +20,7 @@ abstract contract ZilBridgeFixture is Tester, LockProxyTokenManagerDeployer {
   address third = vm.createWallet("third").addr;
   uint64 constant COUNTERPART_CHAIN_ID = 5;
   uint64 constant CHAIN_ID = 2;
-
+ 
   EthCrossChainManager ccm;
   EthCrossChainManagerProxy ccmProxy;
   EthCrossChainData eccd;

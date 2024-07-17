@@ -298,12 +298,17 @@ Deterministic deployer not available, simple CREATE was used
 - `ValidatorManager`: `0x782F8afa1bA3137a214D49840688215a8A379fA8`
 - `LockAndReleaseTokenManager`: `0x1509988c41f02014aA59d455c6a0D67b5b50f129`
 - `TestTokenZRC2Proxy`: `0x8618d39a8276D931603c6Bc7306af6A53aD2F1F3`
+- `LockAndReleaseOrNativeTokenManager`: `0xBe90AB2cd65E207F097bEF733F8D239A59698b8A`
 
 Deterministic deployer not available, simple CREATE was used
 
-Zilliqa side tokens:
+Zilliqa testnet tokens:
 
-
+```
+TokenContract: 0x839901f1e39De75301667C6bBbF7fB556Ea2510E
+NativeBridgedContract: 0x06852e68A3c24917cfA4C2dbDaE4B308C69aDA5e
+Locally generated fungible token: 0x155F0f76b660290F2F00Bb5674b80eDC208bF2e6
+```
 
 
 ### BSC Testnet
@@ -326,5 +331,15 @@ ZilBridge ChainID 6, bridging to ZilBridge chain ID 18.
   extendCCM: 0xF2eeaceDB35776412fe999D45aA81Ea674030aE1
   zilbridge tokenmanager: 0x103617938D41f7bea62F0B5b4E8e50585083048F
 ```
+
+Tokens
+
+```
+  ERC20: 0x43b1e04b72Aca6aA54c49f540Ef8ea3970d2A541
+  BridgedZRC2FromZilliqa: 0x190b6601E1D9bAF0c9413b08C27C5cBEa275D55F
+  BridgedZIL: 0x09AbdfE544Ca946808261ce761e1e86b91581C6c
+```
+
+
 
 

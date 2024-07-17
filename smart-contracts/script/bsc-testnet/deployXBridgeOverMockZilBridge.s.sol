@@ -27,7 +27,7 @@ contract deployXBridgeOverMockZilBridge is Script {
     bytes[] memory b = new bytes[](0);
     uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY_ZILBRIDGE");
     vm.startBroadcast(deployerPrivateKey);
-    address owner = vm.addr(deployerPrivateKey);
+    // address owner = vm.addr(deployerPrivateKey);
     extendCCM = new EthExtendCrossChainManager(address(eccd), 2, a, b);
     ccmProxy.pauseEthCrossChainManager();
     extendCCM.transferOwnership(address(ccmProxy));

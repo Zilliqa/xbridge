@@ -92,7 +92,7 @@ Tester, IRelayerEvents, LockAndReleaseTokenManagerDeployer, LockProxyTokenManage
     nativelyOnSource = new TestToken(originalTokenSupply);
     nativelyOnSource.transfer(sourceUser, originalTokenSupply);
 
-    remoteNativelyOnSource = new SwitcheoToken(address(mockRemoteLockProxy));
+    remoteNativelyOnSource = new SwitcheoToken(address(mockRemoteLockProxy), "Bridged testToken", "eTST", 18);
     // When coins arrive at the remote token manager for remoteNativelyOnSource, send them to nativelyOnSource's
     // manager at sourceTokenManager.
     ITokenManagerStructs.RemoteToken memory sourceNOSStruct = ITokenManagerStructs.RemoteToken({
@@ -110,7 +110,7 @@ Tester, IRelayerEvents, LockAndReleaseTokenManagerDeployer, LockProxyTokenManage
 
     // Now, we'll do the gas token. This has to be a switcheo token, because
     // the other side can hardly be mint & burn.
-    remoteBridgedGasToken = new SwitcheoToken(address(mockRemoteLockProxy));
+    remoteBridgedGasToken = new SwitcheoToken(address(mockRemoteLockProxy), "Bridged gas", "eGAS", 18);
     console.log("remoteBridgedGasToken = %s", address(remoteBridgedGasToken));
     console.log("mockLockProxy = %s", address(mockRemoteLockProxy));
     // When coins arrive at the remote token manager, send them to 0 on the source token manager.
@@ -128,7 +128,7 @@ Tester, IRelayerEvents, LockAndReleaseTokenManagerDeployer, LockProxyTokenManage
     sourceTokenManager.registerToken(address(0), remoteGasStruct);
 
     nativelyOnRemote = new TestToken(originalTokenSupply);
-    sourceNativelyOnRemote = new SwitcheoToken(address(lockProxy));
+    sourceNativelyOnRemote = new SwitcheoToken(address(lockProxy), "Back-ported test token", "bTST", 18);
     nativelyOnRemote.transfer(remoteUser, originalTokenSupply);
     
     // When tokens arrive at the remote token manager, send them to the source

@@ -23,7 +23,6 @@ contract deployMockZilBridge is Script {
     EthCrossChainManagerProxy ccmProxy;
     EthCrossChainData eccd;
     LockProxy lockProxy;
-    EthExtendCrossChainManager extendCCM;
 
     uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY_ZILBRIDGE");
     address owner = vm.addr(deployerPrivateKey);

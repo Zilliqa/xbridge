@@ -19,9 +19,15 @@ contract SwitcheoToken is ERC20, ERC20Detailed {
 
   address public lockProxyAddress;
 
-  constructor(address _lockProxyAddress) ERC20Detailed("ZilBridge_Test_ETH_Bridged", "ZTEB", 8) {
+  /// Added by rrw to make testing easier.
+  constructor(address _lockProxyAddress, string memory tokenName, string memory tokenSymbol, uint8 decimals)
+      ERC20Detailed(tokenName, tokenSymbol, decimals) {
     lockProxyAddress = _lockProxyAddress;
   }
+
+  //constructor(address _lockProxyAddress) ERC20Detailed("ZilBridge_Test_ETH_Bridged", "ZTEB", 8) {
+  //lockProxyAddress = _lockProxyAddress;
+      // }
 
   function _transfer(address sender, address recipient, uint256 amount) internal override {
       if (sender == lockProxyAddress) {

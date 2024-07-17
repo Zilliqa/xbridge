@@ -79,23 +79,47 @@ decide to redeploy you will need to change the constants in the `
 scripts, since this is how the addresses of previous contracts are
 baked in (sorry!).
 
- * `mockZilBridge.s.sol` - this is basically what `ZilBridgeFixture::deployOriginalContracts()` does; it deploys via `PRIVATE_KEY_ZILBRIDGE`.
- * 
-
-
+Set `PRIVATE_KEY_TESTNET` to the validator privkey, and `PRIVATE_KEY_ZILBRIDGE` to the zilbridge owner privkey.
 Run with:
 
 ```sh
-export PRIVATE_KEY_ZILBRIDGE=<zilbridge_owner_privkey>
 forge script script/bsc-testnet/deployMockZilBridge.s.sol --rpc-url https://bsc-testnet.bnbchain.org --broadcast
 
 forge verify-contract <address> --rpc-url https://bsc-testnet.bnbchain.org --chain-id 97
-
-
 # now put the data from ^^ into deployXBridgeOverMockZilBridge.s.sol
 forge script script/bsc-testnet/deployXBridgeOverMockZilBridge.s.sol --rpc-url https://bsc-testnet.bnbchain.org --broadcast
+forge verify-contract <address> --rpc-url https://bsc-testnet.bnbchain.org --chain-id 97
+# and again ..
+forge script scripts/bsc-testnet/deployZilBridgeTokenManagers.s.sol --rpc-url https://bsc-testnet.bnbchain.org --broadcast
+forge verify-contract <address> --rpc-url https://bsc-testnet.bnbchain.org --chain-id 97
+# and again..
+forge script script/bsc-testnet/deployZilBridgeTokens.s.sol --tc Deployment --rpc-url https://bsc-testnet.bnbchain.org --broadcast
+forge verify-contract <address> --rpc-url https://bsc-testnet.bnbchain.org --chain-id 97
+
+```
+
+Remember to verify all your contracts on BSC, or you will get hopelessly confused later.
+
+Now we need to deploy some contracts on the Zilliqa testnet. 
+
+We'll need our own token manager. This is identical to the
+`LockAndReleaseTokenManager`, but contains some additional
+functionality to deal with bridging native tokens (so that bridged ZIL
+can be made to work).
 
 
+```
+forge script script/zq-testnet/deployNativeTokenManagerV3.s.sol --rpc-url https://dev-api.zilliqa.com --broadcast --legacy
+forge script script/zq-testnet/setChainGatewayOnTokenManager.s.sol --rpc-url https://dev-api.zilliqa.com --broadcast --legacy
+```
+
+Now we can deploy a couple of tokens to the Zilliqa testnet. We'll deploy two Switcheo ZRC-2s - one for testing BSC testnet ERC20s and one for BSC testnet native tokens, and an ordinary ZRC-2. 
+
+```
+cd scilla-contracts
+pnpm i
+export TOKEN_MANAGER=(whatever address the deployNativeTokenManagerV3 script above gave you)
+npx hardhat run scripts/deploy.ts
 ```
 
 
