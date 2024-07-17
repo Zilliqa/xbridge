@@ -27,5 +27,5 @@ jobs:
           version: nightly
 
       - name: Run Foundry tests
-        run: forge test
+        run: forge test --gas-limit 2000000000000 # arbitrary, but seemingly no way to disable entirely.
         working-directory: smart-contracts
