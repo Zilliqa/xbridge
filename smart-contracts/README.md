@@ -332,13 +332,15 @@ ZilBridge ChainID 6, bridging to ZilBridge chain ID 18.
 
 ```
 
-ZilBridge test Tokens
+(up to deployZilBridgeTokenManagers.s.sol)
 
-```
-  ERC20: 0x43b1e04b72Aca6aA54c49f540Ef8ea3970d2A541
-  BridgedZRC2FromZilliqa: 0x190b6601E1D9bAF0c9413b08C27C5cBEa275D55F
-  BridgedZIL: 0x09AbdfE544Ca946808261ce761e1e86b91581C6c
-```
+//ZilBridge test Tokens
+//
+//```
+//  ERC20: 0x43b1e04b72Aca6aA54c49f540Ef8ea3970d2A541
+//  BridgedZRC2FromZilliqa: 0x190b6601E1D9bAF0c9413b08C27C5cBEa275D55F
+//  BridgedZIL: 0x09AbdfE544Ca946808261ce761e1e86b91581C6c
+//```
 
 
 
