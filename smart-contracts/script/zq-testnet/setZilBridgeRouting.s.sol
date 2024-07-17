@@ -11,6 +11,7 @@ import "forge-std/console.sol";
 import {LockProxyTokenManagerUpgradeable} from "contracts/zilbridge/2/LockProxyTokenManagerUpgradeable.sol";
 import {LockAndReleaseTokenManagerUpgradeable} from "contracts/periphery/LockAndReleaseTokenManagerUpgradeable.sol";
 
+
 /*** @title Route tokens from the BSC side.
  */
 contract Deployment is Script {
@@ -19,14 +20,13 @@ contract Deployment is Script {
         address owner = vm.addr(deployerPrivateKey);
         console.log("Owner is %s", owner);
 
-        // The BSC testnet chain id
+        // The BSC testnet chain id (this is an XBridge ID, not a zilBridge one).
         uint bscChainId = 97;
         // Zilliqa chain id
         uint zilliqaChainId = 33101;
 
         address bscERC20 = 0x43b1e04b72Aca6aA54c49f540Ef8ea3970d2A541;
         address zilliqaBridgedERC20 = address(0x00839901f1e39De75301667C6bBbF7fB556Ea2510E);
-
 
         address bscBridgedZRC2FromZilliqa = 0x190b6601E1D9bAF0c9413b08C27C5cBEa275D55F;
         address zilliqaZRC2 = address(0x00155F0f76b660290F2F00Bb5674b80eDC208bF2e6);
@@ -39,33 +39,33 @@ contract Deployment is Script {
 
         // OK. Now set up the routing ..
 
-        // When bscERC20 arrives at bscTokenManager, send it to zilliqaBridgedERC20 on zilliqaTokenManager
+        // When zilliqaBridgedERC20 arrives at zilliqaTokenManager, send it to bscERC20 on bscTokenManager 
         ITokenManagerStructs.RemoteToken memory sourceBscERC20GasStruct = ITokenManagerStructs.RemoteToken({
-         token: address(zilliqaBridgedERC20),
-         tokenManager: address(zilliqaTokenManager),
-         chainId: zilliqaChainId});
-        bscTokenManager.registerToken(address(bscERC20), sourceBscERC20GasStruct);
+         token: address(bscERC20),
+         tokenManager: address(bscTokenManager),
+         chainId: bscChainId});
+        zilliqaTokenManager.registerToken(address(zilliqaBridgedERC20), sourceBscERC20GasStruct);
 
-        // When bscBridgedZRC2FromZilliqa arrives at bscTokenManager, send it to zilliqaZRC2 on zilliqaTokenManager
+        // When zilliqaZRC2 arrives at zilliqaTokenManager, send it to bscBridgedZRC2FromZilliqa on bscTokenManager
         ITokenManagerStructs.RemoteToken memory bridgedZRC2 = ITokenManagerStructs.RemoteToken({
-         token: address(zilliqaZRC2),
-         tokenManager: address(zilliqaTokenManager),
-         chainId: zilliqaChainId});
-        bscTokenManager.registerToken(address(bscBridgedZRC2FromZilliqa), bridgedZRC2);
+         token: address(bscBridgedZRC2FromZilliqa),
+         tokenManager: address(bscTokenManager),
+         chainId: bscChainId});
+        zilliqaTokenManager.registerToken(address(zilliqaZRC2), bridgedZRC2);
 
-        // When bscBridgedZIL arrives at bscTokenManager, send it to 0 on zilliqaTokenManager
+        // When ZIL arrives at zilliqaTokenManager, send it to bscBridgedZIL on bscTokenManager
         ITokenManagerStructs.RemoteToken memory bridgedZIL = ITokenManagerStructs.RemoteToken({
-         token: address(0),
-         tokenManager: address(zilliqaTokenManager),
-         chainId: zilliqaChainId});
-        bscTokenManager.registerToken(address(bscBridgedZIL), bridgedZIL);
+         token: address(bscBridgedZIL),
+         tokenManager: address(bscTokenManager),
+         chainId: bscChainId});
+        zilliqaTokenManager.registerToken(address(0), bridgedZIL);
 
-        // When BNB arrives at bscTokenManager, sent it to zilliqaBridgedBNB on zilliqaTokenManager
+        // When zilliqaBridgedBNB arrives at zilliqaTokenManager, send it to 0 on bscTokenManager
         ITokenManagerStructs.RemoteToken memory bridgedBNB = ITokenManagerStructs.RemoteToken({
-         token: address(zilliqaBridgedBNB),
-         tokenManager: address(zilliqaTokenManager),
-         chainId: zilliqaChainId});
-        bscTokenManager.registerToken(address(0), bridgedBNB);
+         token: address(0),
+         tokenManager: address(bscTokenManager),
+         chainId: bscChainId});
+        zilliqaTokenManager.registerToken(address(zilliqaBridgedBNB), bridgedBNB);
   }
 }
 

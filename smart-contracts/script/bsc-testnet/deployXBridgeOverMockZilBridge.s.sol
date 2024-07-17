@@ -12,14 +12,15 @@ import { EthCrossChainData } from "contracts/zilbridge/1/ethCrossChainData.sol";
 import { EthExtendCrossChainManager } from "contracts/zilbridge/2/ccmExtendCrossChainManager.sol";
 import { LockProxyTokenManagerUpgradeableV3 } from "contracts/zilbridge/2/LockProxyTokenManagerUpgradeableV3.sol";
 import { LockProxyTokenManagerDeployer } from "test/zilbridge/TokenManagerDeployers/LockProxyTokenManagerDeployer.sol";
+import { TestnetConfig } from "script/testnet_config.s.sol";
 
 /*** @notice ZilBridgeFixture::installExtendCrossManager() */
-contract deployXBridgeOverMockZilBridge is Script {
+contract deployXBridgeOverMockZilBridge is Script, TestnetConfig {
   // Plug in the data from deployMockZilBridge here.
-  EthCrossChainData public constant eccd = EthCrossChainData(0xd677494525D25238Fedd554796eEa5733a9B86a2);
-  EthCrossChainManager public constant ccm = EthCrossChainManager(0xff4AC43f368676765de511F82B816EED9b9D780c);
-  EthCrossChainManagerProxy public constant ccmProxy = EthCrossChainManagerProxy(0xd7a76e4454c4f4F80E6409DF361B7926a1789d93);
-  LockProxy public constant lockProxy = LockProxy(payable(0x218D8aFE24bb2a0d1DE483Ff67aCADB45Ac8Bd2d));
+  EthCrossChainData public constant eccd = EthCrossChainData(bsc_EthCrossChainData);
+  EthCrossChainManager public constant ccm = EthCrossChainManager(bsc_ccm);
+  EthCrossChainManagerProxy public constant ccmProxy = EthCrossChainManagerProxy(bsc_ccmProxy);
+  LockProxy public constant lockProxy = LockProxy(payable(bsc_lockProxy));
   EthExtendCrossChainManager extendCCM;
 
   function run() external {

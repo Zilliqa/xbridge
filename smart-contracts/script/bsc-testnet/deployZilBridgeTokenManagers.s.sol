@@ -19,13 +19,14 @@ import {LockProxyTokenManagerDeployer} from "test/zilbridge/TokenManagerDeployer
 import {MintAndBurnTokenManagerDeployer} from "test/periphery/TokenManagerDeployers/MintAndBurnTokenManagerDeployer.sol";
 import {LockAndReleaseTokenManagerDeployer} from "test/periphery/TokenManagerDeployers/LockAndReleaseTokenManagerDeployer.sol";
 import { SwitcheoToken } from "contracts/zilbridge/token/tokens/SwitcheoTokenETH.sol";
+import { TestnetConfig } from "script/testnet_config.s.sol";
 
 /*** @notice Deploy token managers over the extension manager
  */
-contract deployZilBridgeTokenManagers is Script, LockProxyTokenManagerDeployer {
-  EthExtendCrossChainManager constant extendCCM = EthExtendCrossChainManager(0xF2eeaceDB35776412fe999D45aA81Ea674030aE1);
-  ChainGateway constant chainGateway = ChainGateway(0xa9A14C90e53EdCD89dFd201A3bF94D867f8098fE);
-  LockProxy constant lockProxy = LockProxy(payable(0x218D8aFE24bb2a0d1DE483Ff67aCADB45Ac8Bd2d));
+contract deployZilBridgeTokenManagers is Script, LockProxyTokenManagerDeployer, TestnetConfig {
+  EthExtendCrossChainManager constant extendCCM = EthExtendCrossChainManager(bsc_extendCCM);
+  ChainGateway constant chainGateway = ChainGateway(bsc_chainGateway);
+  LockProxy constant lockProxy = LockProxy(payable(bsc_lockProxy));
   // Different from 0.00025 so that we can tell the difference!
   uint fees = 0.00007 ether;
 

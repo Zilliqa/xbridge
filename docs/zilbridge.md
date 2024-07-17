@@ -86,7 +86,7 @@ Run with:
 forge script script/bsc-testnet/deployMockZilBridge.s.sol --rpc-url https://bsc-testnet.bnbchain.org --broadcast
 
 forge verify-contract <address> --rpc-url https://bsc-testnet.bnbchain.org --chain-id 97
-# now put the data from ^^ into deployXBridgeOverMockZilBridge.s.sol
+# Now fill in the data to test_config.s.sol
 forge script script/bsc-testnet/deployXBridgeOverMockZilBridge.s.sol --rpc-url https://bsc-testnet.bnbchain.org --broadcast
 forge verify-contract <address> --rpc-url https://bsc-testnet.bnbchain.org --chain-id 97
 # and again ..
@@ -122,6 +122,12 @@ export TOKEN_MANAGER=(whatever address the deployNativeTokenManagerV3 script abo
 npx hardhat run scripts/deploy.ts
 ```
 
+And now we can set up routing for the tokens we just deployed. This is "just" calls, so 
+
+```
+forge script script/bsc-testnet/setZilBridgeRouting.s.sol --rpc-url https://bsc-testnet.bnbchain.org --broadcast
+forge script script/zq-testnet/setZilBridgeRouting.s.sol --rpc-url https://bsc-testnet.bnbchain.org --broadcast
+```il
 
 
 
