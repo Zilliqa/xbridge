@@ -8,6 +8,7 @@ import seed_token from "../assets/seed_token.png";
 export enum TokenManagerType {
   MintAndBurn,
   LockAndRelease,
+  ZilBridge
 }
 
 export type Chains = "bsc-testnet" | "zq-testnet" | "bsc" | "zq";
@@ -28,9 +29,7 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
         zq: {
           chain: "zq",
           name: "Zilliqa",
-          tokenManagerAddress: "0x6D61eFb60C17979816E4cE12CD5D29054E755948",
           chainGatewayAddress: "0xbA44BC29371E19117DA666B729A1c6e1b35DDb40",
-          tokenManagerType: TokenManagerType.LockAndRelease,
           wagmiChain: zilliqa,
           tokens: [
             {
@@ -39,6 +38,8 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
               blockExplorer:
                 "https://otterscan.zilliqa.com/address/0x63B991C17010C21250a0eA58C6697F696a48cdf3",
               logo: hrse_token,
+              tokenManagerAddress: "0x6D61eFb60C17979816E4cE12CD5D29054E755948",
+              tokenManagerType: TokenManagerType.LockAndRelease,
             },
             {
               name: "FPS",
@@ -46,6 +47,8 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
               blockExplorer:
                 "https://otterscan.zilliqa.com/address/0x241c677D9969419800402521ae87C411897A029f",
               logo: fps_token,
+              tokenManagerAddress: "0x6D61eFb60C17979816E4cE12CD5D29054E755948",
+              tokenManagerType: TokenManagerType.LockAndRelease,
             },
           ],
           chainId: 32769,
@@ -60,9 +63,7 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
             bsc,
             `${import.meta.env.VITE_BSC_MAINNET_API}/${import.meta.env.VITE_BSC_MAINNET_KEY}`,
           ),
-          tokenManagerAddress: "0xF391A1Ee7b3ccad9a9451D2B7460Ac646F899f23",
           chainGatewayAddress: "0x3967f1a272Ed007e6B6471b942d655C802b42009",
-          tokenManagerType: TokenManagerType.MintAndBurn,
           tokens: [
             {
               name: "HRSE",
@@ -70,6 +71,8 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
               blockExplorer:
                 "https://bscscan.com/address/0x3BE0E5EDC58bd55AAa381Fa642688ADC289c05a3",
               logo: hrse_token,
+              tokenManagerAddress: "0xF391A1Ee7b3ccad9a9451D2B7460Ac646F899f23",
+              tokenManagerType: TokenManagerType.MintAndBurn,
             },
             {
               name: "FPS",
@@ -77,6 +80,8 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
               blockExplorer:
                 "https://bscscan.com/address/0x351dA1E7500aBA1d168b9435DCE73415718d212F",
               logo: fps_token,
+              tokenManagerAddress: "0xF391A1Ee7b3ccad9a9451D2B7460Ac646F899f23",
+              tokenManagerType: TokenManagerType.MintAndBurn,
             },
           ],
           chainId: 56,
@@ -89,8 +94,6 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
         "zq-testnet": {
           chain: "zq-testnet",
           name: "Zilliqa Testnet",
-          tokenManagerAddress: "0x1509988c41f02014aA59d455c6a0D67b5b50f129",
-          tokenManagerType: TokenManagerType.LockAndRelease,
           chainGatewayAddress: "0x7370e69565BB2313C4dA12F9062C282513919230",
           wagmiChain: zilliqaTestnet,
           tokens: [
@@ -100,6 +103,8 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
               blockExplorer:
                 "https://otterscan.testnet.zilliqa.com/address/0x8618d39a8276D931603c6Bc7306af6A53aD2F1F3",
               logo: fps_token,
+              tokenManagerAddress: "0xF391A1Ee7b3ccad9a9451D2B7460Ac646F899f23",
+              tokenManagerType: TokenManagerType.LockAndRelease,
             },
             {
               name: "TSLM Z",
@@ -107,6 +112,8 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
               blockExplorer:
                 "https://otterscan.testnet.zilliqa.com/address/0xE90Dd366D627aCc5feBEC126211191901A69f8a0",
               logo: test_hrse_token,
+              tokenManagerAddress: "0xF391A1Ee7b3ccad9a9451D2B7460Ac646F899f23",
+              tokenManagerType: TokenManagerType.LockAndRelease,
             },
             {
               name: "SEED",
@@ -128,8 +135,6 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
             bscTestnet,
             `${import.meta.env.VITE_BSC_TESTNET_API}/${import.meta.env.VITE_BSC_TESTNET_KEY}`,
           ),
-          tokenManagerAddress: "0xA6D73210AF20a59832F264fbD991D2abf28401d0",
-          tokenManagerType: TokenManagerType.MintAndBurn,
           chainGatewayAddress: "0xa9A14C90e53EdCD89dFd201A3bF94D867f8098fE",
           tokens: [
             {
@@ -138,6 +143,8 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
               blockExplorer:
                 "https://testnet.bscscan.com/address/0x5190e8b4Bbe8C3a732BAdB600b57fD42ACbB9F4B",
               logo: fps_token,
+              tokenManagerAddress: "0xA6D73210AF20a59832F264fbD991D2abf28401d0",
+              tokenManagerType: TokenManagerType.MintAndBurn,
             },
             {
               name: "TSLM B",
@@ -145,6 +152,17 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
               blockExplorer:
                 "https://testnet.bscscan.com/address/0x7Cc585de659E8938Aa7d5709BeaF34bD108bdC03",
               logo: test_hrse_token,
+              tokenManagerAddress: "0xA6D73210AF20a59832F264fbD991D2abf28401d0",
+              tokenManagerType: TokenManagerType.MintAndBurn,
+            },
+            {
+              name: "zbBSCERC20",
+              address: "0x59A23d0957B63BC6c5682F211eE731513EECBB98",
+              blockExplorer:
+              "https://testnet.bscscan.com/address/0x59A23d0957B63BC6c5682F211eE731513EECBB98",
+              logo: fps_token,
+              tokenManagerAddress: "0x36b8A9cd6Bf9bfA5984093005cf81CAfB1Bf06F7",
+              tokenManagerType: TokenManagerType.ZilBridge
             },
             {
               name: "SEED",
@@ -165,9 +183,7 @@ export type ChainConfig = {
   name: string;
   chain: Chains;
   wagmiChain: Chain;
-  tokenManagerAddress: `0x${string}`;
   chainGatewayAddress: `0x${string}`;
-  tokenManagerType: TokenManagerType;
   tokens: TokenConfig[];
   chainId: number;
   isZilliqa: boolean;
@@ -180,4 +196,6 @@ export type TokenConfig = {
   address: `0x${string}`;
   blockExplorer: string;
   logo?: string;
+  tokenManagerAddress: `0x${string}`;
+  tokenManagerType: TokenManagerType;
 };

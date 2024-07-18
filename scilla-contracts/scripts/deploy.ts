@@ -15,14 +15,14 @@ async function main() {
   }
   let tokenContract = await hre.deployScillaContract("SwitcheoTokenZRC2",  "Bridged-XTST", "XTST",
                                                account.address, 18, 0, zqTestnetTokenManager);
-  console.log(`TokenContract: ${tokenContract.address}`);
+  console.log(`zq_bridged_erc20 = ${tokenContract.address}`);
 
   let nativeBridgedContract = await hre.deployScillaContract("SwitcheoTokenZRC2",  "Bridged-BNB", "eBNB",
                                                account.address, 18, 0, zqTestnetTokenManager);
-  console.log(`NativeBridgedContract: ${nativeBridgedContract.address}`);
+  console.log(`zq_bridged_bnb = ${nativeBridgedContract.address}`);
 
   let local = await hre.deployScillaContract("FungibleToken", account.address, "zq_native Test", "ZTST", 18, 1_000_000);
-  console.log(`Locally generated fungible token: ${local.address}`);
+  console.log(`zq_zrc2 = ${local.address}`);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

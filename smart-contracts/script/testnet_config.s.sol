@@ -20,8 +20,14 @@ abstract contract TestnetConfig {
   address public constant zq_chainGateway = 0x7370e69565BB2313C4dA12F9062C282513919230;
   address public constant zq_lockAndReleaseOrNativeTokenManager = 0xBe90AB2cd65E207F097bEF733F8D239A59698b8A;
 
+  // Scilla contracts.
   address public constant zq_bridged_erc20 = address(0x00839901f1e39De75301667C6bBbF7fB556Ea2510E);
   address public constant zq_bridged_bnb = address(0x0006852e68A3c24917cfA4C2dbDaE4B308C69aDA5e);
   address public constant zq_zrc2 = address(0x00155F0f76b660290F2F00Bb5674b80eDC208bF2e6);
+
+  // ERC20 fascias for Scilla contracts
+  address public constant zq_bridged_erc20_evm = address(0x0);
+  address public constant zq_bridged_bnb_evm = address(0x0);
+  address public constant zq_zrc2_evm = address(0x0);
 
 }

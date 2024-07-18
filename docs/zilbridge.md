@@ -122,6 +122,12 @@ export TOKEN_MANAGER=(whatever address the deployNativeTokenManagerV3 script abo
 npx hardhat run scripts/deploy.ts
 ```
 
+And now we ship an ERC20 proxy for our ZRC2 and switcheo tokens.
+
+```
+
+```
+
 And now we can set up routing for the tokens we just deployed. This is "just" calls, so 
 
 ```

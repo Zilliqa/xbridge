@@ -86,14 +86,14 @@ function App() {
   const { data: fees } = useContractRead({
     abi: tokenManagerAbi,
     functionName: "getFees",
-    address: fromChainConfig.tokenManagerAddress,
-    enabled: !!fromChainConfig.tokenManagerAddress,
+    address: token.tokenManagerAddress,
+    enabled: !!token.tokenManagerAddress,
   });
   const { data: paused } = useContractRead({
     abi: tokenManagerAbi,
     functionName: "paused",
-    address: fromChainConfig.tokenManagerAddress,
-    enabled: !!fromChainConfig.tokenManagerAddress,
+    address: token.tokenManagerAddress,
+    enabled: !!token.tokenManagerAddress,
   });
   const { data: balance } = useContractRead({
     abi: erc20ABI,
@@ -108,9 +108,9 @@ function App() {
     abi: erc20ABI,
     functionName: "allowance",
     address: token.address,
-    args: [account!, fromChainConfig.tokenManagerAddress],
+    args: [account!, token.tokenManagerAddress],
     enabled:
-      !!account && !!token.address && !!fromChainConfig.tokenManagerAddress,
+      !!account && !!token.address && !!token.tokenManagerAddress,
     watch: true,
   });
 
@@ -124,7 +124,7 @@ function App() {
       : false;
 
   const { config: transferConfig } = usePrepareContractWrite({
-    address: fromChainConfig.tokenManagerAddress,
+    address: token.tokenManagerAddress,
     abi: tokenManagerAbi,
     args: recipientEth && [
       token.address,
@@ -154,7 +154,7 @@ function App() {
   } = useContractWrite({
     mode: "prepared",
     request: {
-      address: fromChainConfig.tokenManagerAddress,
+      address: token.tokenManagerAddress,
       chain: fromChainConfig.wagmiChain,
       account: account!,
       abi: tokenManagerAbi,
@@ -176,7 +176,7 @@ function App() {
     address: token.address,
     abi: erc20ABI,
     args: [
-      fromChainConfig.tokenManagerAddress,
+      token.tokenManagerAddress,
       amount ? parseUnits(amount, decimals ?? 0) : 0n,
     ],
     functionName: "approve",
@@ -264,7 +264,7 @@ function App() {
               toast.update(id, {
                 render: (
                   <div>
-                    Bridge txn complete, funds arrived to {toChainConfig.name}{" "}
+                    Bridge txn complete, funds arrived on {toChainConfig.name}{" "}
                     chain. View on{" "}
                     <a
                       className="link text-ellipsis w-10"
