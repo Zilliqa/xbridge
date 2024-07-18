@@ -9,8 +9,19 @@ abstract contract TestnetConfig {
   address public constant bsc_lockProxy = 0x5B51e17837fc8F01b3C3ef29E882981e9414C159;
   // Can't be verified.
   address public constant bsc_extendCCM = 0x32ffa2C4c670A0fd0e94CF6457ac2FA7Ef007d55;
+  address public constant bsc_zilBridgeTokenManager = 0x36b8A9cd6Bf9bfA5984093005cf81CAfB1Bf06F7;
 
+  address public constant bsc_erc20 = 0x59A23d0957B63BC6c5682F211eE731513EECBB98;
+  address public constant bsc_bridgedzrc2 = 0x0d27244Ec509e7cbBde6d5c82DdD0e9F34873bF2;
+  address public constant bsc_bridgedzil = 0x33aC4ae9c514213a51D529114523Dd168c1d3b73;
 
   /// Deployed by XBridge testnet deployment
   address public constant bsc_chainGateway = 0xa9A14C90e53EdCD89dFd201A3bF94D867f8098fE;
+  address public constant zq_chainGateway = 0x7370e69565BB2313C4dA12F9062C282513919230;
+  address public constant zq_lockAndReleaseOrNativeTokenManager = 0xBe90AB2cd65E207F097bEF733F8D239A59698b8A;
+
+  address public constant zq_bridged_erc20 = address(0x00839901f1e39De75301667C6bBbF7fB556Ea2510E);
+  address public constant zq_bridged_bnb = address(0x0006852e68A3c24917cfA4C2dbDaE4B308C69aDA5e);
+  address public constant zq_zrc2 = address(0x00155F0f76b660290F2F00Bb5674b80eDC208bF2e6);
+
 }

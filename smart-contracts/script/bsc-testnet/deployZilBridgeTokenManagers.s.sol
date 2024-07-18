@@ -42,7 +42,7 @@ contract deployZilBridgeTokenManagers is Script, LockProxyTokenManagerDeployer, 
     // token managers are apparently not pausable, so ..
     vm.startBroadcast(validatorPrivateKey);
     LockProxyTokenManagerUpgradeableV3 tokenManager = deployLatestLockProxyTokenManager(address(chainGateway), address(lockProxy), fees);
-    console.log("zilbridge tokenmanager: %s", address(tokenManager));
+    console.log("bsc_zilBridgeTokenManager: %s", address(tokenManager));
     vm.stopBroadcast();
     vm.startBroadcast(bridgePrivateKey);
     extendCCM.forciblyAddExtension(address(lockProxy), address(tokenManager), COUNTERPART_CHAIN_ID);

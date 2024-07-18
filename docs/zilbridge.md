@@ -93,7 +93,7 @@ forge verify-contract <address> --rpc-url https://bsc-testnet.bnbchain.org --cha
 forge script scripts/bsc-testnet/deployZilBridgeTokenManagers.s.sol --rpc-url https://bsc-testnet.bnbchain.org --broadcast
 forge verify-contract <address> --rpc-url https://bsc-testnet.bnbchain.org --chain-id 97
 # and again..
-forge script script/bsc-testnet/deployZilBridgeTokens.s.sol --tc Deployment --rpc-url https://bsc-testnet.bnbchain.org --broadcast
+forge script script/bsc-testnet/deployZilBridgeTokens.s.sol --rpc-url https://bsc-testnet.bnbchain.org --broadcast
 forge verify-contract <address> --rpc-url https://bsc-testnet.bnbchain.org --chain-id 97
 
 ```
@@ -126,8 +126,8 @@ And now we can set up routing for the tokens we just deployed. This is "just" ca
 
 ```
 forge script script/bsc-testnet/setZilBridgeRouting.s.sol --rpc-url https://bsc-testnet.bnbchain.org --broadcast
-forge script script/zq-testnet/setZilBridgeRouting.s.sol --rpc-url https://bsc-testnet.bnbchain.org --broadcast
-```il
+forge script script/zq-testnet/setZilBridgeRouting.s.sol --rpc-url https://dev-api.zilliqa.com --broadcast --legacy
+```
 
 
 
