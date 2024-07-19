@@ -14,6 +14,9 @@ contract MyERC20 is ERC20 {
 constructor(string memory name_, string memory symbol_, uint256 supply_) ERC20(name_, symbol_) {
     _mint(address(msg.sender), supply_);
   }
+ function decimals() public view virtual returns (uint8) {
+   return 3;
+ }
 }
 
 
@@ -27,18 +30,18 @@ contract Deployment is Script, TestnetConfig {
         // The other half of these tokens are deployed via the scilla-contracts/scripts/deploy.ts script.
 
         // Native on BSC
-        uint256 totalSupply = 1_000_000;
+        uint256 totalSupply = 1_000_000_000;
         string memory tokenName = "XTST_token";
         string memory tokenSymbol = "XTST";
         MyERC20 theContract = new MyERC20(tokenName, tokenSymbol, totalSupply);
-        console.log("ERC20: %s", address(theContract));
+        console.log("bsc_erc20: %s", address(theContract));
 
         // Native on Zilliqa
-        SwitcheoToken bridgedFromZilliqa = new SwitcheoToken(bsc_lockProxy, "Bridged ZTST", "eZTST", 18);
-        console.log("BridgedZRC2FromZilliqa: %s", address(bridgedFromZilliqa));
+        SwitcheoToken bridgedFromZilliqa = new SwitcheoToken(bsc_lockProxy, "Bridged ZTST", "eZTST", 3);
+        console.log("bsc_bridgedzrc2: %s", address(bridgedFromZilliqa));
 
         // Bridged ZIL
         SwitcheoToken bridgedZIL = new SwitcheoToken(bsc_lockProxy, "eZIL", "Bridged ZIL", 12);
-        console.log("BridgedZIL: %s", address(bridgedZIL));
+        console.log("bsc_bridgedzil: %s", address(bridgedZIL));
   }
 }

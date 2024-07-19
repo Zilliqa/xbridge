@@ -8,7 +8,7 @@ export default function Navbar() {
         <img src={zilliqa} className="h-16" alt="Zilliqa Logo" />
       </div>
       <div className="flex-none">
-        <ConnectButton />
+      <ConnectButton />
       </div>
     </div>
   );

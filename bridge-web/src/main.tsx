@@ -21,7 +21,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         })}
         showRecentTransactions
         chains={chains}
-      >
+    >
         <App />
         <ToastContainer
           position="bottom-right"

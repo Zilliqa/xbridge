@@ -9,6 +9,14 @@ npm install
 npm run dev
 ```
 
+## Running locally
+
+```sh
+mitmweb --mode reverse:https://data-seed-prebsc-1-s1.binance.org:8545/ --no-web-open-browser --listen-port 5556 --web-port 5557
+export VITE_BSC_TESTNET_API=http://localhost:5556
+export VITE_BSC_TESTNET_KEY=
+```
+
 ## How to modify the encoded configuration
 
 The steps to modify secrets are:

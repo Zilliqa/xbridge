@@ -33,14 +33,14 @@ contract Deployment is Script, TestnetConfig {
 
         // When bscERC20 arrives at bscTokenManager, send it to zilliqaBridgedERC20 on zilliqaTokenManager
         ITokenManagerStructs.RemoteToken memory sourceBscERC20GasStruct = ITokenManagerStructs.RemoteToken({
-         token: address(zq_bridged_erc20),
+         token: address(zq_bridged_erc20_evm),
          tokenManager: address(zilliqaTokenManager),
          chainId: zilliqaChainId});
         bscTokenManager.registerToken(address(bsc_erc20), sourceBscERC20GasStruct);
 
         // When bscBridgedZRC2FromZilliqa arrives at bscTokenManager, send it to zilliqaZRC2 on zilliqaTokenManager
         ITokenManagerStructs.RemoteToken memory bridgedZRC2 = ITokenManagerStructs.RemoteToken({
-         token: address(zq_zrc2),
+         token: address(zq_zrc2_evm),
          tokenManager: address(zilliqaTokenManager),
          chainId: zilliqaChainId});
         bscTokenManager.registerToken(address(bsc_bridgedzrc2), bridgedZRC2);
@@ -54,7 +54,7 @@ contract Deployment is Script, TestnetConfig {
 
         // When BNB arrives at bscTokenManager, sent it to zilliqaBridgedBNB on zilliqaTokenManager
         ITokenManagerStructs.RemoteToken memory bridgedBNB = ITokenManagerStructs.RemoteToken({
-         token: address(zq_bridged_bnb),
+         token: address(zq_bridged_bnb_evm),
          tokenManager: address(zilliqaTokenManager),
          chainId: zilliqaChainId});
         bscTokenManager.registerToken(address(0), bridgedBNB);

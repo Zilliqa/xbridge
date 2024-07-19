@@ -118,13 +118,14 @@ Now we can deploy a couple of tokens to the Zilliqa testnet. We'll deploy two Sw
 ```
 cd scilla-contracts
 pnpm i
-export TOKEN_MANAGER=(whatever address the deployNativeTokenManagerV3 script above gave you)
+export TOKEN_MANAGER_ADDRESS=(whatever address the deployNativeTokenManagerV3 script above gave you)
 npx hardhat run scripts/deploy.ts
 ```
 
 And now we ship an ERC20 proxy for our ZRC2 and switcheo tokens.
 
 ```
+forge script script/zq-testnet/deployZRC2ERC20.s.sol --rpc-url https://dev-api.zilliqa.com --broadcast --legacy
 
 ```
 

@@ -9,6 +9,7 @@ import { Chains, TokenConfig, chainConfigs } from "./config/config";
 import {
   erc20ABI,
   useAccount,
+  useBalance,
   useContractRead,
   useContractWrite,
   useNetwork,
@@ -77,13 +78,13 @@ function App() {
     }
   }, [chain, fromChain, fromChainConfig.wagmiChain, toChainConfig]);
 
-  const { data: decimals } = useContractRead({
+  const { data: contractDecimals } = useContractRead({
     abi: erc20ABI,
     functionName: "decimals",
     address: token.address,
     enabled: !!token.address,
   });
-  const { data: fees } = useContractRead({
+    const { data: fees } = useContractRead({
     abi: tokenManagerAbi,
     functionName: "getFees",
     address: token.tokenManagerAddress,
@@ -95,7 +96,15 @@ function App() {
     address: token.tokenManagerAddress,
     enabled: !!token.tokenManagerAddress,
   });
-  const { data: balance } = useContractRead({
+
+  /* TODO: Make this less horrific */
+  const isNative = (token.address === "0x");
+  const { data: nativeBalance } = useBalance({
+    address: account,
+      enabled: !!account && !!token.address,
+    watch: true});
+
+  let { data: contractBalance } = useContractRead({
     abi: erc20ABI,
     functionName: "balanceOf",
     args: account ? [account!] : undefined,
@@ -104,36 +113,51 @@ function App() {
     watch: true,
   });
 
+  contractBalance = contractBalance ?? BigInt(0);
+//  for (let key in nativeBalance) {
+//    alert(key);
+//  }
+
+  const balance = isNative ? nativeBalance.value : contractBalance;
+  const decimals = isNative ? nativeBalance.decimals : contractDecimals;
+  // We always say that native token transfers have enough allowance.
   const { data: allowance } = useContractRead({
     abi: erc20ABI,
     functionName: "allowance",
     address: token.address,
     args: [account!, token.tokenManagerAddress],
     enabled:
-      !!account && !!token.address && !!token.tokenManagerAddress,
+    !isNative && !!account && !!token.address && !!token.tokenManagerAddress,
     watch: true,
   });
-
   const hasEnoughAllowance =
-    decimals && isAmountNonZero
-      ? (allowance ?? 0n) >= parseUnits(amount!, decimals)
-      : true;
+    isNative || (decimals && isAmountNonZero
+    ? (allowance ?? 0n) >= parseUnits(amount!, decimals)
+      : true);
+
   const hasEnoughBalance =
     decimals && balance && amount
       ? parseUnits(amount, decimals) <= balance
       : false;
 
+  let transferAmount = fees ?? BigInt(0);
+  if (isNative) {
+    const toTransfer = amount ? parseUnits(amount, decimals ?? 0) : 0n;
+    transferAmount = transferAmount + (BigInt(toTransfer));
+  }
+
+  let addressForTokenManager = isNative ?  "0x0000000000000000000000000000000000000000" : token.address;
   const { config: transferConfig } = usePrepareContractWrite({
     address: token.tokenManagerAddress,
     abi: tokenManagerAbi,
     args: recipientEth && [
-      token.address,
+      addressForTokenManager,
       BigInt(toChainConfig.chainId),
       recipientEth,
       amount ? parseUnits(amount, decimals ?? 0) : 0n,
     ],
     functionName: "transfer",
-    value: fees ?? 0n,
+    value: transferAmount ?? 0n,
     enabled: !!(
       hasEnoughAllowance &&
       toChainConfig &&
@@ -304,7 +328,7 @@ function App() {
             toast.update(id, {
               render: (
                 <div>
-                  Bridge txn complete, funds arrived to {toChainConfig.name}{" "}
+                  Bridge txn complete, funds arrived at {toChainConfig.name}{" "}
                   chain. View on{" "}
                   <a
                     className="link text-ellipsis w-10"
@@ -399,13 +423,11 @@ function App() {
     <>
       <div className="h-screen flex items-center justify-center">
         <Navbar />
-
         <div className="card min-h-96 bg-neutral shadow-xl">
           <div className="card-body">
             <div className="card-title">
               <p className="text-4xl text-center tracking-wide">BRIDGE</p>
-            </div>
-
+      </div>
             <div className="form-control">
               <div className="label">
                 <span>Networks</span>
@@ -423,7 +445,7 @@ function App() {
                   <ul
                     tabIndex={0}
                     className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-full"
-                  >
+      >
                     {Object.values(chainConfigs)
                       .filter(
                         (config) => config.chain !== fromChainConfig.chain,
@@ -488,7 +510,7 @@ function App() {
               <div className="label">
                 <span>Token</span>
                 <span className="label-text-alt self-end">
-                  Balance:{" "}
+      Balance:{" "}
                   {balance !== undefined && decimals
                     ? formatUnits(balance, decimals)
                     : null}
@@ -616,15 +638,19 @@ function App() {
                 </div>
               </>
             )}
-            <div className="card-actions mt-auto pt-4">
+      <div className="card-actions mt-auto pt-4">
               {!hasEnoughAllowance && hasEnoughBalance ? (
                 <button
                   className="btn w-5/6 mx-10 btn-outline"
                   disabled={showLoadingButton}
                   onClick={async () => {
                     if (approve) {
+                      alert('approving');
                       const tx = await approve();
+                      alert('done');
+                      console.log('....');
                       console.log(tx.hash);
+                      console.log('....');
                       setLatestTxn(["approve", tx.hash]);
                     }
                   }}

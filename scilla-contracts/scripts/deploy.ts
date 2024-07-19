@@ -14,14 +14,14 @@ async function main() {
     throw new Error("No TOKEN_MANAGER_ADDRESS");
   }
   let tokenContract = await hre.deployScillaContract("SwitcheoTokenZRC2",  "Bridged-XTST", "XTST",
-                                               account.address, 18, 0, zqTestnetTokenManager);
+                                               account.address, 3, 0, zqTestnetTokenManager);
   console.log(`zq_bridged_erc20 = ${tokenContract.address}`);
 
   let nativeBridgedContract = await hre.deployScillaContract("SwitcheoTokenZRC2",  "Bridged-BNB", "eBNB",
                                                account.address, 18, 0, zqTestnetTokenManager);
   console.log(`zq_bridged_bnb = ${nativeBridgedContract.address}`);
 
-  let local = await hre.deployScillaContract("FungibleToken", account.address, "zq_native Test", "ZTST", 18, 1_000_000);
+  let local = await hre.deployScillaContract("FungibleToken", account.address, "zq_native Test", "ZTST", 3, 1_000_000_000);
   console.log(`zq_zrc2 = ${local.address}`);
 }
 

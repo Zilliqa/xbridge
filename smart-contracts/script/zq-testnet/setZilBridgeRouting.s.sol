@@ -36,14 +36,14 @@ contract Deployment is Script, TestnetConfig {
          token: address(bsc_erc20),
          tokenManager: address(bscTokenManager),
          chainId: bscChainId});
-        zilliqaTokenManager.registerToken(address(zq_bridged_erc20), sourceBscERC20GasStruct);
+        zilliqaTokenManager.registerToken(address(zq_bridged_erc20_evm), sourceBscERC20GasStruct);
 
         // When zilliqaZRC2 arrives at zilliqaTokenManager, send it to bscBridgedZRC2FromZilliqa on bscTokenManager
         ITokenManagerStructs.RemoteToken memory bridgedZRC2 = ITokenManagerStructs.RemoteToken({
          token: address(bsc_bridgedzrc2),
          tokenManager: address(bscTokenManager),
          chainId: bscChainId});
-        zilliqaTokenManager.registerToken(address(zq_zrc2), bridgedZRC2);
+        zilliqaTokenManager.registerToken(address(zq_zrc2_evm), bridgedZRC2);
 
         // When ZIL arrives at zilliqaTokenManager, send it to bscBridgedZIL on bscTokenManager
         ITokenManagerStructs.RemoteToken memory bridgedZIL = ITokenManagerStructs.RemoteToken({
@@ -57,7 +57,7 @@ contract Deployment is Script, TestnetConfig {
          token: address(0),
          tokenManager: address(bscTokenManager),
          chainId: bscChainId});
-        zilliqaTokenManager.registerToken(address(zq_bridged_bnb), bridgedBNB);
+        zilliqaTokenManager.registerToken(address(zq_bridged_bnb_evm), bridgedBNB);
   }
 }
 
