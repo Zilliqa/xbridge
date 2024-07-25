@@ -23,6 +23,10 @@ function configureCustomRpcUrl(chain: Chain, rpcUrl: string): Chain {
   };
 }
 
+export const config: SiteConfig = {
+  addTokensToMetamask: true
+}
+
 export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
   import.meta.env.MODE === "production"
     ? {
@@ -98,22 +102,22 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
           wagmiChain: zilliqaTestnet,
           tokens: [
             {
-              name: "TST",
-              address: "0x8618d39a8276D931603c6Bc7306af6A53aD2F1F3",
+              name: "xTST",
+              address: "0x8CB156B19947283F9700e5891ed6d013454b0570",
               blockExplorer:
-                "https://otterscan.testnet.zilliqa.com/address/0x8618d39a8276D931603c6Bc7306af6A53aD2F1F3",
+                "https://otterscan.testnet.zilliqa.com/address/0x8CB156B19947283F9700e5891ed6d013454b0570",
               logo: fps_token,
-              tokenManagerAddress: "0xF391A1Ee7b3ccad9a9451D2B7460Ac646F899f23",
-              tokenManagerType: TokenManagerType.LockAndRelease,
+              tokenManagerAddress: "0xBe90AB2cd65E207F097bEF733F8D239A59698b8A",
+              tokenManagerType: TokenManagerType.ZilBridge,
             },
             {
-              name: "TSLM Z",
-              address: "0xE90Dd366D627aCc5feBEC126211191901A69f8a0",
+              name: "ZBTST",
+              address: "0x2A82a13A118c0f9E203a9C006742024354D0f4Ca",
               blockExplorer:
-                "https://otterscan.testnet.zilliqa.com/address/0xE90Dd366D627aCc5feBEC126211191901A69f8a0",
+              "https://otterscan.testnet.zilliqa.com/address/0x2A82a13A118c0f9E203a9C006742024354D0f4Ca",
               logo: test_hrse_token,
-              tokenManagerAddress: "0xF391A1Ee7b3ccad9a9451D2B7460Ac646F899f23",
-              tokenManagerType: TokenManagerType.LockAndRelease,
+              tokenManagerAddress: "0x86c4405C2e3914490BC043A19dA5373D6d187aa7",
+              tokenManagerType: TokenManagerType.ZilBridge,
             },
             {
               name: "SEED",
@@ -139,30 +143,21 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
           tokens: [
             {
               name: "TST",
-              address: "0x5190e8b4Bbe8C3a732BAdB600b57fD42ACbB9F4B",
+              address: "0xa1a47FA4D26137329BB08aC2E5F9a6C32D180fE3",
               blockExplorer:
-                "https://testnet.bscscan.com/address/0x5190e8b4Bbe8C3a732BAdB600b57fD42ACbB9F4B",
-              logo: fps_token,
-              tokenManagerAddress: "0xA6D73210AF20a59832F264fbD991D2abf28401d0",
-              tokenManagerType: TokenManagerType.MintAndBurn,
-            },
-            {
-              name: "TSLM B",
-              address: "0x7Cc585de659E8938Aa7d5709BeaF34bD108bdC03",
-              blockExplorer:
-                "https://testnet.bscscan.com/address/0x7Cc585de659E8938Aa7d5709BeaF34bD108bdC03",
-              logo: test_hrse_token,
-              tokenManagerAddress: "0xA6D73210AF20a59832F264fbD991D2abf28401d0",
-              tokenManagerType: TokenManagerType.MintAndBurn,
-            },
-            {
-              name: "zbBSCERC20",
-              address: "0x59A23d0957B63BC6c5682F211eE731513EECBB98",
-              blockExplorer:
-              "https://testnet.bscscan.com/address/0x59A23d0957B63BC6c5682F211eE731513EECBB98",
+              "https://testnet.bscscan.com/address/0xa1a47FA4D26137329BB08aC2E5F9a6C32D180fE3",
               logo: fps_token,
               tokenManagerAddress: "0x36b8A9cd6Bf9bfA5984093005cf81CAfB1Bf06F7",
-              tokenManagerType: TokenManagerType.ZilBridge
+              tokenManagerType: TokenManagerType.MintAndBurn,
+            },
+            {
+              name: "eZBTST",
+              address: "0x201eDd0521cF4B577399F789e22E05405D500163",
+              blockExplorer:
+              "https://testnet.bscscan.com/address/0x201eDd0521cF4B577399F789e22E05405D500163",
+              logo: test_hrse_token,
+              tokenManagerAddress: "0x36b8A9cd6Bf9bfA5984093005cf81CAfB1Bf06F7",
+              tokenManagerType: TokenManagerType.MintAndBurn,
             },
             {
               name: "SEED",
@@ -199,3 +194,7 @@ export type TokenConfig = {
   tokenManagerAddress: `0x${string}`;
   tokenManagerType: TokenManagerType;
 };
+
+export type SiteConfig = {
+  addTokensToMetamask: boolean
+}

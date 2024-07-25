@@ -9,13 +9,14 @@ import "script/testnet_config.s.sol";
 
 contract Deployment is Script, TestnetConfig {
   function run() external {
-        uint256 validatorPrivateKey = vm.envUint("PRIVATE_KEY_TESTNET");
+        uint256 validatorPrivateKey = vm.envUint("PRIVATE_KEY_ZILBRIDGE");
         address validator = vm.addr(validatorPrivateKey);
+        address recipient = vm.envAddress("ZILBRIDGE_TEST_ADDRESS");
+        uint256 amount = vm.envUint("ZILBRIDGE_TEST_AMOUNT");
         console.log("Owner is %s", validator);
         vm.startBroadcast(validatorPrivateKey);
-        ERC20 theContract = ERC20(bsc_erc20);
-        // rrw's address for testing.
-        theContract.transfer( 0x8E5b86101456ec8bCd213C07c47E8B2006C93608 , 500_000);
+        ERC20 theContract = ERC20(zq_zrc2_evm);
+        theContract.transfer( recipient, amount );
   }
 
 }

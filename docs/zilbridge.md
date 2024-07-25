@@ -80,6 +80,14 @@ scripts, since this is how the addresses of previous contracts are
 baked in (sorry!).
 
 Set `PRIVATE_KEY_TESTNET` to the validator privkey, and `PRIVATE_KEY_ZILBRIDGE` to the zilbridge owner privkey.
+
+After each step (each script run) in the below, you will need to:
+
+ * Verify the contracts you just deployed.
+ * Update the `testnet_config.s.sol` file with the addresses of the contracts you just deployed.
+
+In most cases, the script will give you the name of the `testnet_config.s.sol` constant to update.
+
 Run with:
 
 ```sh
@@ -91,9 +99,6 @@ forge script script/bsc-testnet/deployXBridgeOverMockZilBridge.s.sol --rpc-url h
 forge verify-contract <address> --rpc-url https://bsc-testnet.bnbchain.org --chain-id 97
 # and again ..
 forge script scripts/bsc-testnet/deployZilBridgeTokenManagers.s.sol --rpc-url https://bsc-testnet.bnbchain.org --broadcast
-forge verify-contract <address> --rpc-url https://bsc-testnet.bnbchain.org --chain-id 97
-# and again..
-forge script script/bsc-testnet/deployZilBridgeTokens.s.sol --rpc-url https://bsc-testnet.bnbchain.org --broadcast
 forge verify-contract <address> --rpc-url https://bsc-testnet.bnbchain.org --chain-id 97
 
 ```
@@ -113,32 +118,111 @@ forge script script/zq-testnet/deployNativeTokenManagerV3.s.sol --rpc-url https:
 forge script script/zq-testnet/setChainGatewayOnTokenManager.s.sol --rpc-url https://dev-api.zilliqa.com --broadcast --legacy
 ```
 
-Now we can deploy a couple of tokens to the Zilliqa testnet. We'll deploy two Switcheo ZRC-2s - one for testing BSC testnet ERC20s and one for BSC testnet native tokens, and an ordinary ZRC-2. 
+Now we can deploy some contracts to the BNB testnet:
+
+```
+forge script script/bsc-testnet/deployZilBridgeTokens.s.sol --tc Deployment --rpc-url https://bsc-testnet.bnbchain.org --broadcast
+forge verify-contract <address> --rpc-url https://bsc-testnet.bnbchain.org --chain-id 97
+```
+
+And the corresponding tokens to the Zilliqa testnet:
 
 ```
 cd scilla-contracts
 pnpm i
-export TOKEN_MANAGER_ADDRESS=(whatever address the deployNativeTokenManagerV3 script above gave you)
-npx hardhat run scripts/deploy.ts
+export TOKEN_MANAGER_ADDRESS=(value of zq_lockAndReleaseOrNativeTokenManager)
+# NOW EDIT scripts/deploy.ts for the address of the Zilliqa testnet token manager.
+npx hardhat run scripts/deploy.ts --network zq_testnet
 ```
 
 And now we ship an ERC20 proxy for our ZRC2 and switcheo tokens.
 
 ```
 forge script script/zq-testnet/deployZRC2ERC20.s.sol --rpc-url https://dev-api.zilliqa.com --broadcast --legacy
-
 ```
 
-And now we can set up routing for the tokens we just deployed. This is "just" calls, so 
+And now we can set up routing for the tokens we just deployed. This is "just" calls, so
 
 ```
 forge script script/bsc-testnet/setZilBridgeRouting.s.sol --rpc-url https://bsc-testnet.bnbchain.org --broadcast
 forge script script/zq-testnet/setZilBridgeRouting.s.sol --rpc-url https://dev-api.zilliqa.com --broadcast --legacy
 ```
 
+### Testing
+
+The CI/CD'd testnet relayer will work for you.
+
+You can run the web interface with the instructions in [bridge-web/README.md](bridge-web/README.md).
+
+To avoid running into CORS problems, you will need to:
+
+```sh
+export VITE_BSC_TESTNET_API=http://localhost:6128
+export VITE_BSC_TESTNET_KEY=""
+```
+
+Remember to omit the trailing '/' from `VITE_BSC_TESTNET_API` or you will get CORS errors.
+
+And run: 
+
+```
+mitmweb --mode reverse:https://data-seed-prebsc-1-s1.binance.org:8545/ --no-web-open-browser --listen-port 6128 --web-port 6001
+```
+
+Put the token and token manager addresses from `testnet_config.s.sol` into `bridge-web/src/config/config.ts` .
+
+You can transfer yourself some tokens by setting
+`ZILBRIDGE_TEST_ADDRESS` and `ZILBRIDGE_TEST_AMOUNT` and running:
+
+```
+forge script script/bsc-testnet/zilBridgeTransferERC20.s.sol --rpc-url https://bsc-testnet.bnbchain.org --broadcast
+```
+
+And, setting `ZILBRIDGE_TOKEN_ADDRESS` to the Scilla token address:
+
+```
+npx hardhat run scripts/transfer.ts
+```
+
+The ZQ transfer needs to be ZRC-2 because the initial funds holder is
+the Zilliqa account associated with `PRIVATE_KEY_ZILBRIDGE` and we
+therefore need a Scilla transition to transfer them.
+
+Test cases:
+
+| Number | Token | From | To  | Remarks |
+|--------|-------|------|-----|---------|
+| IT001  | xTST  | BSC  | ZQ  |         |
+| IT002  | xTST  | ZQ   | BSC |         |
+| IT003  | ZBTST | ZQ 
 
 
 ## TODO
 
  - Move the test code for zilbrige into `test/`
  - Refactor out `SafeMath` etc. - we could have only one copy of these (probably!)
+
+
+### Debugging from-zilliqa transfers
+
+Since Zilliqa testnet doesn't support tracing, this is done by bisection. You only need one way, since we only care about the sending txn working.
+
+ * Redeploy the token manager on ZQ:
+
+```
+forge script script/zq-testnet/deployNativeTokenManagerV3.s.sol --rpc-url https://dev-api.zilliqa.com --broadcast --legacy
+forge verify-contract <address> --rpc-url https://dev-api.zilliqa.com --chain-id 33101
+```
+
+ * Now write some routing - it actually doesn't matter that the routing gets messed up, because we're only testing Zilliqa ZRC2 out, and the native ZRC2 doesn't
+  care what the token manager is:
+
+```
+forge script script/zq-testnet/setZilBridgeRouting.s.sol --rpc-url https://dev-api.zilliqa.com --broadcast --legacy
+```
+
+ * Run `transfer.ts` to transfer some `ZBTEST` to the wallet you want to test.
+ * List the new token manager in `config.ts` in `bridge-web`
+
+Now you can send a `transfer()` request and see if it works .. you'll need to redeploy the test token contracts and rerun routing setup (from both sides!) to fix the bridge when the bugs are sorted.
+

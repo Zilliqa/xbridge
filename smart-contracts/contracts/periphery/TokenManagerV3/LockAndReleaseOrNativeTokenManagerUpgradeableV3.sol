@@ -3,6 +3,7 @@ pragma solidity ^0.8.20;
 
 import {TokenManagerUpgradeableV3, ITokenManager} from "contracts/periphery/TokenManagerV3/TokenManagerUpgradeableV3.sol";
 import {IERC20} from "contracts/periphery/LockAndReleaseTokenManagerUpgradeable.sol";
+import {IRelayer, CallMetadata} from "contracts/core/Relayer.sol";
 
 interface ILockAndReleaseOrNativeTokenManager {
     event Locked(address indexed token, address indexed from, uint amount);
@@ -55,5 +56,20 @@ contract LockAndReleaseOrNativeTokenManagerUpgradeableV3 is
         IERC20(token).transfer(recipient, amount);
       }
       emit Released(token, recipient, amount);
+    }
+
+    function xtransfer(address token, uint remoteChainId, address remoteRecipient, uint amount) public {
+        RemoteToken memory remoteToken = getRemoteTokens(token, remoteChainId);
+
+        _handleTransfer(token, msg.sender, amount);
+
+        IRelayer(getGateway()).relayWithMetadata(
+            remoteToken.chainId,
+            remoteToken.tokenManager,
+            this.accept.selector,
+            abi.encode(AcceptArgs(remoteToken.token, remoteRecipient, amount)),
+            1_000_000
+        );
+
     }
 }

@@ -14,8 +14,8 @@ const config: HardhatUserConfig = {
       zilliqaNetwork: true,
     },
     zq_testnet_mitmweb: {
-      url: "http://localhost:5556",
-      websocketUrl: "ws://localhost:5556",
+      url: "http://localhost:6200",
+      websocketUrl: "ws://localhost:6200",
       accounts: [
         process.env.PRIVATE_KEY_ZILBRIDGE ],
       chainId: 33101,

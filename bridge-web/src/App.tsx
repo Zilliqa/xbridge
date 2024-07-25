@@ -5,7 +5,7 @@ import {
   faChevronDown,
 } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
-import { Chains, TokenConfig, chainConfigs } from "./config/config";
+import { Chains, TokenConfig, chainConfigs, siteConfig } from "./config/config";
 import {
   erc20ABI,
   useAccount,
@@ -25,6 +25,7 @@ import Navbar from "./components/Navbar";
 import useRecipientInput from "./hooks/useRecipientInput";
 import RecipientInput from "./components/RecipientInput";
 import { chainGatewayAbi } from "./abi/ChainGateway";
+import AddToken from "./components/AddToken";
 
 type TxnType = "approve" | "bridge";
 
@@ -84,6 +85,12 @@ function App() {
     address: token.address,
     enabled: !!token.address,
   });
+  const { data : contractSymbol } = useContractRead({
+    abi: erc20ABI,
+    functionName: "symbol",
+    address: token.address,
+    enabled: !!token.address,
+  });
     const { data: fees } = useContractRead({
     abi: tokenManagerAbi,
     functionName: "getFees",
@@ -99,7 +106,7 @@ function App() {
 
   /* TODO: Make this less horrific */
   const isNative = (token.address === "0x");
-  const { data: nativeBalance } = useBalance({
+  const { data: nativeBalanceData } = useBalance({
     address: account,
       enabled: !!account && !!token.address,
     watch: true});
@@ -114,12 +121,9 @@ function App() {
   });
 
   contractBalance = contractBalance ?? BigInt(0);
-//  for (let key in nativeBalance) {
-//    alert(key);
-//  }
-
-  const balance = isNative ? nativeBalance.value : contractBalance;
-  const decimals = isNative ? nativeBalance.decimals : contractDecimals;
+  let nativeBalance = (nativeBalanceData && nativeBalanceData.value) ? nativeBalanceData.value : BigInt(0);
+  const balance = isNative ? nativeBalance : contractBalance;
+  const decimals = isNative ? nativeBalanceData.decimals : contractDecimals;
   // We always say that native token transfers have enough allowance.
   const { data: allowance } = useContractRead({
     abi: erc20ABI,
@@ -130,7 +134,7 @@ function App() {
     !isNative && !!account && !!token.address && !!token.tokenManagerAddress,
     watch: true,
   });
-  const hasEnoughAllowance =
+    const hasEnoughAllowance =
     isNative || (decimals && isAmountNonZero
     ? (allowance ?? 0n) >= parseUnits(amount!, decimals)
       : true);
@@ -179,16 +183,16 @@ function App() {
     mode: "prepared",
     request: {
       address: token.tokenManagerAddress,
-      chain: fromChainConfig.wagmiChain,
-      account: account!,
       abi: tokenManagerAbi,
-      value: fees ?? 0n,
       args: [
-        token.address,
+        addressForTokenManager,
         BigInt(toChainConfig.chainId),
         recipientEth!,
         amount ? parseUnits(amount, decimals ?? 0) : 0n,
       ],
+      chain: fromChainConfig.wagmiChain,
+      account: account!,
+      value: transferAmount ?? 0n,
       functionName: "transfer",
       gas: 600_000n,
       type: "legacy",
@@ -419,6 +423,11 @@ function App() {
     selectedToken(token);
   };
 
+  let addTokenComponent = <div />;
+  if (!isNative) {
+    addTokenComponent = <AddToken info={ token } decimals={ decimals } symbol={contractSymbol}  />
+  }
+
   return (
     <>
       <div className="h-screen flex items-center justify-center">
@@ -514,6 +523,9 @@ function App() {
                   {balance !== undefined && decimals
                     ? formatUnits(balance, decimals)
                     : null}
+    {" "}
+    Allowance:{" "} {allowance !== undefined && decimals
+      ? formatUnits(allowance, decimals) : null }
                 </span>
               </div>
               <div className="join">
@@ -534,7 +546,7 @@ function App() {
                           icon={faChevronDown}
                           color="white"
                           className="ml-auto"
-                        />
+      />
                       </button>
 
                       <ul
@@ -565,13 +577,14 @@ function App() {
                   <button
                     onClick={() => window.open(token.blockExplorer, "_blank")}
                     className="btn join-item"
-                  >
+      >
                     <FontAwesomeIcon
                       icon={faArrowUpRightFromSquare}
                       color="white"
                       className="ml-auto"
                     />
-                  </button>
+      </button>
+      { addTokenComponent }
                 </div>
                 <input
                   className={`input join-item input-bordered w-full text-right ${

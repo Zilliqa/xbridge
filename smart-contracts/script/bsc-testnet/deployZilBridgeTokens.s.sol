@@ -14,7 +14,7 @@ contract MyERC20 is ERC20 {
 constructor(string memory name_, string memory symbol_, uint256 supply_) ERC20(name_, symbol_) {
     _mint(address(msg.sender), supply_);
   }
- function decimals() public view virtual returns (uint8) {
+ function decimals() public pure override returns (uint8) {
    return 3;
  }
 }
