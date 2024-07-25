@@ -21,6 +21,7 @@ import {
 import { formatEther, formatUnits, getAbiItem, parseUnits } from "viem";
 import { Id, toast } from "react-toastify";
 import { tokenManagerAbi } from "./abi/TokenManager";
+import { ZilTokenManagerAbi } from "./abi/ZilTokenManager";
 import Navbar from "./components/Navbar";
 import useRecipientInput from "./hooks/useRecipientInput";
 import RecipientInput from "./components/RecipientInput";
@@ -183,7 +184,7 @@ function App() {
     mode: "prepared",
     request: {
       address: token.tokenManagerAddress,
-      abi: tokenManagerAbi,
+      abi: ZilTokenManagerAbi,
       args: [
         addressForTokenManager,
         BigInt(toChainConfig.chainId),
@@ -194,7 +195,7 @@ function App() {
       account: account!,
       value: transferAmount ?? 0n,
       functionName: "transfer",
-      gas: 600_000n,
+      gas: 6_000_000n,
       type: "legacy",
     },
   });

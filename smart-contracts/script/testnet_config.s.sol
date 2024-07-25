@@ -15,7 +15,8 @@ abstract contract TestnetConfig {
   /// Deployed by XBridge testnet deployment
   address public constant bsc_chainGateway = 0xa9A14C90e53EdCD89dFd201A3bF94D867f8098fE;
   address public constant zq_chainGateway = 0x7370e69565BB2313C4dA12F9062C282513919230;
-  address public constant zq_lockAndReleaseOrNativeTokenManager = 0x86c4405C2e3914490BC043A19dA5373D6d187aa7;
+  address public constant zq_lockAndReleaseTokenManager =  0x1509988c41f02014aA59d455c6a0D67b5b50f129;
+  address public constant zq_lockAndReleaseOrNativeTokenManager = 0x5e502559ab6e99949b0eE72d4ebCe05f31E026dC;
 
   // BSC zilbridge tokens.
   address public constant bsc_erc20 =  0xa1a47FA4D26137329BB08aC2E5F9a6C32D180fE3;
@@ -23,12 +24,12 @@ abstract contract TestnetConfig {
   address public constant bsc_bridgedzil = 0xfA3cF3BBa7f0fA1E8FECeE532512434A7d275d41;
 
   // Scilla contracts.
-  address public constant zq_bridged_erc20 = address(0x00c8704B0196FE5a15E33B2a328Dae1d4275Bb5A6F);
-  address public constant zq_bridged_bnb = address(0x0067e5375cd3B2738A591050589452B8189dc470eF);
-  address public constant zq_zrc2 = address(0x00d5eD1175af29C49237BB82663Ea2e7Fa2eaa9EDb);
+  address public constant zq_bridged_erc20 = address(0x00f281D459E5FdA75f12eEca2D33E3aa03f6456994);
+  address public constant zq_bridged_bnb = address(0x00976050703b8067ab25a56A22e24e404222B07a33);
+  address public constant zq_zrc2 = address(0x00f1c2F2dadC13d03939c52d7A763dAF188f431AD6);
 
   // ERC20 fascias for Scilla contracts
-  address public constant zq_bridged_erc20_evm = address(0x8CB156B19947283F9700e5891ed6d013454b0570);
-  address public constant zq_bridged_bnb_evm = address(0xe99aCb73ca54766013A253d040021f392302159E);
-  address public constant zq_zrc2_evm = address(0x2A82a13A118c0f9E203a9C006742024354D0f4Ca);
+  address public constant zq_bridged_erc20_evm = address(0x2aDFdb71103b8587F609b262b3E7E6161D3f6B1f);
+  address public constant zq_bridged_bnb_evm = address(0x9707F1C6A02c5D8682669d309c046c5Af6c3130e);
+  address public constant zq_zrc2_evm = address(0xCf795CF70C29588fb6885CB8982EAE04354e1BB4);
 }

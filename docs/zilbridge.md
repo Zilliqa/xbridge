@@ -211,6 +211,8 @@ Since Zilliqa testnet doesn't support tracing, this is done by bisection. You on
 
 ```
 forge script script/zq-testnet/deployNativeTokenManagerV3.s.sol --rpc-url https://dev-api.zilliqa.com --broadcast --legacy
+<edit config>
+forge script script/zq-testnet/setChainGatewayOnTokenManager.s.sol --rpc-url https://dev-api.zilliqa.com --broadcast --legacy
 forge verify-contract <address> --rpc-url https://dev-api.zilliqa.com --chain-id 33101
 ```
 

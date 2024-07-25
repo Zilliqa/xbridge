@@ -58,11 +58,18 @@ contract LockAndReleaseOrNativeTokenManagerUpgradeableV3 is
       emit Released(token, recipient, amount);
     }
 
-    function xtransfer(address token, uint remoteChainId, address remoteRecipient, uint amount) public {
+    function xtransfer(
+        address token,
+        uint remoteChainId,
+        address remoteRecipient,
+        uint amount
+    ) external payable virtual whenNotPaused checkFees {
         RemoteToken memory remoteToken = getRemoteTokens(token, remoteChainId);
 
-        _handleTransfer(token, msg.sender, amount);
+        // Works here.
+        _handleTransfer(token, _msgSender(), amount);
 
+        // Works here.
         IRelayer(getGateway()).relayWithMetadata(
             remoteToken.chainId,
             remoteToken.tokenManager,
@@ -70,6 +77,6 @@ contract LockAndReleaseOrNativeTokenManagerUpgradeableV3 is
             abi.encode(AcceptArgs(remoteToken.token, remoteRecipient, amount)),
             1_000_000
         );
-
+        // Fails here.
     }
 }
