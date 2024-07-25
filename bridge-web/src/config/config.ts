@@ -3,6 +3,7 @@ import { bsc, bscTestnet, zilliqa, zilliqaTestnet } from "viem/chains";
 import fps_token from "../assets/fps_token.png";
 import test_hrse_token from "../assets/salami_hrse.webp";
 import hrse_token from "../assets/hrse_token.webp";
+import seed_token from "../assets/seed_token.png";
 
 export enum TokenManagerType {
   MintAndBurn,
@@ -107,6 +108,13 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
                 "https://otterscan.testnet.zilliqa.com/address/0xE90Dd366D627aCc5feBEC126211191901A69f8a0",
               logo: test_hrse_token,
             },
+            {
+              name: "SEED",
+              address: "0x28e8d39Fc68eaA27c88797Eb7D324b4B97D5b844",
+              blockExplorer:
+                "https://otterscan.testnet.zilliqa.com/address/0x28e8d39Fc68eaA27c88797Eb7D324b4B97D5b844",
+              logo: seed_token,
+            },
           ],
           chainId: 33101,
           isZilliqa: true,
@@ -137,6 +145,13 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
               blockExplorer:
                 "https://testnet.bscscan.com/address/0x7Cc585de659E8938Aa7d5709BeaF34bD108bdC03",
               logo: test_hrse_token,
+            },
+            {
+              name: "SEED",
+              address: "0x486722DbA2F76aeFb9977641D11f3aC3e5bA281f",
+              blockExplorer:
+                "https://testnet.bscscan.com/address/0x486722DbA2F76aeFb9977641D11f3aC3e5bA281f",
+              logo: seed_token,
             },
           ],
           chainId: 97,
