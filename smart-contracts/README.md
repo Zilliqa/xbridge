@@ -293,6 +293,8 @@ Deterministic deployer not available, simple CREATE was used
 
 ### Zilliqa Testnet
 
+See `script/configTestnet.s.sol` for up to date information.
+
 - `ChainId`: 33101
 - `ChainGateway`: `0x7370e69565BB2313C4dA12F9062C282513919230`
 - `ValidatorManager`: `0x782F8afa1bA3137a214D49840688215a8A379fA8`
@@ -302,44 +304,15 @@ Deterministic deployer not available, simple CREATE was used
 
 Deterministic deployer not available, simple CREATE was used
 
-Zilliqa testnet tokens:
-
-```
-TokenContract: 0x839901f1e39De75301667C6bBbF7fB556Ea2510E
-NativeBridgedContract: 0x06852e68A3c24917cfA4C2dbDaE4B308C69aDA5e
-Locally generated fungible token: 0x155F0f76b660290F2F00Bb5674b80eDC208bF2e6
-```
-
-
 ### BSC Testnet
+
+See `script/configTestnet.s.sol` for up to date information.
 
 - `ChainId`: 97
 - `ChainGateway`: `0xa9A14C90e53EdCD89dFd201A3bF94D867f8098fE`
 - `ValidatorManager`: `0xCc1CB36d981ae2907cea385F615e879434D20B1C`
 - `MintAndBurnTokenManager`: `0xA6D73210AF20a59832F264fbD991D2abf28401d0`
 - `BridgedTestToken`: `0x5190e8b4Bbe8C3a732BAdB600b57fD42ACbB9F4B`
-
-ZilBridge ChainID 6, bridging to ZilBridge chain ID 18.
-
-```
-  Owner: 0x29543Acb166B6044B67979B858e743701C9bd1df
-  ECCD: 0xd77a160f954AbF8154f80EA53378ACa55bcAD548
-  CCM: 0x0EDb0830a5a28E60Bc28BCce3f4e1EC23b5E5783 (can't apparently be verified)
-  CCMProxy: 0xE19738378c75cf2b3D704472bE81d7e036F4Ee04
-  LockProxy: 0x5B51e17837fc8F01b3C3ef29E882981e9414C159
-  extendCCM: 0x32ffa2C4c670A0fd0e94CF6457ac2FA7Ef007d55
-  zilbridge tokenmanager: 0x36b8A9cd6Bf9bfA5984093005cf81CAfB1Bf06F7
-
-```
-
-ZilBridge test tokens:
-
-```
-ERC20: 0x59A23d0957B63BC6c5682F211eE731513EECBB98
-  BridgedZRC2FromZilliqa: 0x0d27244Ec509e7cbBde6d5c82DdD0e9F34873bF2
-  BridgedZIL: 0x33aC4ae9c514213a51D529114523Dd168c1d3b73
-```
-
 
 
 

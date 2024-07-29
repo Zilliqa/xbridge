@@ -228,3 +228,22 @@ forge script script/zq-testnet/setZilBridgeRouting.s.sol --rpc-url https://dev-a
 
 Now you can send a `transfer()` request and see if it works .. you'll need to redeploy the test token contracts and rerun routing setup (from both sides!) to fix the bridge when the bugs are sorted.
 
+When you're done, you'll need to redeploy the rest of the tokens, so that the bridged ZRC2 has the right token manager set, then set up routing again:
+
+```
+cd scilla-contracts
+pnpm i
+export TOKEN_MANAGER_ADDRESS=(value of zq_lockAndReleaseOrNativeTokenManager)
+# NOW EDIT scripts/deploy.ts for the address of the Zilliqa testnet token manager.
+npx hardhat run scripts/deploy.ts --network zq_testnet
+```
+
+Remember to update `testnet_config.sol`, then:
+
+```
+forge script script/zq-testnet/deployZRC2ERC20.s.sol --rpc-url https://dev-api.zilliqa.com --broadcast --legacy
+forge script script/bsc-testnet/setZilBridgeRouting.s.sol --rpc-url https://bsc-testnet.bnbchain.org --broadcast
+forge script script/zq-testnet/setZilBridgeRouting.s.sol --rpc-url https://dev-api.zilliqa.com --broadcast --legacy
+```
+
+And you can now get testing again.

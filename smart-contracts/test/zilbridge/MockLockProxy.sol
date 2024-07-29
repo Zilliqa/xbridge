@@ -197,7 +197,7 @@ contract MockLockProxy {
     }
 
 
-  function testing_transferIn(
+  function mock_transferIn(
       address _assetHash,
       uint256 _amount,
       uint256 _callAmount
@@ -225,7 +225,7 @@ contract MockLockProxy {
     }
 
     /// @dev transfers funds from this contract to the _toAddress
-    function testing_transferOut(
+    function mock_transferOut(
         address _toAddress,
         address _assetHash,
         uint256 _amount

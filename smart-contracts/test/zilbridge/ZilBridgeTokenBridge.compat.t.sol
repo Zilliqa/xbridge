@@ -169,10 +169,10 @@ contract ZilBridgeTokenBridgeCompatibilityTest is ZilBridgeTokenBridgeCompatibil
     // Transfer it synthetically to the lock proxy at the source end.
     startHoax(sourceUser);
     nativelyOnSource.approve(address(lockProxy), amount);
-    lockProxy.testing_transferIn(address(nativelyOnSource), amount, amount);
+    lockProxy.mock_transferIn(address(nativelyOnSource), amount, amount);
 
     // Use the mock lock proxy to simulate transferring that to the remote user.
-    mockRemoteLockProxy.testing_transferOut(remoteUser, address(remoteNativelyOnSource), amount);
+    mockRemoteLockProxy.mock_transferOut(remoteUser, address(remoteNativelyOnSource), amount);
 
     assertEq(remoteNativelyOnSource.balanceOf(remoteUser), amount);
     assertEq(nativelyOnSource.balanceOf(sourceUser), 0);
@@ -192,8 +192,8 @@ contract ZilBridgeTokenBridgeCompatibilityTest is ZilBridgeTokenBridgeCompatibil
 
     uint256 sourceBalance = sourceUser.balance;
     uint256 lockBalance = address(lockProxy).balance;
-    lockProxy.testing_transferIn{value: originalTokenSupply}(address(0), amount, amount);
-    mockRemoteLockProxy.testing_transferOut(remoteUser, address(remoteBridgedGasToken), amount);
+    lockProxy.mock_transferIn{value: originalTokenSupply}(address(0), amount, amount);
+    mockRemoteLockProxy.mock_transferOut(remoteUser, address(remoteBridgedGasToken), amount);
 
     assertEq(remoteBridgedGasToken.balanceOf(remoteUser), amount);
     assertLe(sourceUser.balance, sourceBalance - amount);
@@ -210,8 +210,8 @@ contract ZilBridgeTokenBridgeCompatibilityTest is ZilBridgeTokenBridgeCompatibil
     // Transfer it synthetically to the lock proxy at the remote
     startHoax(remoteUser);
     nativelyOnRemote.approve(address(mockRemoteLockProxy), amount);
-    mockRemoteLockProxy.testing_transferIn(address(nativelyOnRemote), amount, amount);
-    lockProxy.testing_transferOut(sourceUser, address(sourceNativelyOnRemote), amount);
+    mockRemoteLockProxy.mock_transferIn(address(nativelyOnRemote), amount, amount);
+    lockProxy.mock_transferOut(sourceUser, address(sourceNativelyOnRemote), amount);
 
     assertEq(sourceNativelyOnRemote.balanceOf(sourceUser), amount);
     assertEq(nativelyOnRemote.balanceOf(remoteUser), 0);
