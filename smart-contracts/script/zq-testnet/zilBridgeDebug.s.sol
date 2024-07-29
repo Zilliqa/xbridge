@@ -5,7 +5,7 @@ import {LockAndReleaseTokenManagerUpgradeable} from "contracts/periphery/LockAnd
 import {LockAndReleaseOrNativeTokenManagerUpgradeableV3} from "contracts/periphery/TokenManagerV3/LockAndReleaseOrNativeTokenManagerUpgradeableV3.sol";
 import {ITokenManagerStructs, ITokenManager} from "contracts/periphery/TokenManagerUpgradeable.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import {ZRC2ProxyForZRC2} from "test/zilbridge/zrc2erc20/ZRC2ProxyForZRC2.sol";
+import {ZRC2ProxyForZRC2} from "test/zilbridge/tokens/zrc2erc20/ZRC2ProxyForZRC2.sol";
 import "forge-std/console.sol";
 import { TestnetConfig } from "script/testnetConfig.s.sol";
 import {IERC20} from "contracts/periphery/LockAndReleaseTokenManagerUpgradeable.sol";

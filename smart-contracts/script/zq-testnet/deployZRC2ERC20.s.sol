@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 import {Script} from "forge-std/Script.sol";
 import {LockAndReleaseTokenManagerUpgradeable} from "contracts/periphery/LockAndReleaseTokenManagerUpgradeable.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
-import { ZRC2ProxyForZRC2 } from "test/zilbridge/zrc2erc20/ZRC2ProxyForZRC2.sol";
+import { ZRC2ProxyForZRC2 } from "test/zilbridge/tokens/zrc2erc20/ZRC2ProxyForZRC2.sol";
 import { TestnetConfig } from "script/testnetConfig.s.sol";
 import "forge-std/console.sol";
 

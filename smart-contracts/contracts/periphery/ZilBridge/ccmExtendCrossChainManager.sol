@@ -2,7 +2,7 @@
 pragma solidity 0.8.20;
 
 import { Utils, ZeroCopySink, IEthCrossChainManager, IUpgradableECCM,
-      UpgradableECCM, IEthCrossChainData, EthCrossChainManager } from "contracts/zilbridge/1/ccmCrossChainManager.sol";
+      UpgradableECCM, IEthCrossChainData, EthCrossChainManager } from "contracts/periphery/ZilBridge/ccmCrossChainManager.sol";
 import { Ownable } from "lib/openzeppelin-contracts/contracts/access/Ownable.sol";
 
 

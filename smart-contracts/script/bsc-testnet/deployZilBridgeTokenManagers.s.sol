@@ -5,20 +5,20 @@ import {Script} from "forge-std/Script.sol";
 import "forge-std/console.sol";
 import {Tester} from "test/Tester.sol";
 import {TestToken} from "test/Helpers.sol";
-import { LockProxy } from "contracts/zilbridge/1/lockProxy.sol";
+import { LockProxy } from "test/zilbridge/infrastructure/lockProxy.sol";
 import { TestingLockProxy } from "test/zilbridge/TestingLockProxy.sol";
-import { EthCrossChainManagerProxy } from "contracts/zilbridge/1/ccmProxy.sol";
-import { EthCrossChainManager } from "contracts/zilbridge/1/ccmCrossChainManager.sol";
-import { EthCrossChainData } from "contracts/zilbridge/1/ethCrossChainData.sol";
-import { EthExtendCrossChainManager } from "contracts/zilbridge/2/ccmExtendCrossChainManager.sol";
+import { EthCrossChainManagerProxy } from "test/zilbridge/infrastructure/ccmProxy.sol";
+import { EthCrossChainManager } from "test/zilbridge/infrastructure/ccmCrossChainManager.sol";
+import { EthCrossChainData } from "test/zilbridge/infrastructure/ethCrossChainData.sol";
+import { EthExtendCrossChainManager } from "contracts/periphery/ZilBridge/ccmExtendCrossChainManager.sol";
 import { ChainGateway } from "contracts/core/ChainGateway.sol";
-import { LockProxyTokenManagerUpgradeableV3 } from "contracts/zilbridge/2/LockProxyTokenManagerUpgradeableV3.sol";
+import { LockProxyTokenManagerUpgradeableV3 } from "contracts/periphery/TokenManagerV3/LockProxyTokenManagerUpgradeableV3.sol";
 import { LockProxyTokenManagerDeployer } from "test/zilbridge/TokenManagerDeployers/LockProxyTokenManagerDeployer.sol";
-import {LockProxyTokenManagerUpgradeableV3} from "contracts/zilbridge/2/LockProxyTokenManagerUpgradeableV3.sol";
+import {LockProxyTokenManagerUpgradeableV3} from "contracts/periphery/TokenManagerV3/LockProxyTokenManagerUpgradeableV3.sol";
 import {LockProxyTokenManagerDeployer} from "test/zilbridge/TokenManagerDeployers/LockProxyTokenManagerDeployer.sol";
 import {MintAndBurnTokenManagerDeployer} from "test/periphery/TokenManagerDeployers/MintAndBurnTokenManagerDeployer.sol";
 import {LockAndReleaseTokenManagerDeployer} from "test/periphery/TokenManagerDeployers/LockAndReleaseTokenManagerDeployer.sol";
-import { SwitcheoToken } from "contracts/zilbridge/token/tokens/SwitcheoTokenETH.sol";
+import { SwitcheoToken } from "test/zilbridge/tokens/switcheo/tokens/SwitcheoTokenETH.sol";
 import { TestnetConfig } from "script/testnetConfig.s.sol";
 
 /*** @notice Deploy token managers over the extension manager

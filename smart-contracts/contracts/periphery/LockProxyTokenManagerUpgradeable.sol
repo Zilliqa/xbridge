@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 import {TokenManagerUpgradeable, ITokenManager} from "contracts/periphery/TokenManagerUpgradeable.sol";
-import { ILockProxyTokenManagerStorage, LockProxyTokenManagerStorage } from "contracts/zilbridge/2/LockProxyTokenManagerStorage.sol";
+import { ILockProxyTokenManagerStorage, LockProxyTokenManagerStorage } from "contracts/periphery/LockProxyTokenManagerStorage.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 interface ILockProxyTokenManager is ITokenManager {

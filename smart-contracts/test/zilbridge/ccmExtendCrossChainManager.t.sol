@@ -4,11 +4,11 @@ pragma solidity 0.8.20;
 import "forge-std/console.sol";
 import {Tester} from "test/Tester.sol";
 import {TestToken} from "test/Helpers.sol";
-import { EthExtendCrossChainManager } from "contracts/zilbridge/2/ccmExtendCrossChainManager.sol";
-import { Utils, ZeroCopySink, ZeroCopySource } from "contracts/zilbridge/1/ccmCrossChainManager.sol";
-import { EthCrossChainData } from "contracts/zilbridge/1/ethCrossChainData.sol";
+import { EthExtendCrossChainManager } from "contracts/periphery/ZilBridge/ccmExtendCrossChainManager.sol";
+import { Utils, ZeroCopySink, ZeroCopySource } from "test/zilbridge/infrastructure/ccmCrossChainManager.sol";
+import { EthCrossChainData } from "test/zilbridge/infrastructure/ethCrossChainData.sol";
 import { ZilBridgeFixture } from "./DeployZilBridge.t.sol";
-import { LockProxyTokenManagerUpgradeableV3 } from "contracts/zilbridge/2/LockProxyTokenManagerUpgradeableV3.sol";
+import { LockProxyTokenManagerUpgradeableV3 } from "contracts/periphery/TokenManagerV3/LockProxyTokenManagerUpgradeableV3.sol";
 
 contract ccmExtendCrossChainManager is ZilBridgeFixture {
 
