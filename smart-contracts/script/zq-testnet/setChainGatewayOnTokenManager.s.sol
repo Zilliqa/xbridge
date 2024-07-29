@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 import {Script} from "forge-std/Script.sol";
 import {LockAndReleaseTokenManagerUpgradeableV3} from "contracts/periphery/TokenManagerV3/LockAndReleaseTokenManagerUpgradeableV3.sol";
 import {LockAndReleaseOrNativeTokenManagerUpgradeableV3} from "contracts/periphery/TokenManagerV3/LockAndReleaseOrNativeTokenManagerUpgradeableV3.sol";
-import "script/testnet_config.s.sol";
+import { TestnetConfig } from "script/testnetConfig.s.sol";
 import "forge-std/console.sol";
 
 contract Update is TestnetConfig,Script {
@@ -13,9 +13,9 @@ contract Update is TestnetConfig,Script {
         address owner = vm.addr(deployerPrivateKey);
         console.log("Deployer is %s", owner);
 
-        address newChainGateway = zq_chainGateway;
-        address tokenManagerAddress = zq_lockAndReleaseTokenManager;
-        address nativeTokenManagerAddress = zq_lockAndReleaseOrNativeTokenManager;
+        address newChainGateway = zqChainGatewayAddress;
+        address tokenManagerAddress = zqLockAndReleaseTokenManagerAddress;
+        address nativeTokenManagerAddress = zqLockAndReleaseOrNativeTokenManagerAddress;
 
         vm.startBroadcast(deployerPrivateKey);
         LockAndReleaseTokenManagerUpgradeableV3 tokenManager = LockAndReleaseTokenManagerUpgradeableV3(

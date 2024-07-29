@@ -7,7 +7,7 @@ import {ITokenManagerStructs, ITokenManager} from "contracts/periphery/TokenMana
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {ZRC2ProxyForZRC2} from "test/zilbridge/zrc2erc20/ZRC2ProxyForZRC2.sol";
 import "forge-std/console.sol";
-import "script/testnet_config.s.sol";
+import { TestnetConfig } from "script/testnetConfig.s.sol";
 import {IERC20} from "contracts/periphery/LockAndReleaseTokenManagerUpgradeable.sol";
 import {IRelayer, Relayer, CallMetadata} from "contracts/core/Relayer.sol";
 import {Registry} from "contracts/core/Registry.sol";
@@ -21,22 +21,21 @@ contract Deployment is Script, TestnetConfig {
         address validator = vm.addr(validatorPrivateKey);
         vm.startBroadcast(validatorPrivateKey);
         console.log("I am %s", validator);
-        console.log("Token manager at %s", zq_lockAndReleaseOrNativeTokenManager);
-        console.log("ChainGateway %s", zq_chainGateway);
-        ChainGateway chainGateway = ChainGateway(zq_chainGateway);
-        chainGateway.register(address(zq_lockAndReleaseOrNativeTokenManager));
+        console.log("Token manager at %s", zqLockAndReleaseOrNativeTokenManagerAddress);
+        console.log("ChainGateway %s", zqChainGatewayAddress);
+        ChainGateway chainGateway = ChainGateway(zqChainGatewayAddress);
+        chainGateway.register(address(zqLockAndReleaseOrNativeTokenManagerAddress));
         console.log(
             "TokenManager %s registered to %s ChainGateway: %s",
-            address(zq_lockAndReleaseOrNativeTokenManager),
+            address(zqLockAndReleaseOrNativeTokenManagerAddress),
             address(chainGateway),
-            chainGateway.registered(address(zq_lockAndReleaseOrNativeTokenManager))
+            chainGateway.registered(address(zqLockAndReleaseOrNativeTokenManagerAddress))
         );
 
-        Relayer relayer = Relayer(zq_chainGateway);
-        bool amRegistered = relayer.registered(zq_lockAndReleaseOrNativeTokenManager);
+        Relayer relayer = Relayer(zqChainGatewayAddress);
+        bool amRegistered = relayer.registered(zqLockAndReleaseOrNativeTokenManagerAddress);
         console.log("isRegistered %d", amRegistered);
-        
-        
+
         /* ITokenManager tok = ITokenManager(zq_lockAndReleaseOrNativeTokenManager); */
         /* ITokenManagerStructs.RemoteToken memory rt = tok.getRemoteTokens(0x2A82a13A118c0f9E203a9C006742024354D0f4Ca, 97); */
         /* console.log("remoteToken = %s / mgr %s / chainId %d", rt.token, rt.tokenManager, rt.chainId); */

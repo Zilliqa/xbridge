@@ -10,7 +10,7 @@ import { SwitcheoToken } from "contracts/zilbridge/token/tokens/SwitcheoTokenETH
 import "forge-std/console.sol";
 import {LockProxyTokenManagerUpgradeable} from "contracts/zilbridge/2/LockProxyTokenManagerUpgradeable.sol";
 import {LockAndReleaseTokenManagerUpgradeable} from "contracts/periphery/LockAndReleaseTokenManagerUpgradeable.sol";
-import { TestnetConfig } from "script/testnet_config.s.sol";
+import { TestnetConfig } from "script/testnetConfig.s.sol";
 
 /*** @title Route tokens from the BSC side.
  */
@@ -20,43 +20,38 @@ contract Deployment is Script, TestnetConfig {
         address owner = vm.addr(validatorPrivateKey);
         console.log("Owner is %s", owner);
 
-        // The BSC testnet chain id
-        uint bscChainId = 97;
-        // Zilliqa chain id
-        uint zilliqaChainId = 33101;
-
         vm.startBroadcast(validatorPrivateKey);
-        LockAndReleaseTokenManagerUpgradeable zilliqaTokenManager = LockAndReleaseTokenManagerUpgradeable(zq_lockAndReleaseOrNativeTokenManager);
-        LockProxyTokenManagerUpgradeable bscTokenManager = LockProxyTokenManagerUpgradeable(bsc_zilBridgeTokenManager);
+        LockAndReleaseTokenManagerUpgradeable zilliqaTokenManager = LockAndReleaseTokenManagerUpgradeable(zqLockAndReleaseOrNativeTokenManagerAddress);
+        LockProxyTokenManagerUpgradeable bscTokenManager = LockProxyTokenManagerUpgradeable(bscLockProxyTokenManagerAddress);
 
         // OK. Now set up the routing ..
 
         // When bscERC20 arrives at bscTokenManager, send it to zilliqaBridgedERC20 on zilliqaTokenManager
         ITokenManagerStructs.RemoteToken memory sourceBscERC20GasStruct = ITokenManagerStructs.RemoteToken({
-         token: address(zq_bridged_erc20_evm),
+         token: address(zqBridgedERC20EVMAddress),
          tokenManager: address(zilliqaTokenManager),
-         chainId: zilliqaChainId});
-        bscTokenManager.registerToken(address(bsc_erc20), sourceBscERC20GasStruct);
+         chainId: zqChainId});
+        bscTokenManager.registerToken(address(bscERC20Address), sourceBscERC20GasStruct);
 
         // When bscBridgedZRC2FromZilliqa arrives at bscTokenManager, send it to zilliqaZRC2 on zilliqaTokenManager
         ITokenManagerStructs.RemoteToken memory bridgedZRC2 = ITokenManagerStructs.RemoteToken({
-         token: address(zq_zrc2_evm),
+         token: address(zqZRC2EVMAddress),
          tokenManager: address(zilliqaTokenManager),
-         chainId: zilliqaChainId});
-        bscTokenManager.registerToken(address(bsc_bridgedzrc2), bridgedZRC2);
+         chainId: zqChainId});
+        bscTokenManager.registerToken(address(bscBridgedZRC2Address), bridgedZRC2);
 
         // When bscBridgedZIL arrives at bscTokenManager, send it to 0 on zilliqaTokenManager
         ITokenManagerStructs.RemoteToken memory bridgedZIL = ITokenManagerStructs.RemoteToken({
          token: address(0),
          tokenManager: address(zilliqaTokenManager),
-         chainId: zilliqaChainId});
-        bscTokenManager.registerToken(address(bsc_bridgedzil), bridgedZIL);
+         chainId: zqChainId});
+        bscTokenManager.registerToken(address(bscBridgedZILAddress), bridgedZIL);
 
         // When BNB arrives at bscTokenManager, sent it to zilliqaBridgedBNB on zilliqaTokenManager
         ITokenManagerStructs.RemoteToken memory bridgedBNB = ITokenManagerStructs.RemoteToken({
-         token: address(zq_bridged_bnb_evm),
+         token: address(zqBridgedBNBEVMAddress),
          tokenManager: address(zilliqaTokenManager),
-         chainId: zilliqaChainId});
+         chainId: zqChainId});
         bscTokenManager.registerToken(address(0), bridgedBNB);
   }
 }

@@ -74,7 +74,7 @@ abstract contract ZilBridgeFixture is Tester, LockProxyTokenManagerDeployer {
     vm.stopPrank();
   }
 
-  function getLockProxy() public returns (TestingLockProxy) {
+  function getLockProxy() public view returns (TestingLockProxy) {
     return lockProxy;
   }
 

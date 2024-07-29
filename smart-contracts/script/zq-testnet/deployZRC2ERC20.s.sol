@@ -5,7 +5,7 @@ import {Script} from "forge-std/Script.sol";
 import {LockAndReleaseTokenManagerUpgradeable} from "contracts/periphery/LockAndReleaseTokenManagerUpgradeable.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import { ZRC2ProxyForZRC2 } from "test/zilbridge/zrc2erc20/ZRC2ProxyForZRC2.sol";
-import { TestnetConfig } from "script/testnet_config.s.sol";
+import { TestnetConfig } from "script/testnetConfig.s.sol";
 import "forge-std/console.sol";
 
 /*** @title Deploy an ERC20 proxy for our ZRC2, so we can set routing with it.
@@ -17,16 +17,19 @@ contract Deployment is Script, TestnetConfig {
         console.log("Owner is %s", validator);
         vm.startBroadcast(validatorPrivateKey);
         {
-          ZRC2ProxyForZRC2 proxy = new ZRC2ProxyForZRC2(zq_bridged_erc20);
-          console.log("zq_bridged_erc20_evm  = %s", address(proxy));
+          ZRC2ProxyForZRC2 proxy = new ZRC2ProxyForZRC2(zqBridgedERC20Address);
+          console.log(
+              "    address public constant zqBridgedERC20EVMAddress = %s", address(proxy));
         }
         {
-          ZRC2ProxyForZRC2 proxy = new ZRC2ProxyForZRC2(zq_bridged_bnb);
-          console.log("zq_bridged_bnb_evm = %s", address(proxy));
+          ZRC2ProxyForZRC2 proxy = new ZRC2ProxyForZRC2(zqBridgedBNBAddress);
+          console.log(
+              "    address public constant zqBridgedBNBEVMAddress = %s", address(proxy));
         }
         {
-          ZRC2ProxyForZRC2 proxy = new ZRC2ProxyForZRC2(zq_zrc2);
-          console.log("zq_zrc2_evm  = %s", address(proxy));
+          ZRC2ProxyForZRC2 proxy = new ZRC2ProxyForZRC2(zqZRC2Address);
+          console.log(
+              "    address public constant zqZRC2EVMAddress = %s", address(proxy));
         }
   }
 }

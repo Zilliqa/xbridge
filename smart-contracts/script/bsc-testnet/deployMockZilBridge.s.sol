@@ -12,12 +12,10 @@ import { EthCrossChainData } from "contracts/zilbridge/1/ethCrossChainData.sol";
 import { EthExtendCrossChainManager } from "contracts/zilbridge/2/ccmExtendCrossChainManager.sol";
 import { LockProxyTokenManagerUpgradeableV3 } from "contracts/zilbridge/2/LockProxyTokenManagerUpgradeableV3.sol";
 import { LockProxyTokenManagerDeployer } from "test/zilbridge/TokenManagerDeployers/LockProxyTokenManagerDeployer.sol";
+import { TestnetConfig } from "script/testnetConfig.s.sol";
 
 /*** @notice does what ZilBridgeFixture::deployOriginalContracts() does */
-contract deployMockZilBridge is Script {
-  uint64 constant CHAIN_ID=6;
-  uint64 constant COUNTERPART_CHAIN_ID=18;
-
+contract deployMockZilBridge is Script, TestnetConfig {
   function run() external {
     EthCrossChainManager ccm;
     EthCrossChainManagerProxy ccmProxy;
@@ -31,14 +29,18 @@ contract deployMockZilBridge is Script {
     vm.startBroadcast(deployerPrivateKey);
     console.log("Owner: %s", owner);
     eccd = new EthCrossChainData();
-    console.log("ECCD: %s", address(eccd));
-    ccm = new EthCrossChainManager(address(eccd), CHAIN_ID, a, b);
-    console.log("CCM: %s", address(ccm));
+    console.log(
+        "    address public constant bscEthCrossChainDataAddress = %s", address(eccd));
+    ccm = new EthCrossChainManager(address(eccd), zbBscChainId, a, b);
+    console.log(
+        "    address public constant bscCCMAddress = %s", address(ccm));
     ccmProxy = new EthCrossChainManagerProxy(address(ccm));
-    console.log("CCMProxy: %s", address(ccmProxy));
+    console.log(
+        "    address public constant bscCCMProxyAddress = %s", address(ccmProxy));
     ccm.transferOwnership(address(ccmProxy));
     eccd.transferOwnership(address(ccm));
-    lockProxy = new LockProxy(address(ccmProxy), COUNTERPART_CHAIN_ID);
-    console.log("LockProxy: %s",address(lockProxy));
+    lockProxy = new LockProxy(address(ccmProxy), zbZilliqaChainId);
+    console.log(
+        "      address public constant bscLockProxyAddress = %s", address(lockProxy));
   }
 }

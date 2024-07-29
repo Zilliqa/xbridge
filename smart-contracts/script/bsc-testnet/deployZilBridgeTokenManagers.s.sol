@@ -19,30 +19,29 @@ import {LockProxyTokenManagerDeployer} from "test/zilbridge/TokenManagerDeployer
 import {MintAndBurnTokenManagerDeployer} from "test/periphery/TokenManagerDeployers/MintAndBurnTokenManagerDeployer.sol";
 import {LockAndReleaseTokenManagerDeployer} from "test/periphery/TokenManagerDeployers/LockAndReleaseTokenManagerDeployer.sol";
 import { SwitcheoToken } from "contracts/zilbridge/token/tokens/SwitcheoTokenETH.sol";
-import { TestnetConfig } from "script/testnet_config.s.sol";
+import { TestnetConfig } from "script/testnetConfig.s.sol";
 
 /*** @notice Deploy token managers over the extension manager
  */
 contract deployZilBridgeTokenManagers is Script, LockProxyTokenManagerDeployer, TestnetConfig {
-  EthExtendCrossChainManager constant extendCCM = EthExtendCrossChainManager(bsc_extendCCM);
-  ChainGateway constant chainGateway = ChainGateway(bsc_chainGateway);
-  LockProxy constant lockProxy = LockProxy(payable(bsc_lockProxy));
+  EthExtendCrossChainManager constant extendCCM = EthExtendCrossChainManager(bscExtendCCMAddress);
+  ChainGateway constant chainGateway = ChainGateway(bscChainGatewayAddress);
+  LockProxy constant lockProxy = LockProxy(payable(bscLockProxyAddress));
   // Different from 0.00025 so that we can tell the difference!
   uint fees = 0.00007 ether;
 
   // This has to be 18, because that is what the original (ZilBridge) contracts were
   // deployed with. The mainnet value is 5.
-  uint64 constant COUNTERPART_CHAIN_ID = 18;
+  uint64 constant COUNTERPART_CHAIN_ID = zbZilliqaChainId;
 
   function run() external {
     uint256 validatorPrivateKey = vm.envUint("PRIVATE_KEY_TESTNET");
     uint256 bridgePrivateKey = vm.envUint("PRIVATE_KEY_ZILBRIDGE");
-    // address validator = vm.addr(validatorPrivateKey);
-    // address bridgeOwner = vm.addr(bridgePrivateKey);
     // token managers are apparently not pausable, so ..
     vm.startBroadcast(validatorPrivateKey);
     LockProxyTokenManagerUpgradeableV3 tokenManager = deployLatestLockProxyTokenManager(address(chainGateway), address(lockProxy), fees);
-    console.log("bsc_zilBridgeTokenManager: %s", address(tokenManager));
+    console.log(
+        "    address public constant bscLockProxyTokenManagerAddress =  %s", address(tokenManager));
     vm.stopBroadcast();
     vm.startBroadcast(bridgePrivateKey);
     extendCCM.forciblyAddExtension(address(lockProxy), address(tokenManager), COUNTERPART_CHAIN_ID);

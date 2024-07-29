@@ -4,8 +4,9 @@ import {Script} from "forge-std/Script.sol";
 import {LockAndReleaseTokenManagerUpgradeable} from "contracts/periphery/LockAndReleaseTokenManagerUpgradeable.sol";
 import {ITokenManagerStructs} from "contracts/periphery/TokenManagerUpgradeable.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import { TestnetConfig } from "script/testnetConfig.s.sol";
 import "forge-std/console.sol";
-import "script/testnet_config.s.sol";
+
 
 contract Deployment is Script, TestnetConfig {
   function run() external {
@@ -15,7 +16,7 @@ contract Deployment is Script, TestnetConfig {
         uint256 amount = vm.envUint("ZILBRIDGE_TEST_AMOUNT");
         console.log("Owner is %s", validator);
         vm.startBroadcast(validatorPrivateKey);
-        ERC20 theContract = ERC20(bsc_erc20);
+        ERC20 theContract = ERC20(bscERC20Address);
         // rrw's address for testing.
         theContract.transfer( recipient, amount );
   }

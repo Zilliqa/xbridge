@@ -12,15 +12,15 @@ import { EthCrossChainData } from "contracts/zilbridge/1/ethCrossChainData.sol";
 import { EthExtendCrossChainManager } from "contracts/zilbridge/2/ccmExtendCrossChainManager.sol";
 import { LockProxyTokenManagerUpgradeableV3 } from "contracts/zilbridge/2/LockProxyTokenManagerUpgradeableV3.sol";
 import { LockProxyTokenManagerDeployer } from "test/zilbridge/TokenManagerDeployers/LockProxyTokenManagerDeployer.sol";
-import { TestnetConfig } from "script/testnet_config.s.sol";
+import { TestnetConfig } from "script/testnetConfig.s.sol";
 
 /*** @notice ZilBridgeFixture::installExtendCrossManager() */
 contract deployXBridgeOverMockZilBridge is Script, TestnetConfig {
   // Plug in the data from deployMockZilBridge here.
-  EthCrossChainData public constant eccd = EthCrossChainData(bsc_EthCrossChainData);
-  EthCrossChainManager public constant ccm = EthCrossChainManager(bsc_ccm);
-  EthCrossChainManagerProxy public constant ccmProxy = EthCrossChainManagerProxy(bsc_ccmProxy);
-  LockProxy public constant lockProxy = LockProxy(payable(bsc_lockProxy));
+  EthCrossChainData public constant eccd = EthCrossChainData(bscEthCrossChainDataAddress);
+  EthCrossChainManager public constant ccm = EthCrossChainManager(bscCCMAddress);
+  EthCrossChainManagerProxy public constant ccmProxy = EthCrossChainManagerProxy(bscCCMProxyAddress);
+  LockProxy public constant lockProxy = LockProxy(payable(bscLockProxyAddress));
   EthExtendCrossChainManager extendCCM;
 
   function run() external {
@@ -28,12 +28,12 @@ contract deployXBridgeOverMockZilBridge is Script, TestnetConfig {
     bytes[] memory b = new bytes[](0);
     uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY_ZILBRIDGE");
     vm.startBroadcast(deployerPrivateKey);
-    // address owner = vm.addr(deployerPrivateKey);
     extendCCM = new EthExtendCrossChainManager(address(eccd), 2, a, b);
     ccmProxy.pauseEthCrossChainManager();
     extendCCM.transferOwnership(address(ccmProxy));
     ccmProxy.upgradeEthCrossChainManager(address(extendCCM));
     ccmProxy.unpauseEthCrossChainManager();
-    console.log("extendCCM: %s", address(extendCCM));
+    console.log(
+        "    address public constant bscExtendCCMAddress = %s", address(extendCCM));
   }
 }

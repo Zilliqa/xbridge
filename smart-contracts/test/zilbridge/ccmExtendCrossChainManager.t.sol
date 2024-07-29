@@ -53,7 +53,7 @@ contract ccmExtendCrossChainManager is ZilBridgeFixture {
     require(lockProxy.extensions(address(lpTokenManager))==true);
   }
 
-  function test_Pickle() external {
+  function test_Pickle() view external {
     console.log("owner = %s", owner);
     bytes memory payload = ZeroCopySink.WriteVarBytes(Utils.addressToBytes(owner));
     console.logBytes(payload);

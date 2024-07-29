@@ -6,15 +6,16 @@ import {ValidatorManagerUpgradeable} from "contracts/core-upgradeable/ValidatorM
 import {ChainGatewayUpgradeable} from "contracts/core-upgradeable/ChainGatewayUpgradeable.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import "forge-std/console.sol";
+import { TestnetConfig } from "script/testnetConfig.s.sol";
 
-contract Deployment is Script {
+contract Deployment is Script, TestnetConfig {
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY_TESTNET");
         address owner = vm.addr(deployerPrivateKey);
         console.log("Owner is %s", owner);
 
         address[] memory validators = new address[](1);
-        address tokenManager = 0xA6D73210AF20a59832F264fbD991D2abf28401d0;
+        address tokenManager = bscMintAndBurnTokenManagerAddress;
         validators[0] = owner;
 
         vm.startBroadcast(deployerPrivateKey);
@@ -40,6 +41,8 @@ contract Deployment is Script {
             validatorManager.isValidator(validators[0]),
             validatorManager.validatorsSize()
         );
+        console.log(
+            "    address public constant bscValidatorManagerAddress = %s", address(validatorManager));
 
         // Deploy Chain Gateway
         address cgImplementation = address(
@@ -59,6 +62,8 @@ contract Deployment is Script {
             address(chainGateway),
             address(chainGateway.validatorManager())
         );
+        console.log(
+            "    address public constant bscChainGatewayAddress = %s", address(chainGateway));
 
         // Register TokenManager to ChainGateway
         chainGateway.register(tokenManager);

@@ -5,8 +5,12 @@ import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/Messa
 import {Script} from "forge-std/Script.sol";
 import {ChainGateway} from "contracts/core/ChainGateway.sol";
 import {ValidatorManager} from "contracts/core/ValidatorManager.sol";
+import { TestnetConfig } from "script/testnetConfig.s.sol";
 
-contract Dispatch is Script {
+/*** @dev this script contains hardwired addresses - remember to hand-edit them to match the testnet config,
+ *   or it won't work!
+ */
+contract Dispatch is Script, TestnetConfig {
     using MessageHashUtils for bytes;
 
     function run() external {
