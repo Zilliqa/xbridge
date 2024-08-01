@@ -8,6 +8,8 @@ use ethers::{
     signers::{LocalWallet, Signer},
     types::{Address, U256},
 };
+use std::fmt;
+use tracing::info;
 
 use crate::ChainConfig;
 
@@ -25,22 +27,30 @@ pub struct ChainClient {
     pub legacy_gas_estimation: bool,
 }
 
+impl fmt::Display for ChainClient {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "chainid#{}", self.chain_id)
+    }
+}
+
 impl ChainClient {
     pub async fn new(config: &ChainConfig, wallet: LocalWallet) -> Result<Self> {
+        info!(
+            "initialising chain client for URL {0} ... ",
+            config.rpc_url.as_str()
+        );
         let provider = Provider::<Http>::try_from(config.rpc_url.as_str())?;
         // let provider = Provider::<Ws>::connect(&config.rpc_url).await?;
         let chain_id = provider.get_chainid().await?;
-
         let client: Arc<Client> = Arc::new(
             provider
                 .with_signer(wallet.clone().with_chain_id(chain_id.as_u64()))
                 .nonce_manager(wallet.address()),
         );
-
         // TODO: get the validator_manager_address from chain_gateway itself
         let chain_gateway = ChainGateway::new(config.chain_gateway_address, client.clone());
         let validator_manager_address: Address = chain_gateway.validator_manager().call().await?;
-
+        info!("... success!");
         Ok(ChainClient {
             client,
             validator_manager_address,

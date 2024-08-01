@@ -133,7 +133,7 @@ impl BridgeNode {
     }
 
     pub async fn listen_events(&mut self) -> Result<()> {
-        println!("Start Listening: {:?}", self.chain_client.chain_id);
+        info!("Start Listening: {:?}", self.chain_client.chain_id);
 
         let chain_gateway: ChainGateway<Client> = self.chain_client.get_contract();
 

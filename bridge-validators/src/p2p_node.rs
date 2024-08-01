@@ -1,18 +1,15 @@
 // ! taken from ZQ2
 //! A node in the Zilliqa P2P network. May coordinate multiple shard nodes.
 
-use anyhow::{anyhow, Result};
+use anyhow::Result;
 use libp2p::{
-    core::upgrade,
     futures::StreamExt,
-    gossipsub::{self, IdentTopic, MessageAuthenticity},
+    gossipsub::{self},
     identify,
     kad::{self, store::MemoryStore},
     mdns,
-    multiaddr::Multiaddr,
-    noise,
-    swarm::{self, NetworkBehaviour, SwarmEvent},
-    tcp, yamux, PeerId, Swarm, Transport,
+    swarm::NetworkBehaviour,
+    PeerId,
 };
 use tokio::{
     select,
@@ -20,7 +17,7 @@ use tokio::{
     task::JoinHandle,
 };
 use tokio_stream::wrappers::UnboundedReceiverStream;
-use tracing::{debug, error, info};
+use tracing::{error, info};
 
 use crate::{
     crypto::SecretKey,
@@ -29,6 +26,7 @@ use crate::{
 };
 
 #[derive(NetworkBehaviour)]
+#[allow(unused)]
 struct Behaviour {
     gossipsub: gossipsub::Behaviour,
     mdns: mdns::tokio::Behaviour,
@@ -42,6 +40,7 @@ pub struct P2pNode {
     /// Forward messages to the bridge validators. Only initialised once BridgeNode is created
     bridge_inbound_message_sender: UnboundedSender<ExternalMessage>,
     /// Bridge nodes get a copy of these senders to propagate messages across the network.
+    #[allow(dead_code)]
     bridge_outbound_message_sender: UnboundedSender<ExternalMessage>,
     /// The p2p node keeps a handle to these receivers, to obtain messages from bridge nodes and propagate
     /// them as necessary.
@@ -93,8 +92,8 @@ impl P2pNode {
         // let topic = IdentTopic::new("bridge"); // TODO: change to more specific bridge chains
 
         // self.swarm.behaviour_mut().gossipsub.subscribe(&topic)?;
-
         // Initialise bridge node
+
         let mut validator_node =
             ValidatorNode::new(config, bridge_outbound_message_sender.clone()).await?;
 
@@ -136,8 +135,6 @@ impl P2pNode {
         // }
 
         // self.swarm.listen_on(addr)?;
-
-        println!("Started");
 
         loop {
             select! {
@@ -186,8 +183,8 @@ impl P2pNode {
                 // },
                 message = self.bridge_outbound_message_receiver.next() => {
                     let message = message.expect("message stream should be infinite");
-                    let message_type = message.name();
-                    let data = serde_json::to_vec(&message).unwrap();
+                    // let message_type = message.name();
+                    // let data = serde_json::to_vec(&message).unwrap();
                     let from = self.peer_id;
 
                     // let topic = IdentTopic::new("bridge");

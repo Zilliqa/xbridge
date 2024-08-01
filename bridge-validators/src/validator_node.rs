@@ -27,6 +27,7 @@ pub struct ValidatorNodeConfig {
     pub chain_configs: Vec<ChainConfig>,
     pub private_key: SecretKey,
     pub is_leader: bool,
+    #[allow(dead_code)]
     pub bootstrap_address: Option<(PeerId, Multiaddr)>,
 }
 
@@ -53,12 +54,9 @@ impl ValidatorNode {
         let wallet = config.private_key.as_wallet()?;
 
         println!("Node address is: {:?}", wallet.address());
-
         let (bridge_message_sender, bridge_message_receiver) = mpsc::unbounded_channel();
         let bridge_message_receiver = UnboundedReceiverStream::new(bridge_message_receiver);
-
         let mut bridge_node_threads: JoinSet<Result<()>> = JoinSet::new();
-
         for chain_config in config.chain_configs {
             let chain_client = ChainClient::new(&chain_config, wallet.clone()).await?;
 
@@ -72,9 +70,7 @@ impl ValidatorNode {
                 validator_chain_node.chain_client.chain_id,
                 validator_chain_node.get_inbound_message_sender(),
             );
-
             chain_clients.insert(validator_chain_node.chain_client.chain_id, chain_client);
-
             bridge_node_threads.spawn(async move {
                 // Fill all historic events first
                 // validator_chain_node.sync_historic_events().await

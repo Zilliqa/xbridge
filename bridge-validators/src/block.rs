@@ -11,13 +11,15 @@ use ethers::{
 use ethers_contract::{parse_log, EthEvent};
 use futures::{Stream, StreamExt, TryStreamExt};
 use tokio::time::interval;
-use tracing::{debug, info, warn};
+use tracing::{info, warn};
 
 use crate::client::ChainClient;
 
 #[async_trait]
 pub trait BlockPolling {
+    #[allow(dead_code)]
     async fn stream_finalized_blocks(&mut self) -> Result<()>;
+    #[allow(dead_code)]
     async fn get_historic_blocks(&self, from: u64, to: u64) -> Result<()>;
 
     async fn get_events<D>(
@@ -153,12 +155,18 @@ impl<D: EthEvent> EventListener<D> {
             .await
         {
             Err(err) => {
+                warn!(
+                    "Failed to fetch events on {} from {} to {}",
+                    self.chain_client,
+                    (self.current_block + 1),
+                    new_block
+                );
                 warn!(?err);
                 vec![]
             }
             Ok(events) => events,
         };
-        debug!(
+        info!(
             "{} Getting from {} to {}, events gathered {:?}",
             self.chain_client.chain_id,
             (self.current_block + 1),
