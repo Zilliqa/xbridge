@@ -10,7 +10,7 @@ async function main() {
   let account = hre.zilliqa.getDefaultAccount();
   let targetAddress = process.env.ZILBRIDGE_TEST_ADDRESS;
   let testAmount = process.env.ZILBRIDGE_TEST_AMOUNT;
-  let tokenContractAddress = process.env.ZILBRIDGE_TOKEN_ADDRESS;
+  let tokenContractAddress = process.env.ZILBRIDGE_SCILLA_TOKEN_ADDRESS;
   console.log(`transferring ${testAmount} of ${tokenContractAddress} from ${account.address} to ${targetAddress}`);
   let tokenContract = await hre.interactWithScillaContract(tokenContractAddress);
   let result = await tokenContract.Transfer(targetAddress, testAmount);

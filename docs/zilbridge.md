@@ -26,7 +26,7 @@ is in it.
 
 ## LockProxyTokenManager
 
-There is a `LockProxyTokenManager` which is registered as an extension and interacts with the lock proxy to bridge tokens. 
+There is a `LockProxyTokenManager` which is registered as an extension and interacts with the lock proxy to bridge tokens.
 
 zilBridge itself doesn't know which tokens are mint/burn and which are
 lock/release - the lockproxy simply transfers tokens to and from
@@ -105,7 +105,11 @@ forge verify-contract <address> --rpc-url https://bsc-testnet.bnbchain.org --cha
 
 Remember to verify all your contracts on BSC, or you will get hopelessly confused later.
 
-Now we need to deploy some contracts on the Zilliqa testnet. 
+Now we need to deploy some contracts on the Zilliqa testnet. You can verify on Zilliqa via sourcify:
+
+```
+forge verify-contract <address> --rpc-url https://dev-api.zilliqa.com --chain-id 33101 --verifier sourcify
+```
 
 We'll need our own token manager. This is identical to the
 `LockAndReleaseTokenManager`, but contains some additional
@@ -178,7 +182,7 @@ You can transfer yourself some tokens by setting
 forge script script/bsc-testnet/zilBridgeTransferERC20.s.sol --rpc-url https://bsc-testnet.bnbchain.org --broadcast
 ```
 
-And, setting `ZILBRIDGE_TOKEN_ADDRESS` to the Scilla token address:
+And, setting `ZILBRIDGE_SCILLA_TOKEN_ADDRESS` to the Scilla token address:
 
 ```
 npx hardhat run scripts/transfer.ts
@@ -190,12 +194,19 @@ therefore need a Scilla transition to transfer them.
 
 Test cases:
 
-| Number | Token | From | To  | Remarks |
-|--------|-------|------|-----|---------|
-| IT001  | xTST  | BSC  | ZQ  |         |
-| IT002  | xTST  | ZQ   | BSC |         |
-| IT003  | ZBTST | ZQ 
+| Number | Token | From | To  | Result | Remarks |
+|--------|-------|------|-----|--------|---------|
+| IT001  | xTST  | BSC  | ZQ  |        |         |
+| IT002  | xTST  | ZQ   | BSC |        |         |
+| IT003  | ZBTST | BSC  | ZQ  |        |         |
+| IT004  | ZBTST | ZQ   | BSC |        |         |
+| IT005  | zBNB  | BSC  | ZQ  |        |         |
+| IT006  | zBNB  | ZQ   | BSC |        |         |
+| IT007  | eZIL  | ZQ   | BSC |        |         |
+| IT008  | eZIL  | BSC  | ZQ  |        |         |
 
+
+Result is Pass/Fail/Other.
 
 ## TODO
 
@@ -233,7 +244,7 @@ When you're done, you'll need to redeploy the rest of the tokens, so that the br
 ```
 cd scilla-contracts
 pnpm i
-export TOKEN_MANAGER_ADDRESS=(value of zq_lockAndReleaseOrNativeTokenManager)
+export TOKEN_MANAGER_ADDRESS=(value of zq_lockAndReleaseOrNativeTokenManager WITHOUT 0x prefix)
 # NOW EDIT scripts/deploy.ts for the address of the Zilliqa testnet token manager.
 npx hardhat run scripts/deploy.ts --network zq_testnet
 ```

@@ -31,17 +31,17 @@ abstract contract TestnetConfig {
   uint public constant zqChainId = 33101;
   address public constant zqChainGatewayAddress = 0x7370e69565BB2313C4dA12F9062C282513919230;
   address public constant zqLockAndReleaseTokenManagerAddress =  0x1509988c41f02014aA59d455c6a0D67b5b50f129;
-  address public constant zqLockAndReleaseOrNativeTokenManagerAddress = 0x5e502559ab6e99949b0eE72d4ebCe05f31E026dC;
+  address public constant zqLockAndReleaseOrNativeTokenManagerAddress = 0x41823941D00f47Ea1a98D75586915BF828F4a038;
 
   // Scilla contracts.
-  address public constant zqBridgedERC20Address = address(0x00f281D459E5FdA75f12eEca2D33E3aa03f6456994);
-  address public constant zqBridgedBNBAddress = address(0x00976050703b8067ab25a56A22e24e404222B07a33);
-  address public constant zqZRC2Address = address(0x00f1c2F2dadC13d03939c52d7A763dAF188f431AD6);
+  address public constant zqBridgedERC20Address = address(0x009892a6E972B46Bca767ed552Fb06E25A35a49ebF);
+  address public constant zqBridgedBNBAddress = address(0x008fe819662a7Db7e03943877BA771E7A0902Ef96d);
+  address public constant zqZRC2Address = address(0x005dD38E64DA8F7d541d8af45fE00Bf37F6A2C6195);
 
   // ERC20 fascias for Scilla contracts
-  address public constant zqBridgedERC20EVMAddress = address(0x2aDFdb71103b8587F609b262b3E7E6161D3f6B1f);
-  address public constant zqBridgedBNBEVMAddress = address(0x9707F1C6A02c5D8682669d309c046c5Af6c3130e);
-  address public constant zqZRC2EVMAddress = address(0xCf795CF70C29588fb6885CB8982EAE04354e1BB4);
+  address public constant zqBridgedERC20EVMAddress = 0x9Be4DCfB335A263c65a8A763d55710718bbdb416;
+  address public constant zqBridgedBNBEVMAddress = 0x40647A0C0024755Ef48Bc7C26a979ED833Eb6a15;
+  address public constant zqZRC2EVMAddress = 0xd3750B930ED52C26584C18B4f5eeAb986D7f3b36;
 
   // Deployed back in the depths of time; recorded here so we can use them in scripts
   address public constant zqLegacyTestTokenAddress = 0x63B6ebD476C84bFDd5DcaCB3f974794FC6C2e721;

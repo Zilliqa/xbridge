@@ -103,20 +103,20 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
           tokens: [
             {
               name: "xTST",
-              address: "0x2aDFdb71103b8587F609b262b3E7E6161D3f6B1f",
+              address: "0x9Be4DCfB335A263c65a8A763d55710718bbdb416",
               blockExplorer:
                 "https://otterscan.testnet.zilliqa.com/address/0x8CB156B19947283F9700e5891ed6d013454b0570",
               logo: fps_token,
-              tokenManagerAddress: "0x5e502559ab6e99949b0eE72d4ebCe05f31E026dC",
+              tokenManagerAddress: "0x41823941D00f47Ea1a98D75586915BF828F4a038",
               tokenManagerType: TokenManagerType.ZilBridge,
             },
             {
               name: "ZBTST",
-              address: "0xCf795CF70C29588fb6885CB8982EAE04354e1BB4",
+              address: "0xd3750B930ED52C26584C18B4f5eeAb986D7f3b36",
               blockExplorer:
               "https://otterscan.testnet.zilliqa.com/address/0x2A82a13A118c0f9E203a9C006742024354D0f4Ca",
-              logo: test_hrse_token, 
-              tokenManagerAddress: "0x5e502559ab6e99949b0eE72d4ebCe05f31E026dC",
+              logo: test_hrse_token,
+              tokenManagerAddress: "0x41823941D00f47Ea1a98D75586915BF828F4a038",
               tokenManagerType: TokenManagerType.ZilBridge,
             },
             {
