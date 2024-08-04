@@ -167,7 +167,7 @@ export VITE_BSC_TESTNET_KEY=""
 
 Remember to omit the trailing '/' from `VITE_BSC_TESTNET_API` or you will get CORS errors.
 
-And run: 
+And run:
 
 ```
 mitmweb --mode reverse:https://data-seed-prebsc-1-s1.binance.org:8545/ --no-web-open-browser --listen-port 6128 --web-port 6001

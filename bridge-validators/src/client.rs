@@ -15,6 +15,14 @@ use crate::ChainConfig;
 
 pub type Client = NonceManagerMiddleware<SignerMiddleware<Provider<Http>, LocalWallet>>;
 
+// ZQ1 seems to have given up responding to getLogs(), so we now have
+// a way to query all transactions on the chain to obtain our logs.
+#[derive(Debug, Clone)]
+pub enum LogStrategy {
+    GetLogs,
+    GetTransactions,
+}
+
 #[derive(Debug, Clone)]
 pub struct ChainClient {
     pub client: Arc<Client>,
@@ -25,6 +33,8 @@ pub struct ChainClient {
     pub chain_gateway_block_deployed: u64,
     pub block_instant_finality: bool,
     pub legacy_gas_estimation: bool,
+    pub scan_behind_blocks: u64,
+    pub log_strategy: LogStrategy,
 }
 
 impl fmt::Display for ChainClient {
@@ -50,6 +60,13 @@ impl ChainClient {
         // TODO: get the validator_manager_address from chain_gateway itself
         let chain_gateway = ChainGateway::new(config.chain_gateway_address, client.clone());
         let validator_manager_address: Address = chain_gateway.validator_manager().call().await?;
+        let strategy = match config.use_get_transactions {
+            None => LogStrategy::GetLogs,
+            Some(v) => match v {
+                false => LogStrategy::GetLogs,
+                true => LogStrategy::GetTransactions,
+            },
+        };
         info!("... success!");
         Ok(ChainClient {
             client,
@@ -60,6 +77,8 @@ impl ChainClient {
             chain_gateway_block_deployed: config.chain_gateway_block_deployed,
             block_instant_finality: config.block_instant_finality.unwrap_or_default(),
             legacy_gas_estimation: config.legacy_gas_estimation.unwrap_or_default(),
+            scan_behind_blocks: config.scan_behind_blocks.unwrap_or_default(),
+            log_strategy: strategy,
         })
     }
 }

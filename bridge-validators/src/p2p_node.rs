@@ -49,7 +49,11 @@ pub struct P2pNode {
 }
 
 impl P2pNode {
-    pub async fn new(secret_key: SecretKey, config: ValidatorNodeConfig) -> Result<Self> {
+    pub async fn new(
+        secret_key: SecretKey,
+        config: ValidatorNodeConfig,
+        dispatch_history: bool,
+    ) -> Result<Self> {
         let (bridge_outbound_message_sender, bridge_outbound_message_receiver) =
             mpsc::unbounded_channel();
         let bridge_outbound_message_receiver =
@@ -94,8 +98,12 @@ impl P2pNode {
         // self.swarm.behaviour_mut().gossipsub.subscribe(&topic)?;
         // Initialise bridge node
 
-        let mut validator_node =
-            ValidatorNode::new(config, bridge_outbound_message_sender.clone()).await?;
+        let mut validator_node = ValidatorNode::new(
+            config,
+            bridge_outbound_message_sender.clone(),
+            dispatch_history,
+        )
+        .await?;
 
         let bridge_inbound_message_sender = validator_node.get_bridge_inbound_message_sender();
 

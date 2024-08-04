@@ -48,6 +48,7 @@ impl ValidatorNode {
     pub async fn new(
         config: ValidatorNodeConfig,
         bridge_outbound_message_sender: UnboundedSender<ExternalMessage>,
+        dispatch_history: bool,
     ) -> Result<Self> {
         let mut chain_node_senders = HashMap::new();
         let mut chain_clients = HashMap::new();
@@ -73,7 +74,9 @@ impl ValidatorNode {
             chain_clients.insert(validator_chain_node.chain_client.chain_id, chain_client);
             bridge_node_threads.spawn(async move {
                 // Fill all historic events first
-                // validator_chain_node.sync_historic_events().await
+                if dispatch_history {
+                    validator_chain_node.sync_historic_events().await?;
+                }
                 // Then start listening to new ones
                 validator_chain_node.listen_events().await
             });
