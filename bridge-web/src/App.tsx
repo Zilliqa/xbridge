@@ -659,9 +659,7 @@ function App() {
                   disabled={showLoadingButton}
                   onClick={async () => {
                     if (approve) {
-                      alert('approving');
                       const tx = await approve();
-                      alert('done');
                       console.log('....');
                       console.log(tx.hash);
                       console.log('....');

@@ -6,13 +6,16 @@ use async_trait::async_trait;
 use anyhow::{anyhow, Result};
 use ethers::{
     providers::Middleware,
-    types::{Block, BlockNumber, Filter, Log, TransactionReceipt, TxHash, ValueOrArray, U64},
+    types::{
+        Address, Block, BlockNumber, Filter, Log, TransactionReceipt, TxHash, ValueOrArray, H160,
+        U64,
+    },
 };
 use ethers_contract::{parse_log, EthEvent};
 use futures::{Stream, StreamExt, TryStreamExt};
 use serde::{Deserialize, Serialize};
 use tokio::time::interval;
-use tracing::{info, warn};
+use tracing::{debug, info, warn};
 
 use crate::client::{ChainClient, LogStrategy};
 
@@ -59,7 +62,7 @@ impl ChainClient {
                 // go through alll the transactions
                 for txn_hash in block.transactions {
                     // We have a transaction. Did it have any logs?
-                    println!("block {} txn {:#x}", block_number, txn_hash);
+                    debug!("block {} txn {:#x}", block_number, txn_hash);
                     // Get the receipt
                     let maybe_receipt = self
                         .client
@@ -68,16 +71,16 @@ impl ChainClient {
                         .await?;
                     if let Some(receipt) = maybe_receipt {
                         // Yay!
-                        println!("Got receipt for txn {:#x}", txn_hash);
+                        info!("Got receipt for txn {:#x}", txn_hash);
                         for log in receipt.logs {
                             // Because FML, the filter doesn't actually include the address.
-                            // so we have to include it manually.
-                            let address_matches = log.address == self.chain_gateway_address;
-                            if !address_matches {
-                                println!("Address does not match");
+                            if log.address != self.chain_gateway_address {
+                                info!(
+                                    "[1] event from {0:#x} != chain_gateway({1:#x})",
+                                    log.address, self.chain_gateway_address
+                                );
                                 continue;
                             }
-                            println!("Case 3");
                             let mut matches: bool = true;
                             for topic_idx in 0..event.topics.len() {
                                 if let Some(x) = &event.topics[topic_idx] {
@@ -85,7 +88,6 @@ impl ChainClient {
                                         let match_this_topic = match x {
                                             ValueOrArray::Value(xv) => {
                                                 if let Some(xxv) = xv {
-                                                    println!("Case 4 {:#x} vs {:#x}", xxv, y);
                                                     xxv == *y
                                                 } else {
                                                     true
@@ -111,17 +113,16 @@ impl ChainClient {
                                 // If there's no filter element for this topic, we're fine.
                             }
                             if matches {
-                                println!("Match!");
                                 result.push(log);
                             }
                         }
                     } else {
-                        println!("WARNING: txn {:#x} has no receipt", txn_hash);
+                        warn!("WARNING: txn {:#x} has no receipt", txn_hash);
                     }
                 }
             }
         }
-        Ok(vec![])
+        Ok(result)
     }
 }
 
@@ -163,6 +164,23 @@ impl BlockPolling for ChainClient {
                     .request("eth_getLogs", [event])
                     .await?;
                 logs.into_iter()
+                    .filter(|log| {
+                        log.get("address")
+                            .and_then(|val| val.as_str())
+                            .and_then(|val| val.parse::<Address>().ok())
+                            .map(|from_address| {
+                                if from_address == self.chain_gateway_address {
+                                    true
+                                } else {
+                                    info!(
+                                        "event from {0:#x} , chain gateway {1:#x}",
+                                        from_address, self.chain_gateway_address
+                                    );
+                                    false
+                                }
+                            })
+                            .unwrap_or(false)
+                    })
                     .map(|log| {
                         // Parse log values
                         let mut log = log;

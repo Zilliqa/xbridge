@@ -42,8 +42,8 @@ contract Deployment is Script, TestnetConfig {
         console.log(
             "    address public constant bscBridgedZRC2Address = %s", address(bridgedFromZilliqa));
 
-        // Bridged ZIL
-        SwitcheoToken bridgedZIL = new SwitcheoToken(bscLockProxyAddress, "eZIL", "Bridged ZIL", 12);
+        // Bridged ZIL - this is EVM ZIL, so scale = 18
+        SwitcheoToken bridgedZIL = new SwitcheoToken(bscLockProxyAddress, "eZIL", "Bridged ZIL", 18);
         console.log(
             "    address public constant bscBridgedZILAddress = %s", address(bridgedZIL));
   }

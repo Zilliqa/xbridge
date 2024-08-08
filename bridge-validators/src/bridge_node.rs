@@ -213,11 +213,6 @@ impl BridgeNode {
             return Ok(());
         }
 
-        info!(
-            "Chain: {} event found to be broadcasted: {}",
-            self.chain_client.chain_id, event
-        );
-
         if let Some(RelayEventSignatures {
             dispatched: true, ..
         }) = self.event_signatures.get(&event.nonce)

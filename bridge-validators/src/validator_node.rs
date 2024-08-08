@@ -179,7 +179,7 @@ impl ValidatorNode {
             event.target_chain_id, event.nonce
         );
 
-        let function_call = if client.legacy_gas_estimation {
+        let function_call = if client.legacy_gas_estimation_percent.is_some() {
             function_call.legacy()
         } else {
             function_call
@@ -190,7 +190,7 @@ impl ValidatorNode {
 
             // Get gas estimate
             // TODO: refactor configs specifically for zilliqa
-            let _function_call = if client.legacy_gas_estimation {
+            let _function_call = if let Some(percent) = client.legacy_gas_estimation_percent {
                 let gas_estimate = match function_call.estimate_gas().await {
                     Ok(estimate) => estimate,
                     Err(err) => {
@@ -198,8 +198,8 @@ impl ValidatorNode {
                         return Ok(());
                     }
                 };
-                info!("Gas estimate {:?}", gas_estimate);
-                function_call.clone().gas(gas_estimate * 130 / 100) // Apply multiplier
+                info!("Legacy gas estimation: estimate {:?}", gas_estimate);
+                function_call.clone().gas(gas_estimate * percent / 100) // Apply multiplier
             } else {
                 let function_call = function_call.clone();
                 // `eth_call` does not seem to work on ZQ so it had to be skipped
@@ -230,7 +230,7 @@ impl ValidatorNode {
             // Make the actual call
             match _function_call.send().await {
                 Ok(tx) => {
-                    println!(
+                    info!(
                         "Transaction Sent {}.{} {:?}",
                         event.target_chain_id,
                         event.nonce,

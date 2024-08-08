@@ -31,7 +31,7 @@ pub struct ChainConfig {
     pub chain_gateway_address: Address,
     pub chain_gateway_block_deployed: u64,
     pub block_instant_finality: Option<bool>,
-    pub legacy_gas_estimation: Option<bool>,
+    pub legacy_gas_estimation_percent: Option<u64>,
     pub scan_behind_blocks: Option<u64>,
     pub use_get_transactions: Option<bool>,
 }
