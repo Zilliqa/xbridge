@@ -5,10 +5,36 @@
 
 # BSC Testnet
 [[chain_configs]]
+## The block at which history replay should start.
 chain_gateway_block_deployed = 36696045
+## RPC URL to talk to for this chain.
 rpc_url = "https://bsc-prebsc-dataseed.bnbchain.org"
+## The (EVM) address of the chain gateway contract
+##  - events from anywhere else will be ignored.
+##  - relay requests for this chain id will be relayed to this contract.
 chain_gateway_address = "0xa9A14C90e53EdCD89dFd201A3bF94D867f8098fE"
+## If this key is absent, we submit relay transactions with "enough" gas per eth_estimateGas().
+## Most chains seem to have problems with this, and so this key exists to allow you to
+## submit legacy_gas_estimation_percent percent of the estimated gas, so as to ensure that
+## relay txns don't run out of gas. A value of 130-150 seems to work for coin transfers.
 legacy_gas_estimation_percent=130
+## If this key is present, we delay scanning a block until N blocks ahead of it have been
+## produced, to give some chains time to propagate block data to the nodes from which we are
+## attempting to read them.
+## scan_behind_blocks = 1
+
+## If this is set true (Zilliqa 1 again!), we assume that any block we see is final.
+## Otherwise (every other chain), we ask for the latest finalized block and scan that.
+## block_instant_finality = true
+
+## Normally, we use eth_getFilterLogs() to fetch relay events for processing.
+## Some chains (Zilliqa 1) will sometimes get into a state where they return [] for eth_getFilterLogs()
+## regardless of the actual emitted logs for a block. This obviously confuses us.
+## Worse, eth_getBlockReceipts() has the same problem.
+## So, if you set this to true, we will call eth_getBlock() and then iterate through each transaction
+## fetching the receipt and scanning it for relevant logs. This is slow, but at least it works ..
+## use_get_transactions = true
+
 
 # BSC Mainnet
 # [[chain_configs]]
