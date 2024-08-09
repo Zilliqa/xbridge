@@ -139,10 +139,12 @@ impl ValidatorNode {
                         Ok(Ok(())) => unreachable!(),
                         Ok(Err(e)) => {
                             error!(%e);
+                            #[allow(clippy::useless_conversion)]
                             return Err(e.into())
                         }
                         Err(e) =>{
                             error!(%e);
+                            #[allow(clippy::useless_conversion)]
                             return Err(e.into())
                         }
                     }

@@ -122,9 +122,7 @@ impl BlockPolling for ChainClient {
 
     async fn get_historic_blocks(&self, from: u64, to: u64) -> Result<()> {
         let concurrent_requests = futures::stream::iter(
-            (from..to)
-                .into_iter()
-                .map(|block_number| self.client.get_block(block_number)),
+            (from..to).map(|block_number| self.client.get_block(block_number)),
         )
         .buffer_unordered(3)
         .map(|r| {

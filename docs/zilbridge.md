@@ -22,7 +22,8 @@ This means we need to either proxy or replace it.
 Replacing it is undesirable, because the address of the CCM is baked
 into the configuration files for the relayers.
 
-My first attempt was to proxy it with a `CCMExtendProxy`, but this doesn't work, because:
+My first attempt was to proxy it with a `CCMExtendProxy`, but this
+doesn't work, because:
 
 - To upgrade you have to call `ccmProxy::upgradeEthCrossChainManager()`
 - (side-note: this calls the _current_ `eccm.upgradeToNew()` which
@@ -93,7 +94,8 @@ Set `PRIVATE_KEY_TESTNET` to the validator privkey, and
 After each step (each script run) in the below, you will need to:
 
 - Verify the contracts you just deployed.
-- Update the `testnet_config.s.sol` file with the addresses of the contracts you just deployed.
+- Update the `testnet_config.s.sol` file with the addresses of the
+  contracts you just deployed.
 
 In most cases, the script will give you the name of the
 `testnet_config.s.sol` constant to update.
@@ -101,24 +103,33 @@ In most cases, the script will give you the name of the
 Run with:
 
 ```sh
-forge script script/bsc-testnet/deployMockZilBridge.s.sol --rpc-url https://bsc-testnet.bnbchain.org --broadcast
+forge script script/bsc-testnet/deployMockZilBridge.s.sol \
+   --rpc-url https://bsc-testnet.bnbchain.org --broadcast
 
-forge verify-contract <address> --rpc-url https://bsc-testnet.bnbchain.org --chain-id 97
+forge verify-contract <address> --rpc-url https://bsc-testnet.bnbchain.org \
+  --chain-id 97
 # Now fill in the data to test_config.s.sol
-forge script script/bsc-testnet/deployXBridgeOverMockZilBridge.s.sol --rpc-url https://bsc-testnet.bnbchain.org --broadcast
-forge verify-contract <address> --rpc-url https://bsc-testnet.bnbchain.org --chain-id 97
+forge script script/bsc-testnet/deployXBridgeOverMockZilBridge.s.sol \
+   --rpc-url https://bsc-testnet.bnbchain.org --broadcast
+forge verify-contract <address> --rpc-url https://bsc-testnet.bnbchain.org \
+  --chain-id 97
 # and again ..
-forge script scripts/bsc-testnet/deployZilBridgeTokenManagers.s.sol --rpc-url https://bsc-testnet.bnbchain.org --broadcast
-forge verify-contract <address> --rpc-url https://bsc-testnet.bnbchain.org --chain-id 97
+forge script scripts/bsc-testnet/deployZilBridgeTokenManagers.s.sol \
+  --rpc-url https://bsc-testnet.bnbchain.org --broadcast
+forge verify-contract <address> --rpc-url https://bsc-testnet.bnbchain.org \
+  --chain-id 97
 
 ```
 
-Remember to verify all your contracts on BSC, or you will get hopelessly confused later.
+Remember to verify all your contracts on BSC, or you will get
+hopelessly confused later.
 
-Now we need to deploy some contracts on the Zilliqa testnet. You can verify on Zilliqa via sourcify:
+Now we need to deploy some contracts on the Zilliqa testnet. You can
+verify on Zilliqa via sourcify:
 
-```
-forge verify-contract <address> --rpc-url https://dev-api.zilliqa.com --chain-id 33101 --verifier sourcify
+```sh
+forge verify-contract <address> --rpc-url https://dev-api.zilliqa.com \
+  --chain-id 33101 --verifier sourcify
 ```
 
 We'll need our own token manager. This is identical to the
@@ -126,21 +137,26 @@ We'll need our own token manager. This is identical to the
 functionality to deal with bridging native tokens (so that bridged ZIL
 can be made to work).
 
-```
-forge script script/zq-testnet/deployNativeTokenManagerV3.s.sol --rpc-url https://dev-api.zilliqa.com --broadcast --legacy
-forge script script/zq-testnet/setChainGatewayOnTokenManager.s.sol --rpc-url https://dev-api.zilliqa.com --broadcast --legacy
+```sh
+forge script script/zq-testnet/deployNativeTokenManagerV3.s.sol \
+  --rpc-url https://dev-api.zilliqa.com --broadcast --legacy
+forge script script/zq-testnet/setChainGatewayOnTokenManager.s.sol \
+  --rpc-url https://dev-api.zilliqa.com --broadcast --legacy
 ```
 
 Now we can deploy some contracts to the BNB testnet:
 
-```
-forge script script/bsc-testnet/deployZilBridgeTokens.s.sol --tc Deployment --rpc-url https://bsc-testnet.bnbchain.org --broadcast
-forge verify-contract <address> --rpc-url https://bsc-testnet.bnbchain.org --chain-id 97
+```sh
+forge script script/bsc-testnet/deployZilBridgeTokens.s.sol \
+  --tc Deployment --rpc-url https://bsc-testnet.bnbchain.org \
+  --broadcast
+forge verify-contract <address> --rpc-url https://bsc-testnet.bnbchain.org \
+  --chain-id 97
 ```
 
 And the corresponding tokens to the Zilliqa testnet:
 
-```
+```sh
 cd scilla-contracts
 pnpm i
 export TOKEN_MANAGER_ADDRESS=(value of zq_lockAndReleaseOrNativeTokenManager)
@@ -150,15 +166,19 @@ npx hardhat run scripts/deploy.ts --network zq_testnet
 
 And now we ship an ERC20 proxy for our ZRC2 and switcheo tokens.
 
-```
-forge script script/zq-testnet/deployZRC2ERC20.s.sol --rpc-url https://dev-api.zilliqa.com --broadcast --legacy
+```sh
+forge script script/zq-testnet/deployZRC2ERC20.s.sol \
+  --rpc-url https://dev-api.zilliqa.com --broadcast --legacy
 ```
 
-And now we can set up routing for the tokens we just deployed. This is "just" calls, so
+And now we can set up routing for the tokens we just deployed. This is
+"just" calls, so
 
-```
-forge script script/bsc-testnet/setZilBridgeRouting.s.sol --rpc-url https://bsc-testnet.bnbchain.org --broadcast
-forge script script/zq-testnet/setZilBridgeRouting.s.sol --rpc-url https://dev-api.zilliqa.com --broadcast --legacy
+```sh
+forge script script/bsc-testnet/setZilBridgeRouting.s.sol \
+  --rpc-url https://bsc-testnet.bnbchain.org --broadcast
+forge script script/zq-testnet/setZilBridgeRouting.s.sol \
+  --rpc-url https://dev-api.zilliqa.com --broadcast --legacy
 ```
 
 ### Testing
@@ -174,26 +194,30 @@ export VITE_BSC_TESTNET_API=http://localhost:6128
 export VITE_BSC_TESTNET_KEY=""
 ```
 
-Remember to omit the trailing '/' from `VITE_BSC_TESTNET_API` or you will get CORS errors.
+Remember to omit the trailing '/' from `VITE_BSC_TESTNET_API` or you
+will get CORS errors.
 
 And run:
 
-```
-mitmweb --mode reverse:https://data-seed-prebsc-1-s1.binance.org:8545/ --no-web-open-browser --listen-port 6128 --web-port 6001
+```sh
+mitmweb --mode reverse:https://data-seed-prebsc-1-s1.binance.org:8545/ \
+  --no-web-open-browser --listen-port 6128 --web-port 6001
 ```
 
-Put the token and token manager addresses from `testnet_config.s.sol` into `bridge-web/src/config/config.ts` .
+Put the token and token manager addresses from `testnet_config.s.sol`
+into `bridge-web/src/config/config.ts` .
 
 You can transfer yourself some tokens by setting
 `ZILBRIDGE_TEST_ADDRESS` and `ZILBRIDGE_TEST_AMOUNT` and running:
 
-```
-forge script script/bsc-testnet/zilBridgeTransferERC20.s.sol --rpc-url https://bsc-testnet.bnbchain.org --broadcast
+```sh
+forge script script/bsc-testnet/zilBridgeTransferERC20.s.sol \
+  --rpc-url https://bsc-testnet.bnbchain.org --broadcast
 ```
 
 And, setting `ZILBRIDGE_SCILLA_TOKEN_ADDRESS` to the Scilla token address:
 
-```
+```sh
 npx hardhat run scripts/transfer.ts
 ```
 
@@ -207,45 +231,62 @@ in.
 
 ### Debugging from-zilliqa transfers
 
-Since Zilliqa testnet doesn't support tracing, this is done by bisection. You only need one way, since we only care about the sending txn working.
+Since Zilliqa testnet doesn't support tracing, this is done by
+bisection. You only need one way, since we only care about the sending
+txn working.
 
 - Redeploy the token manager on ZQ:
 
-```
-forge script script/zq-testnet/deployNativeTokenManagerV3.s.sol --rpc-url https://dev-api.zilliqa.com --broadcast --legacy
+```sh
+forge script script/zq-testnet/deployNativeTokenManagerV3.s.sol \
+  --rpc-url https://dev-api.zilliqa.com --broadcast --legacy
 <edit config>
-forge script script/zq-testnet/setChainGatewayOnTokenManager.s.sol --rpc-url https://dev-api.zilliqa.com --broadcast --legacy
-forge verify-contract <address> --rpc-url https://dev-api.zilliqa.com --chain-id 33101
+forge script script/zq-testnet/setChainGatewayOnTokenManager.s.sol \
+  --rpc-url https://dev-api.zilliqa.com --broadcast --legacy
+forge verify-contract <address> --rpc-url https://dev-api.zilliqa.com \
+ --chain-id 33101
 ```
 
-- Now write some routing - it actually doesn't matter that the routing gets messed up, because we're only testing Zilliqa ZRC2 out, and the native ZRC2 doesn't
-  care what the token manager is:
+Now write some routing - it actually doesn't matter that the routing
+gets messed up, because we're only testing Zilliqa ZRC2 out, and the
+native ZRC2 doesn't care what the token manager is:
 
-```
-forge script script/zq-testnet/setZilBridgeRouting.s.sol --rpc-url https://dev-api.zilliqa.com --broadcast --legacy
+```sh
+forge script script/zq-testnet/setZilBridgeRouting.s.sol \
+  --rpc-url https://dev-api.zilliqa.com --broadcast --legacy
 ```
 
 - Run `transfer.ts` to transfer some `ZBTEST` to the wallet you want to test.
 - List the new token manager in `config.ts` in `bridge-web`
 
-Now you can send a `transfer()` request and see if it works .. you'll need to redeploy the test token contracts and rerun routing setup (from both sides!) to fix the bridge when the bugs are sorted.
+Now you can send a `transfer()` request and see if it works .. you'll
+need to redeploy the test token contracts and rerun routing setup
+(from both sides!) to fix the bridge when the bugs are sorted.
 
-When you're done, you'll need to redeploy the rest of the tokens, so that the bridged ZRC2 has the right token manager set, then set up routing again:
+When you're done, you'll need to redeploy the rest of the tokens, so
+that the bridged ZRC2 has the right token manager set, then set up
+routing again:
 
-```
+```sh
 cd scilla-contracts
 pnpm i
-export TOKEN_MANAGER_ADDRESS=(value of zq_lockAndReleaseOrNativeTokenManager WITHOUT 0x prefix)
-# NOW EDIT scripts/deploy.ts for the address of the Zilliqa testnet token manager.
+export TOKEN_MANAGER_ADDRESS=(value of
+  zq_lockAndReleaseOrNativeTokenManager WITHOUT 0x prefix)
+
+# NOW EDIT scripts/deploy.ts for the address of the
+# Zilliqa testnet token manager.
 npx hardhat run scripts/deploy.ts --network zq_testnet
 ```
 
 Remember to update `testnet_config.sol`, then:
 
-```
-forge script script/zq-testnet/deployZRC2ERC20.s.sol --rpc-url https://dev-api.zilliqa.com --broadcast --legacy
-forge script script/bsc-testnet/setZilBridgeRouting.s.sol --rpc-url https://bsc-testnet.bnbchain.org --broadcast
-forge script script/zq-testnet/setZilBridgeRouting.s.sol --rpc-url https://dev-api.zilliqa.com --broadcast --legacy
+```sh
+forge script script/zq-testnet/deployZRC2ERC20.s.sol \
+  --rpc-url https://dev-api.zilliqa.com --broadcast --legacy
+forge script script/bsc-testnet/setZilBridgeRouting.s.sol \
+  --rpc-url https://bsc-testnet.bnbchain.org --broadcast
+forge script script/zq-testnet/setZilBridgeRouting.s.sol \
+  --rpc-url https://dev-api.zilliqa.com --broadcast --legacy
 ```
 
 And you can now get testing again.

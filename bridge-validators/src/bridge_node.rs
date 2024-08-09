@@ -77,7 +77,7 @@ impl BridgeNode {
         self.chain_client
             .get_events(
                 event.filter,
-                self.chain_client.chain_gateway_block_deployed.into(),
+                self.chain_client.chain_gateway_block_deployed,
                 to_block,
             )
             .await
