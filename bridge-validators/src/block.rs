@@ -6,14 +6,10 @@ use async_trait::async_trait;
 use anyhow::{anyhow, Result};
 use ethers::{
     providers::Middleware,
-    types::{
-        Address, Block, BlockNumber, Filter, Log, TransactionReceipt, TxHash, ValueOrArray, H160,
-        U64,
-    },
+    types::{Address, Block, BlockNumber, Filter, Log, TxHash, ValueOrArray, U64},
 };
 use ethers_contract::{parse_log, EthEvent};
 use futures::{Stream, StreamExt, TryStreamExt};
-use serde::{Deserialize, Serialize};
 use tokio::time::interval;
 use tracing::{debug, info, warn};
 
