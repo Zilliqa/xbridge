@@ -18,7 +18,7 @@ import {
   useSwitchNetwork,
   useWaitForTransaction,
 } from "wagmi";
-import { formatEther, formatUnits, getAbiItem, parseUnits } from "viem";
+import { getAddress, isAddressEqual, formatEther, formatUnits, getAbiItem, parseUnits, zeroAddress } from "viem";
 import { Id, toast } from "react-toastify";
 import { tokenManagerAbi } from "./abi/TokenManager";
 import { ZilTokenManagerAbi } from "./abi/ZilTokenManager";
@@ -105,9 +105,8 @@ function App() {
     enabled: !!token.tokenManagerAddress,
   });
 
-  /* TODO: Make this less horrific */
-  const isNative = (token.address === "0x");
-  const { data: nativeBalanceData } = useBalance({
+  const isNative = token.address === null;
+    const { data: nativeBalanceData } = useBalance({
     address: account,
       enabled: !!account && !!token.address,
     watch: true});
@@ -151,7 +150,7 @@ function App() {
     transferAmount = transferAmount + (BigInt(toTransfer));
   }
 
-  let addressForTokenManager = isNative ?  "0x0000000000000000000000000000000000000000" : token.address;
+  let addressForTokenManager = isNative ?  zeroAddress : getAddress(token.address);
   const { config: transferConfig } = usePrepareContractWrite({
     address: token.tokenManagerAddress,
     abi: tokenManagerAbi,
@@ -425,8 +424,12 @@ function App() {
   };
 
   let addTokenComponent = <div />;
-  if (!isNative) {
+  if (!isNative && siteConfig.addTokensToMetamask) {
     addTokenComponent = <AddToken info={ token } decimals={ decimals } symbol={contractSymbol}  />
+  }
+  let allowanceDisplay = <span />;
+  if (siteConfig.showAllowance) {
+    allowanceDisplay = <span> Allowance:{" "} { (allowance !== undefined && decimals) ? formatUnits(allowance, decimals) : null } </span>;
   }
 
   return (
@@ -437,7 +440,7 @@ function App() {
           <div className="card-body">
             <div className="card-title">
               <p className="text-4xl text-center tracking-wide">BRIDGE</p>
-      </div>
+            </div>
             <div className="form-control">
               <div className="label">
                 <span>Networks</span>
@@ -455,7 +458,7 @@ function App() {
                   <ul
                     tabIndex={0}
                     className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-full"
-      >
+                  >
                     {Object.values(chainConfigs)
                       .filter(
                         (config) => config.chain !== fromChainConfig.chain,
@@ -520,13 +523,12 @@ function App() {
               <div className="label">
                 <span>Token</span>
                 <span className="label-text-alt self-end">
-      Balance:{" "}
+                  Balance:{" "}
                   {balance !== undefined && decimals
                     ? formatUnits(balance, decimals)
                     : null}
-    {" "}
-    Allowance:{" "} {allowance !== undefined && decimals
-      ? formatUnits(allowance, decimals) : null }
+                 {" "}
+                 {allowanceDisplay}
                 </span>
               </div>
               <div className="join">
@@ -547,7 +549,7 @@ function App() {
                           icon={faChevronDown}
                           color="white"
                           className="ml-auto"
-      />
+                        />
                       </button>
 
                       <ul
@@ -578,14 +580,14 @@ function App() {
                   <button
                     onClick={() => window.open(token.blockExplorer, "_blank")}
                     className="btn join-item"
-      >
+                   >
                     <FontAwesomeIcon
                       icon={faArrowUpRightFromSquare}
                       color="white"
                       className="ml-auto"
                     />
-      </button>
-      { addTokenComponent }
+                 </button>
+                { addTokenComponent }
                 </div>
                 <input
                   className={`input join-item input-bordered w-full text-right ${
@@ -652,7 +654,7 @@ function App() {
                 </div>
               </>
             )}
-      <div className="card-actions mt-auto pt-4">
+            <div className="card-actions mt-auto pt-4">
               {!hasEnoughAllowance && hasEnoughBalance ? (
                 <button
                   className="btn w-5/6 mx-10 btn-outline"
@@ -660,9 +662,9 @@ function App() {
                   onClick={async () => {
                     if (approve) {
                       const tx = await approve();
-                      console.log('....');
-                      console.log(tx.hash);
-                      console.log('....');
+                      if (siteConfig.logTxnHashes) {
+                        console.log(tx.hash);
+                      }
                       setLatestTxn(["approve", tx.hash]);
                     }
                   }}
@@ -689,7 +691,9 @@ function App() {
                     } else {
                       return;
                     }
-                    console.log(tx.hash);
+                    if (siteConfig.logTxnHashes) {
+                      console.log(tx.hash);
+                    }
                     setLatestTxn(["bridge", tx.hash]);
                   }}
                 >

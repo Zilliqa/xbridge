@@ -17,6 +17,8 @@ export VITE_BSC_TESTNET_API=http://localhost:5556
 export VITE_BSC_TESTNET_KEY=
 ```
 
+This is designed so that if you have a quiknode endpoint, you can set `VITE_BSC_TESTNET_KEY` to your key.
+
 ## How to modify the encoded configuration
 
 The steps to modify secrets are:

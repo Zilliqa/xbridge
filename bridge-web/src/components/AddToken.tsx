@@ -18,7 +18,7 @@ const AddToken : FC = ({ info, decimals, symbol }: AddTokenProps) =>  {
     const provider = connector.options.getProvider();
     let toastOpts = { autoClose: 5000 };
     try {
-      toast.info('Please confirm token add in Metamask', toastOpts);
+      toast.info('Confirm token add in wallet', toastOpts);
       const wasAdded = await provider.request({
         method: "wallet_watchAsset",
         params: {
@@ -33,9 +33,9 @@ const AddToken : FC = ({ info, decimals, symbol }: AddTokenProps) =>  {
       });
 
       if (wasAdded) {
-        toast.success(`Added token ${info.name} to metamask`, toastOpts);
+        toast.success(`Added token ${info.name}`, toastOpts);
       } else {
-        toast.error(`Couldn't add token ${info.name} to metamask`, toastOpts);
+        toast.error(`Couldn't add token ${info.name}`, toastOpts);
       }
     } catch (e: Exception) {
       toast.error(`Can't add token ${info.name}`, toastOpts);

@@ -15,11 +15,11 @@ use crate::ChainConfig;
 
 pub type Client = NonceManagerMiddleware<SignerMiddleware<Provider<Http>, LocalWallet>>;
 
-// ZQ1 seems to have given up responding to getLogs(), so we now have
-// a way to query all transactions on the chain to obtain our logs.
 #[derive(Debug, Clone)]
 pub enum LogStrategy {
+    // use eth_getLogs()
     GetLogs,
+    // scan every transaction individually
     GetTransactions,
 }
 

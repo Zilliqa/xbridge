@@ -23,8 +23,9 @@ function configureCustomRpcUrl(chain: Chain, rpcUrl: string): Chain {
   };
 }
 
-export const config: SiteConfig = {
-  addTokensToMetamask: true
+export const siteConfig: SiteConfig = {
+  addTokensToMetamask: false,
+  showAllowance: false
 }
 
 export const chainConfigs: Partial<Record<Chains, ChainConfig>> =

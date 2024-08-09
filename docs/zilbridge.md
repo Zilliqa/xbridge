@@ -1,22 +1,40 @@
 # Zilbridge/XBridge integration
 
+Note that this work was done referencing the ZilBridge 1 contracts
+available on Ethereum Mainnet (which have been verified - hence the
+rather horrid source).
+
+Other contracts on the other correspondent chains of ZilBridge are
+only patchily verified, and the ones that are verified are different
+from those on Ethereum; the same approach should work, but I can't
+guarantee it. Proceed with caution.
+
 
 ## CrossChainManager extensions
 
-The currently deployed CCM on Ethereum does not contain functions to register lockProxy extensions.
+The currently deployed CCM on Ethereum does not contain functions to
+register lockProxy extensions.
 
-These can be run remotely from the `counterpartChainId` (in `lockProxy`), currently set to 5 (which is presumably Carbon).
+These can be run remotely from the `counterpartChainId` (in
+`lockProxy`), currently set to 5 (which is presumably Carbon).
 
 This means we need to either proxy or replace it.
 
-Replacing it is undesirable, because the address of the CCM is baked into the configuration files for the relayers.
+Replacing it is undesirable, because the address of the CCM is baked
+into the configuration files for the relayers.
 
 My first attempt was to proxy it with a `CCMExtendProxy`, but this doesn't work, because:
 
  * To upgrade you have to call `ccmProxy::upgradeEthCrossChainManager()`
- * (side-note: this calls the _current_ `eccm.upgradeToNew()` which hands ownership of the CCM data (proxied by the CCM contract) to the CCMExtendProxty, which now needs to hand it back to the old `ccm`)
- * Subsequent calls through the `CCMExtendProxy` need to use the original `ccm` state, and therefore have the `CCMExtendProxy` as `msg.sender`.
- * But there is no way to make the `CCMExtendProxy` an owner of the `ccm`.
+ * (side-note: this calls the _current_ `eccm.upgradeToNew()` which
+   hands ownership of the CCM data (proxied by the CCM contract) to
+   the CCMExtendProxty, which now needs to hand it back to the old
+   `ccm`)
+ * Subsequent calls through the `CCMExtendProxy` need to use the
+   original `ccm` state, and therefore have the `CCMExtendProxy` as
+   `msg.sender`.
+ * But there is no way to make the `CCMExtendProxy` an owner of the
+   `ccm`.
 
 The second attempt is to write a new CCM contract which duplicates the
 original CCM and contains the new functions. Sadly, this means that
@@ -24,9 +42,20 @@ someone needs to remember what the whitelist parameters were, because
 it is a map that does not emit events and we thus can't work out what
 is in it.
 
+If we have the ability to register extensions directly over the
+bridge, then all the faff with `CCMExtendProxy` is unnecessary and we
+can directly register `LockProxyTokenManager` as an extension.
+
+If we do have to use `CCMExtendProxy`, it might be wise to remove the
+bridge functions for release, to exclude any bugs in them from our
+security perimeter.
+
+We'll have to discuss this when we come to migrate ZilBridge.
+
 ## LockProxyTokenManager
 
-There is a `LockProxyTokenManager` which is registered as an extension and interacts with the lock proxy to bridge tokens.
+There is a `LockProxyTokenManager` which is registered as an extension
+and interacts with the lock proxy to bridge tokens.
 
 zilBridge itself doesn't know which tokens are mint/burn and which are
 lock/release - the lockproxy simply transfers tokens to and from
@@ -49,44 +78,26 @@ If we do replace the non-Zilliqa `ccm`, I suggest that we do so with a
 CCM that doesn't accept cross-chain events; this will make sure that
 old keys from zilbridge/polynet can't compromise us in the future.
 
-### Native ZIL operations
+## Testnet Deployment with Zilliqa Testnet and BSC testnet
 
-It's not possible to send native tokens via interop calls on
-Zilliqa. Thus, the only way to unwrap wrapped ZIL is natively.
-
-Because signature verification is carried out on chain, we can't easily modify the verifier to make native calls.
-
-So, the best we can do is to:
-
- * Issue a wrapped ZIL (`wZIL` itself is owned by Jun Hao - we could take over)
- * Withdraw all the ZIL from the `lockProxy` and deposit it in wZIL
- * Give that wZIL to the `lockProxy`
- * Register wZIL as the `lockProxy` corresponding token for wrapped ZIL on other chains.
- * `lockProxy` will then give you `wZIL` for your wrapped ZIL on other chains and you can issue a native call to get ZIL back for it.
-
-Unfortunately, we have to live (probably permanently unless we can
-think of a way around it) with `lockProxy` accepting ZIL - if you send
-your ZIL to `lockProxy`, we will have to recover it for you with our
-admin rights, because obviously you won't be able to bridge it to
-anywhere else.
-
-##  BSC Testnet Deployment
-
-There are a group of scripts that allow you to deploy the EVM half of the ZilBridge transition code into BSC Testnet.
+There are a group of scripts that allow you to deploy the EVM half of
+the ZilBridge transition code into BSC Testnet.
 
 The `smart-contracts/README.md` contains predeployed addresses; if you
 decide to redeploy you will need to change the constants in the `
 scripts, since this is how the addresses of previous contracts are
 baked in (sorry!).
 
-Set `PRIVATE_KEY_TESTNET` to the validator privkey, and `PRIVATE_KEY_ZILBRIDGE` to the zilbridge owner privkey.
+Set `PRIVATE_KEY_TESTNET` to the validator privkey, and
+`PRIVATE_KEY_ZILBRIDGE` to the zilbridge owner privkey.
 
 After each step (each script run) in the below, you will need to:
 
  * Verify the contracts you just deployed.
  * Update the `testnet_config.s.sol` file with the addresses of the contracts you just deployed.
 
-In most cases, the script will give you the name of the `testnet_config.s.sol` constant to update.
+In most cases, the script will give you the name of the
+`testnet_config.s.sol` constant to update.
 
 Run with:
 
@@ -192,26 +203,9 @@ The ZQ transfer needs to be ZRC-2 because the initial funds holder is
 the Zilliqa account associated with `PRIVATE_KEY_ZILBRIDGE` and we
 therefore need a Scilla transition to transfer them.
 
-Test cases:
-
-| Number | Token | From | To  | Result | Remarks |
-|--------|-------|------|-----|--------|---------|
-| IT001  | xTST  | BSC  | ZQ  |        |         |
-| IT002  | xTST  | ZQ   | BSC |        |         |
-| IT003  | ZBTST | BSC  | ZQ  |        |         |
-| IT004  | ZBTST | ZQ   | BSC |        |         |
-| IT005  | zBNB  | BSC  | ZQ  |        |         |
-| IT006  | zBNB  | ZQ   | BSC |        |         |
-| IT007  | eZIL  | ZQ   | BSC |        |         |
-| IT008  | eZIL  | BSC  | ZQ  |        |         |
-
-
-Result is Pass/Fail/Other.
-
-## TODO
-
- - Move the test code for zilbrige into `test/`
- - Refactor out `SafeMath` etc. - we could have only one copy of these (probably!)
+There is a test case template in
+`docs/zilbridge_test_template.md`. Copy it for your commit and fill it
+in.
 
 
 ### Debugging from-zilliqa transfers

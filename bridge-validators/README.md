@@ -1,6 +1,6 @@
 # The bridge validator
 
-This is a bit of rust code that acts as a trivial bridge validator. It
+This directory contains software that acts as a trivial bridge validator. It
 accepts a configuration file - of which there is an example in
 `config.toml` - and listens on the configured chains, relaying events
 from the configured chain gateways.

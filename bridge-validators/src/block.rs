@@ -19,14 +19,6 @@ use tracing::{debug, info, warn};
 
 use crate::client::{ChainClient, LogStrategy};
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct GetBlockByNumberRequest {
-    #[serde(rename = "blockNumber")]
-    pub block_number: BlockNumber,
-    #[serde(rename = "transaction_detail_flag")]
-    pub transaction_detail_flag: bool,
-}
-
 #[async_trait]
 pub trait BlockPolling {
     #[allow(dead_code)]
@@ -59,7 +51,7 @@ impl ChainClient {
             let the_block: Option<Block<TxHash>> =
                 self.client.provider().get_block(block_number).await?;
             if let Some(block) = the_block {
-                // go through alll the transactions
+                // go through all the transactions
                 for txn_hash in block.transactions {
                     // We have a transaction. Did it have any logs?
                     debug!("block {} txn {:#x}", block_number, txn_hash);
@@ -154,7 +146,10 @@ impl BlockPolling for ChainClient {
     where
         D: EthEvent,
     {
-        let event = event.from_block(from_block).to_block(to_block);
+        let event = event
+            .from_block(from_block)
+            .to_block(to_block)
+            .address(self.chain_gateway_address);
 
         let logs: Vec<Log> = match self.log_strategy {
             LogStrategy::GetLogs => {
@@ -260,7 +255,6 @@ impl<D: EthEvent> EventListener<D> {
         let min_block = self.current_block + 1;
         // Don't worry about blocks which are too recent for us to care about.
         let max_block = new_block - scan_behind_blocks;
-        info!("min_block {}, max_block {}", min_block, max_block);
         if max_block <= min_block {
             // No point in checking, return early
             return Ok(vec![]);
@@ -290,7 +284,7 @@ impl<D: EthEvent> EventListener<D> {
             new_block,
             events.len(),
         );
-        if events.len() > 0 {
+        if !events.is_empty() {
             info!(
                 "Getting from {} to {}, events gathered {:?}",
                 (self.current_block + 1),
@@ -299,7 +293,6 @@ impl<D: EthEvent> EventListener<D> {
             )
         }
 
-        info!("Assigning current_block to {}", new_block);
         self.current_block = new_block;
 
         Ok(events)

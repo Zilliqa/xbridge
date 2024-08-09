@@ -1,4 +1,4 @@
-name: "CI for Product Bridge - synthetic change for testing"
+name: "CI for Product Bridge"
 
 on:
   push: {}
