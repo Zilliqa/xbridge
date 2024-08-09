@@ -18,7 +18,7 @@ import {
   useSwitchNetwork,
   useWaitForTransaction,
 } from "wagmi";
-import { getAddress, isAddressEqual, formatEther, formatUnits, getAbiItem, parseUnits, zeroAddress } from "viem";
+import { getAddress, formatEther, formatUnits, getAbiItem, parseUnits, zeroAddress } from "viem";
 import { Id, toast } from "react-toastify";
 import { tokenManagerAbi } from "./abi/TokenManager";
 import { ZilTokenManagerAbi } from "./abi/ZilTokenManager";
@@ -122,8 +122,9 @@ function App() {
 
   contractBalance = contractBalance ?? BigInt(0);
   let nativeBalance = (nativeBalanceData && nativeBalanceData.value) ? nativeBalanceData.value : BigInt(0);
+  let nativeDecimals = (nativeBalanceData && nativeBalanceData.decimals) ? nativeBalanceData.decimals : 0; 
   const balance = isNative ? nativeBalance : contractBalance;
-  const decimals = isNative ? nativeBalanceData.decimals : contractDecimals;
+  const decimals = isNative ? nativeDecimals : contractDecimals;
   // We always say that native token transfers have enough allowance.
   const { data: allowance } = useContractRead({
     abi: erc20ABI,
@@ -424,8 +425,8 @@ function App() {
   };
 
   let addTokenComponent = <div />;
-  if (!isNative && siteConfig.addTokensToMetamask) {
-    addTokenComponent = <AddToken info={ token } decimals={ decimals } symbol={contractSymbol}  />
+  if (!isNative && siteConfig.addTokensToMetamask && decimals && contractSymbol) {
+    addTokenComponent = <AddToken info={ token } decimals={ decimals! } symbol={contractSymbol!}  />
   }
   let allowanceDisplay = <span />;
   if (siteConfig.showAllowance) {

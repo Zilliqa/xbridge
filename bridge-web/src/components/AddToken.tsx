@@ -2,7 +2,8 @@ import { TokenConfig } from "../config/config";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { useAccount } from "wagmi";
-import { Id, toast } from "react-toastify";
+import { toast } from "react-toastify";
+import { FC } from "react";
 
 interface AddTokenProps {
   info: TokenConfig,
@@ -11,11 +12,11 @@ interface AddTokenProps {
 };
 
 
-const AddToken : FC = ({ info, decimals, symbol }: AddTokenProps) =>  {
+const AddToken : FC<{ info: TokenConfig, decimals: number, symbol: string}>  = ({ info, decimals, symbol }: AddTokenProps) =>  {
   const { connector } = useAccount();
 
   let addToMetamask = async () => {
-    const provider = connector.options.getProvider();
+    const provider = connector!.options.getProvider();
     let toastOpts = { autoClose: 5000 };
     try {
       toast.info('Confirm token add in wallet', toastOpts);
@@ -37,7 +38,7 @@ const AddToken : FC = ({ info, decimals, symbol }: AddTokenProps) =>  {
       } else {
         toast.error(`Couldn't add token ${info.name}`, toastOpts);
       }
-    } catch (e: Exception) {
+    } catch (e: unknown) {
       toast.error(`Can't add token ${info.name}`, toastOpts);
     }
   };

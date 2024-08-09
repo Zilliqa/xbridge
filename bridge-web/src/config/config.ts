@@ -204,4 +204,6 @@ export type TokenConfig = {
 
 export type SiteConfig = {
   addTokensToMetamask: boolean
+  showAllowance: boolean,
+  logTxnHashes: boolean
 }
