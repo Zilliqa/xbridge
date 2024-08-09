@@ -17,6 +17,7 @@ pub enum ExternalMessage {
 }
 
 impl ExternalMessage {
+    #[allow(dead_code)]
     pub fn name(&self) -> &'static str {
         match self {
             ExternalMessage::BridgeEcho(_) => "BridgeEcho",
