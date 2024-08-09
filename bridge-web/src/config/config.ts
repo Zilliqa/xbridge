@@ -8,7 +8,7 @@ import seed_token from "../assets/seed_token.png";
 export enum TokenManagerType {
   MintAndBurn,
   LockAndRelease,
-  ZilBridge
+  ZilBridge,
 }
 
 export type Chains = "bsc-testnet" | "zq-testnet" | "bsc" | "zq";
@@ -26,8 +26,8 @@ function configureCustomRpcUrl(chain: Chain, rpcUrl: string): Chain {
 export const siteConfig: SiteConfig = {
   addTokensToMetamask: false,
   showAllowance: false,
-  logTxnHashes: false
-}
+  logTxnHashes: false,
+};
 
 export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
   import.meta.env.MODE === "production"
@@ -116,7 +116,7 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
               name: "ZBTST",
               address: "0xd3750B930ED52C26584C18B4f5eeAb986D7f3b36",
               blockExplorer:
-              "https://otterscan.testnet.zilliqa.com/address/0x2A82a13A118c0f9E203a9C006742024354D0f4Ca",
+                "https://otterscan.testnet.zilliqa.com/address/0x2A82a13A118c0f9E203a9C006742024354D0f4Ca",
               logo: test_hrse_token,
               tokenManagerAddress: "0x41823941D00f47Ea1a98D75586915BF828F4a038",
               tokenManagerType: TokenManagerType.ZilBridge,
@@ -129,7 +129,6 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
               logo: seed_token,
               tokenManagerAddress: "0x1509988c41f02014aA59d455c6a0D67b5b50f129",
               tokenManagerType: TokenManagerType.ZilBridge,
-
             },
           ],
           chainId: 33101,
@@ -150,7 +149,7 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
               name: "TST",
               address: "0xa1a47FA4D26137329BB08aC2E5F9a6C32D180fE3",
               blockExplorer:
-              "https://testnet.bscscan.com/address/0xa1a47FA4D26137329BB08aC2E5F9a6C32D180fE3",
+                "https://testnet.bscscan.com/address/0xa1a47FA4D26137329BB08aC2E5F9a6C32D180fE3",
               logo: fps_token,
               tokenManagerAddress: "0x36b8A9cd6Bf9bfA5984093005cf81CAfB1Bf06F7",
               tokenManagerType: TokenManagerType.MintAndBurn,
@@ -159,7 +158,7 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
               name: "eZBTST",
               address: "0x201eDd0521cF4B577399F789e22E05405D500163",
               blockExplorer:
-              "https://testnet.bscscan.com/address/0x201eDd0521cF4B577399F789e22E05405D500163",
+                "https://testnet.bscscan.com/address/0x201eDd0521cF4B577399F789e22E05405D500163",
               logo: test_hrse_token,
               tokenManagerAddress: "0x36b8A9cd6Bf9bfA5984093005cf81CAfB1Bf06F7",
               tokenManagerType: TokenManagerType.MintAndBurn,
@@ -203,7 +202,7 @@ export type TokenConfig = {
 };
 
 export type SiteConfig = {
-  addTokensToMetamask: boolean
-  showAllowance: boolean,
-  logTxnHashes: boolean
-}
+  addTokensToMetamask: boolean;
+  showAllowance: boolean;
+  logTxnHashes: boolean;
+};

@@ -18,7 +18,14 @@ import {
   useSwitchNetwork,
   useWaitForTransaction,
 } from "wagmi";
-import { getAddress, formatEther, formatUnits, getAbiItem, parseUnits, zeroAddress } from "viem";
+import {
+  getAddress,
+  formatEther,
+  formatUnits,
+  getAbiItem,
+  parseUnits,
+  zeroAddress,
+} from "viem";
 import { Id, toast } from "react-toastify";
 import { tokenManagerAbi } from "./abi/TokenManager";
 import { ZilTokenManagerAbi } from "./abi/ZilTokenManager";
@@ -86,13 +93,13 @@ function App() {
     address: token.address,
     enabled: !!token.address,
   });
-  const { data : contractSymbol } = useContractRead({
+  const { data: contractSymbol } = useContractRead({
     abi: erc20ABI,
     functionName: "symbol",
     address: token.address,
     enabled: !!token.address,
   });
-    const { data: fees } = useContractRead({
+  const { data: fees } = useContractRead({
     abi: tokenManagerAbi,
     functionName: "getFees",
     address: token.tokenManagerAddress,
@@ -106,10 +113,11 @@ function App() {
   });
 
   const isNative = token.address === null;
-    const { data: nativeBalanceData } = useBalance({
+  const { data: nativeBalanceData } = useBalance({
     address: account,
-      enabled: !!account && !!token.address,
-    watch: true});
+    enabled: !!account && !!token.address,
+    watch: true,
+  });
 
   let { data: contractBalance } = useContractRead({
     abi: erc20ABI,
@@ -121,8 +129,14 @@ function App() {
   });
 
   contractBalance = contractBalance ?? BigInt(0);
-  let nativeBalance = (nativeBalanceData && nativeBalanceData.value) ? nativeBalanceData.value : BigInt(0);
-  let nativeDecimals = (nativeBalanceData && nativeBalanceData.decimals) ? nativeBalanceData.decimals : 0; 
+  let nativeBalance =
+    nativeBalanceData && nativeBalanceData.value
+      ? nativeBalanceData.value
+      : BigInt(0);
+  let nativeDecimals =
+    nativeBalanceData && nativeBalanceData.decimals
+      ? nativeBalanceData.decimals
+      : 0;
   const balance = isNative ? nativeBalance : contractBalance;
   const decimals = isNative ? nativeDecimals : contractDecimals;
   // We always say that native token transfers have enough allowance.
@@ -132,12 +146,13 @@ function App() {
     address: token.address,
     args: [account!, token.tokenManagerAddress],
     enabled:
-    !isNative && !!account && !!token.address && !!token.tokenManagerAddress,
+      !isNative && !!account && !!token.address && !!token.tokenManagerAddress,
     watch: true,
   });
-    const hasEnoughAllowance =
-    isNative || (decimals && isAmountNonZero
-    ? (allowance ?? 0n) >= parseUnits(amount!, decimals)
+  const hasEnoughAllowance =
+    isNative ||
+    (decimals && isAmountNonZero
+      ? (allowance ?? 0n) >= parseUnits(amount!, decimals)
       : true);
 
   const hasEnoughBalance =
@@ -148,10 +163,12 @@ function App() {
   let transferAmount = fees ?? BigInt(0);
   if (isNative) {
     const toTransfer = amount ? parseUnits(amount, decimals ?? 0) : 0n;
-    transferAmount = transferAmount + (BigInt(toTransfer));
+    transferAmount = transferAmount + BigInt(toTransfer);
   }
 
-  let addressForTokenManager = isNative ?  zeroAddress : getAddress(token.address);
+  let addressForTokenManager = isNative
+    ? zeroAddress
+    : getAddress(token.address);
   const { config: transferConfig } = usePrepareContractWrite({
     address: token.tokenManagerAddress,
     abi: tokenManagerAbi,
@@ -425,12 +442,27 @@ function App() {
   };
 
   let addTokenComponent = <div />;
-  if (!isNative && siteConfig.addTokensToMetamask && decimals && contractSymbol) {
-    addTokenComponent = <AddToken info={ token } decimals={ decimals! } symbol={contractSymbol!}  />
+  if (
+    !isNative &&
+    siteConfig.addTokensToMetamask &&
+    decimals &&
+    contractSymbol
+  ) {
+    addTokenComponent = (
+      <AddToken info={token} decimals={decimals!} symbol={contractSymbol!} />
+    );
   }
   let allowanceDisplay = <span />;
   if (siteConfig.showAllowance) {
-    allowanceDisplay = <span> Allowance:{" "} { (allowance !== undefined && decimals) ? formatUnits(allowance, decimals) : null } </span>;
+    allowanceDisplay = (
+      <span>
+        {" "}
+        Allowance:{" "}
+        {allowance !== undefined && decimals
+          ? formatUnits(allowance, decimals)
+          : null}{" "}
+      </span>
+    );
   }
 
   return (
@@ -527,9 +559,8 @@ function App() {
                   Balance:{" "}
                   {balance !== undefined && decimals
                     ? formatUnits(balance, decimals)
-                    : null}
-                 {" "}
-                 {allowanceDisplay}
+                    : null}{" "}
+                  {allowanceDisplay}
                 </span>
               </div>
               <div className="join">
@@ -581,14 +612,14 @@ function App() {
                   <button
                     onClick={() => window.open(token.blockExplorer, "_blank")}
                     className="btn join-item"
-                   >
+                  >
                     <FontAwesomeIcon
                       icon={faArrowUpRightFromSquare}
                       color="white"
                       className="ml-auto"
                     />
-                 </button>
-                { addTokenComponent }
+                  </button>
+                  {addTokenComponent}
                 </div>
                 <input
                   className={`input join-item input-bordered w-full text-right ${

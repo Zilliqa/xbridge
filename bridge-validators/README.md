@@ -9,16 +9,23 @@ The configuration is defined in `src/main.rs`.
 
 There are a few options you can pass:
 
-```
+```sh
 --config-file <file>   : Use this config file.
---is-leader            : if true, we will be the validator node that sends transactions to the target chain.
---dispatch-history     : if true, we will go through all of history from chain_gateway_block_deployed and dispatch all relay
-                         transactions, to make sure we don't miss any in the gap between a previous instance dying and this
-                         instance starting. If false, we start at the current block.
+
+--is-leader            : if true, we will be the validator node that
+                         sends transactions to the target chain.
+
+--dispatch-history     : if true, we will go through all of history from
+                         chain_gateway_block_deployed and dispatch all relay
+                         transactions, to make sure we don't miss any in
+                         the gap between a previous instance dying and this
+                         instance starting. If false, we start at the current
+                         block.
+
 --help                 : help text.
 ```
 
-# Testing information
+## Testing information
 
 1.Run two anvil chains:
 

@@ -9,7 +9,6 @@ only patchily verified, and the ones that are verified are different
 from those on Ethereum; the same approach should work, but I can't
 guarantee it. Proceed with caution.
 
-
 ## CrossChainManager extensions
 
 The currently deployed CCM on Ethereum does not contain functions to
@@ -25,16 +24,16 @@ into the configuration files for the relayers.
 
 My first attempt was to proxy it with a `CCMExtendProxy`, but this doesn't work, because:
 
- * To upgrade you have to call `ccmProxy::upgradeEthCrossChainManager()`
- * (side-note: this calls the _current_ `eccm.upgradeToNew()` which
-   hands ownership of the CCM data (proxied by the CCM contract) to
-   the CCMExtendProxty, which now needs to hand it back to the old
-   `ccm`)
- * Subsequent calls through the `CCMExtendProxy` need to use the
-   original `ccm` state, and therefore have the `CCMExtendProxy` as
-   `msg.sender`.
- * But there is no way to make the `CCMExtendProxy` an owner of the
-   `ccm`.
+- To upgrade you have to call `ccmProxy::upgradeEthCrossChainManager()`
+- (side-note: this calls the _current_ `eccm.upgradeToNew()` which
+  hands ownership of the CCM data (proxied by the CCM contract) to
+  the CCMExtendProxty, which now needs to hand it back to the old
+  `ccm`)
+- Subsequent calls through the `CCMExtendProxy` need to use the
+  original `ccm` state, and therefore have the `CCMExtendProxy` as
+  `msg.sender`.
+- But there is no way to make the `CCMExtendProxy` an owner of the
+  `ccm`.
 
 The second attempt is to write a new CCM contract which duplicates the
 original CCM and contains the new functions. Sadly, this means that
@@ -93,8 +92,8 @@ Set `PRIVATE_KEY_TESTNET` to the validator privkey, and
 
 After each step (each script run) in the below, you will need to:
 
- * Verify the contracts you just deployed.
- * Update the `testnet_config.s.sol` file with the addresses of the contracts you just deployed.
+- Verify the contracts you just deployed.
+- Update the `testnet_config.s.sol` file with the addresses of the contracts you just deployed.
 
 In most cases, the script will give you the name of the
 `testnet_config.s.sol` constant to update.
@@ -126,7 +125,6 @@ We'll need our own token manager. This is identical to the
 `LockAndReleaseTokenManager`, but contains some additional
 functionality to deal with bridging native tokens (so that bridged ZIL
 can be made to work).
-
 
 ```
 forge script script/zq-testnet/deployNativeTokenManagerV3.s.sol --rpc-url https://dev-api.zilliqa.com --broadcast --legacy
@@ -207,12 +205,11 @@ There is a test case template in
 `docs/zilbridge_test_template.md`. Copy it for your commit and fill it
 in.
 
-
 ### Debugging from-zilliqa transfers
 
 Since Zilliqa testnet doesn't support tracing, this is done by bisection. You only need one way, since we only care about the sending txn working.
 
- * Redeploy the token manager on ZQ:
+- Redeploy the token manager on ZQ:
 
 ```
 forge script script/zq-testnet/deployNativeTokenManagerV3.s.sol --rpc-url https://dev-api.zilliqa.com --broadcast --legacy
@@ -221,15 +218,15 @@ forge script script/zq-testnet/setChainGatewayOnTokenManager.s.sol --rpc-url htt
 forge verify-contract <address> --rpc-url https://dev-api.zilliqa.com --chain-id 33101
 ```
 
- * Now write some routing - it actually doesn't matter that the routing gets messed up, because we're only testing Zilliqa ZRC2 out, and the native ZRC2 doesn't
+- Now write some routing - it actually doesn't matter that the routing gets messed up, because we're only testing Zilliqa ZRC2 out, and the native ZRC2 doesn't
   care what the token manager is:
 
 ```
 forge script script/zq-testnet/setZilBridgeRouting.s.sol --rpc-url https://dev-api.zilliqa.com --broadcast --legacy
 ```
 
- * Run `transfer.ts` to transfer some `ZBTEST` to the wallet you want to test.
- * List the new token manager in `config.ts` in `bridge-web`
+- Run `transfer.ts` to transfer some `ZBTEST` to the wallet you want to test.
+- List the new token manager in `config.ts` in `bridge-web`
 
 Now you can send a `transfer()` request and see if it works .. you'll need to redeploy the test token contracts and rerun routing setup (from both sides!) to fix the bridge when the bugs are sorted.
 

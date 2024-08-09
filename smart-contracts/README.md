@@ -297,6 +297,3 @@ See `script/configTestnet.s.sol` for up to date information.
 - `ValidatorManager`: `0xCc1CB36d981ae2907cea385F615e879434D20B1C`
 - `MintAndBurnTokenManager`: `0xA6D73210AF20a59832F264fbD991D2abf28401d0`
 - `BridgedTestToken`: `0x5190e8b4Bbe8C3a732BAdB600b57fD42ACbB9F4B`
-
-
-
