@@ -25,7 +25,7 @@ chain_gateway_block_deployed = 6542681
 rpc_url = "https://evm-api-xbridge.testnet.zilliqa.com"
 chain_gateway_address = "0x10917A34FE60eE8364a401a6b1d3adaf80D84eb6"
 block_instant_finality = true
-legacy_gas_estimation = true
+legacy_gas_estimation_percent = 130
 
 # Zilliqa Mainnet
 # [[chain_configs]]

@@ -127,6 +127,9 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
               blockExplorer:
                 "https://otterscan.testnet.zilliqa.com/address/0x28e8d39Fc68eaA27c88797Eb7D324b4B97D5b844",
               logo: seed_token,
+              tokenManagerAddress: "0x1509988c41f02014aA59d455c6a0D67b5b50f129",
+              tokenManagerType: TokenManagerType.ZilBridge,
+
             },
           ],
           chainId: 33101,
@@ -164,6 +167,8 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
             {
               name: "SEED",
               address: "0x486722DbA2F76aeFb9977641D11f3aC3e5bA281f",
+              tokenManagerAddress: "0xA6D73210AF20a59832F264fbD991D2abf28401d0",
+              tokenManagerType: TokenManagerType.MintAndBurn,
               blockExplorer:
                 "https://testnet.bscscan.com/address/0x486722DbA2F76aeFb9977641D11f3aC3e5bA281f",
               logo: seed_token,
