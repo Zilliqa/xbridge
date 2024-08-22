@@ -76,7 +76,9 @@ impl BridgeNode {
     {
         self.chain_client
             .get_events(
-                event.filter,
+                event
+                    .filter
+                    .address(self.chain_client.chain_gateway_address),
                 self.chain_client.chain_gateway_block_deployed.into(),
                 to_block,
             )
@@ -138,8 +140,14 @@ impl BridgeNode {
         let chain_gateway: ChainGateway<Client> = self.chain_client.get_contract();
 
         // TODO: polling finalized events
-        let relayed_filter = chain_gateway.event::<RelayedFilter>().filter;
-        let dispatched_filter = chain_gateway.event::<DispatchedFilter>().filter;
+        let relayed_filter = chain_gateway
+            .event::<RelayedFilter>()
+            .filter
+            .address(self.chain_client.chain_gateway_address);
+        let dispatched_filter = chain_gateway
+            .event::<DispatchedFilter>()
+            .filter
+            .address(self.chain_client.chain_gateway_address);
 
         let relayed_listener: EventListener<RelayedFilter> =
             EventListener::new(self.chain_client.clone(), relayed_filter);
