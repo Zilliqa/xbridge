@@ -34,6 +34,13 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
           wagmiChain: zilliqa,
           tokens: [
             {
+              name: "SEED",
+              address: "0xe64cA52EF34FdD7e20C0c7fb2E392cc9b4F6D049",
+              blockExplorer:
+                "https://otterscan.zilliqa.com/address/0xe64cA52EF34FdD7e20C0c7fb2E392cc9b4F6D049",
+              logo: seed_token,
+            },
+            {
               name: "HRSE",
               address: "0x63B991C17010C21250a0eA58C6697F696a48cdf3",
               blockExplorer:
@@ -65,6 +72,13 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
           tokenManagerType: TokenManagerType.MintAndBurn,
           tokens: [
             {
+              name: "SEED",
+              address: "0x9158dF7da69b048a296636D5DE7a3d9A7FB25E88",
+              blockExplorer:
+                "https://bscscan.com/address/0x9158dF7da69b048a296636D5DE7a3d9A7FB25E88",
+              logo: seed_token,
+            },
+            {
               name: "HRSE",
               address: "0x3BE0E5EDC58bd55AAa381Fa642688ADC289c05a3",
               blockExplorer:
@@ -95,6 +109,13 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
           wagmiChain: zilliqaTestnet,
           tokens: [
             {
+              name: "SEED",
+              address: "0x28e8d39Fc68eaA27c88797Eb7D324b4B97D5b844",
+              blockExplorer:
+                "https://otterscan.testnet.zilliqa.com/address/0x28e8d39Fc68eaA27c88797Eb7D324b4B97D5b844",
+              logo: seed_token,
+            },
+            {
               name: "TST",
               address: "0x8618d39a8276D931603c6Bc7306af6A53aD2F1F3",
               blockExplorer:
@@ -107,13 +128,6 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
               blockExplorer:
                 "https://otterscan.testnet.zilliqa.com/address/0xE90Dd366D627aCc5feBEC126211191901A69f8a0",
               logo: test_hrse_token,
-            },
-            {
-              name: "SEED",
-              address: "0x28e8d39Fc68eaA27c88797Eb7D324b4B97D5b844",
-              blockExplorer:
-                "https://otterscan.testnet.zilliqa.com/address/0x28e8d39Fc68eaA27c88797Eb7D324b4B97D5b844",
-              logo: seed_token,
             },
           ],
           chainId: 33101,
@@ -133,6 +147,13 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
           chainGatewayAddress: "0xa9A14C90e53EdCD89dFd201A3bF94D867f8098fE",
           tokens: [
             {
+              name: "SEED",
+              address: "0x486722DbA2F76aeFb9977641D11f3aC3e5bA281f",
+              blockExplorer:
+                "https://testnet.bscscan.com/address/0x486722DbA2F76aeFb9977641D11f3aC3e5bA281f",
+              logo: seed_token,
+            },
+            {
               name: "TST",
               address: "0x5190e8b4Bbe8C3a732BAdB600b57fD42ACbB9F4B",
               blockExplorer:
@@ -145,13 +166,6 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
               blockExplorer:
                 "https://testnet.bscscan.com/address/0x7Cc585de659E8938Aa7d5709BeaF34bD108bdC03",
               logo: test_hrse_token,
-            },
-            {
-              name: "SEED",
-              address: "0x486722DbA2F76aeFb9977641D11f3aC3e5bA281f",
-              blockExplorer:
-                "https://testnet.bscscan.com/address/0x486722DbA2F76aeFb9977641D11f3aC3e5bA281f",
-              logo: seed_token,
             },
           ],
           chainId: 97,
