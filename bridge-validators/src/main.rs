@@ -31,7 +31,9 @@ pub struct ChainConfig {
     pub chain_gateway_address: Address,
     pub chain_gateway_block_deployed: u64,
     pub block_instant_finality: Option<bool>,
-    pub legacy_gas_estimation: Option<bool>,
+    pub legacy_gas_estimation_percent: Option<u64>,
+    pub scan_behind_blocks: Option<u64>,
+    pub use_get_transactions: Option<bool>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -49,6 +51,8 @@ struct Args {
     config_file: PathBuf,
     #[clap(long)]
     is_leader: bool,
+    #[clap(long)]
+    dispatch_history: bool,
 }
 
 #[tokio::main]
@@ -77,8 +81,7 @@ async fn main() -> Result<()> {
         bootstrap_address: config.bootstrap_address,
     };
 
-    let mut node = P2pNode::new(args.secret_key, config).await?;
-
+    let mut node = P2pNode::new(args.secret_key, config, args.dispatch_history).await?;
     node.start().await?;
 
     Ok(())
