@@ -38,5 +38,5 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         />
       </RainbowKitProvider>
     </WagmiConfig>
-  </React.StrictMode>
+  </React.StrictMode>,
 );
