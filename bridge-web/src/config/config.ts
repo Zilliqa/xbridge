@@ -8,9 +8,16 @@ import seed_token from "../assets/seed_token.png";
 export enum TokenManagerType {
   MintAndBurn,
   LockAndRelease,
+  ZilBridge,
 }
 
 export type Chains = "bsc-testnet" | "zq-testnet" | "bsc" | "zq";
+
+export const siteConfig: SiteConfig = {
+  addTokensToMetamask: false,
+  showAllowance: false,
+  logTxnHashes: false,
+};
 
 function configureCustomRpcUrl(chain: Chain, rpcUrl: string): Chain {
   return {
@@ -28,9 +35,7 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
         zq: {
           chain: "zq",
           name: "Zilliqa",
-          tokenManagerAddress: "0x6D61eFb60C17979816E4cE12CD5D29054E755948",
           chainGatewayAddress: "0xbA44BC29371E19117DA666B729A1c6e1b35DDb40",
-          tokenManagerType: TokenManagerType.LockAndRelease,
           wagmiChain: zilliqa,
           tokens: [
             {
@@ -39,6 +44,8 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
               blockExplorer:
                 "https://otterscan.zilliqa.com/address/0xe64cA52EF34FdD7e20C0c7fb2E392cc9b4F6D049",
               logo: seed_token,
+              tokenManagerAddress: "0x6D61eFb60C17979816E4cE12CD5D29054E755948",
+              tokenManagerType: TokenManagerType.LockAndRelease,
             },
             {
               name: "HRSE",
@@ -46,6 +53,8 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
               blockExplorer:
                 "https://otterscan.zilliqa.com/address/0x63B991C17010C21250a0eA58C6697F696a48cdf3",
               logo: hrse_token,
+              tokenManagerAddress: "0x6D61eFb60C17979816E4cE12CD5D29054E755948",
+              tokenManagerType: TokenManagerType.LockAndRelease,
             },
             {
               name: "FPS",
@@ -53,6 +62,8 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
               blockExplorer:
                 "https://otterscan.zilliqa.com/address/0x241c677D9969419800402521ae87C411897A029f",
               logo: fps_token,
+              tokenManagerAddress: "0x6D61eFb60C17979816E4cE12CD5D29054E755948",
+              tokenManagerType: TokenManagerType.LockAndRelease,
             },
           ],
           chainId: 32769,
@@ -67,9 +78,7 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
             bsc,
             `${import.meta.env.VITE_BSC_MAINNET_API}/${import.meta.env.VITE_BSC_MAINNET_KEY}`,
           ),
-          tokenManagerAddress: "0xF391A1Ee7b3ccad9a9451D2B7460Ac646F899f23",
           chainGatewayAddress: "0x3967f1a272Ed007e6B6471b942d655C802b42009",
-          tokenManagerType: TokenManagerType.MintAndBurn,
           tokens: [
             {
               name: "SEED",
@@ -77,6 +86,8 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
               blockExplorer:
                 "https://bscscan.com/address/0x9158dF7da69b048a296636D5DE7a3d9A7FB25E88",
               logo: seed_token,
+              tokenManagerAddress: "0xF391A1Ee7b3ccad9a9451D2B7460Ac646F899f23",
+              tokenManagerType: TokenManagerType.MintAndBurn,
             },
             {
               name: "HRSE",
@@ -84,6 +95,8 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
               blockExplorer:
                 "https://bscscan.com/address/0x3BE0E5EDC58bd55AAa381Fa642688ADC289c05a3",
               logo: hrse_token,
+              tokenManagerAddress: "0xF391A1Ee7b3ccad9a9451D2B7460Ac646F899f23",
+              tokenManagerType: TokenManagerType.MintAndBurn,
             },
             {
               name: "FPS",
@@ -91,6 +104,8 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
               blockExplorer:
                 "https://bscscan.com/address/0x351dA1E7500aBA1d168b9435DCE73415718d212F",
               logo: fps_token,
+              tokenManagerAddress: "0xF391A1Ee7b3ccad9a9451D2B7460Ac646F899f23",
+              tokenManagerType: TokenManagerType.MintAndBurn,
             },
           ],
           chainId: 56,
@@ -114,6 +129,8 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
               blockExplorer:
                 "https://otterscan.testnet.zilliqa.com/address/0x28e8d39Fc68eaA27c88797Eb7D324b4B97D5b844",
               logo: seed_token,
+              tokenManagerAddress: "0x1509988c41f02014aA59d455c6a0D67b5b50f129",
+              tokenManagerType: TokenManagerType.LockAndRelease,
             },
             {
               name: "TST",
@@ -121,6 +138,8 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
               blockExplorer:
                 "https://otterscan.testnet.zilliqa.com/address/0x8618d39a8276D931603c6Bc7306af6A53aD2F1F3",
               logo: fps_token,
+              tokenManagerAddress: "0x1509988c41f02014aA59d455c6a0D67b5b50f129",
+              tokenManagerType: TokenManagerType.LockAndRelease,
             },
             {
               name: "TSLM Z",
@@ -128,6 +147,43 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
               blockExplorer:
                 "https://otterscan.testnet.zilliqa.com/address/0xE90Dd366D627aCc5feBEC126211191901A69f8a0",
               logo: test_hrse_token,
+              tokenManagerAddress: "0x1509988c41f02014aA59d455c6a0D67b5b50f129",
+              tokenManagerType: TokenManagerType.LockAndRelease,
+            },
+            {
+              name: "xTST",
+              address: "0x9Be4DCfB335A263c65a8A763d55710718bbdb416",
+              blockExplorer:
+                "https://otterscan.testnet.zilliqa.com/address/0x9Be4DCfB335A263c65a8A763d55710718bbdb416",
+              logo: fps_token,
+              tokenManagerAddress: "0x41823941D00f47Ea1a98D75586915BF828F4a038",
+              tokenManagerType: TokenManagerType.ZilBridge,
+            },
+            {
+              name: "ZBTST",
+              address: "0xd3750B930ED52C26584C18B4f5eeAb986D7f3b36",
+              blockExplorer:
+                "https://otterscan.testnet.zilliqa.com/address/0xd3750B930ED52C26584C18B4f5eeAb986D7f3b36",
+              logo: test_hrse_token,
+              tokenManagerAddress: "0x41823941D00f47Ea1a98D75586915BF828F4a038",
+              tokenManagerType: TokenManagerType.ZilBridge,
+            },
+            {
+              name: "zBNB",
+              address: "0x40647A0C0024755Ef48Bc7C26a979ED833Eb6a15",
+              blockExplorer:
+                "https://otterscan.testnet.zilliqa.com/address/0x40647A0C0024755Ef48Bc7C26a979ED833Eb6a15",
+              logo: test_hrse_token,
+              tokenManagerAddress: "0x41823941D00f47Ea1a98D75586915BF828F4a038",
+              tokenManagerType: TokenManagerType.ZilBridge,
+            },
+            {
+              name: "ZIL",
+              address: null,
+              blockExplorer: "https://otterscan.testnet.zilliqa.com/",
+              logo: test_hrse_token,
+              tokenManagerAddress: "0x41823941D00f47Ea1a98D75586915BF828F4a038",
+              tokenManagerType: TokenManagerType.ZilBridge,
             },
           ],
           chainId: 33101,
@@ -167,6 +223,41 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
                 "https://testnet.bscscan.com/address/0x7Cc585de659E8938Aa7d5709BeaF34bD108bdC03",
               logo: test_hrse_token,
             },
+            {
+              name: "TST",
+              address: "0xa1a47FA4D26137329BB08aC2E5F9a6C32D180fE3",
+              blockExplorer:
+                "https://testnet.bscscan.com/address/0xa1a47FA4D26137329BB08aC2E5F9a6C32D180fE3",
+              logo: fps_token,
+              tokenManagerAddress: "0x36b8A9cd6Bf9bfA5984093005cf81CAfB1Bf06F7",
+              tokenManagerType: TokenManagerType.MintAndBurn,
+            },
+            {
+              name: "eZBTST",
+              address: "0x201eDd0521cF4B577399F789e22E05405D500163",
+              blockExplorer:
+                "https://testnet.bscscan.com/address/0x201eDd0521cF4B577399F789e22E05405D500163",
+              logo: test_hrse_token,
+              tokenManagerAddress: "0x36b8A9cd6Bf9bfA5984093005cf81CAfB1Bf06F7",
+              tokenManagerType: TokenManagerType.MintAndBurn,
+            },
+            {
+              name: "BNB",
+              address: null,
+              blockExplorer: "https://testnet.bscscan.com/",
+              logo: test_hrse_token,
+              tokenManagerAddress: "0x36b8A9cd6Bf9bfA5984093005cf81CAfB1Bf06F7",
+              tokenManagerType: TokenManagerType.LockAndRelease,
+            },
+            {
+              name: "eZIL",
+              address: "0xfA3cF3BBa7f0fA1E8FECeE532512434A7d275d41",
+              blockExplorer:
+                "https://testnet.bscscan.com/address/0xfA3cF3BBa7f0fA1E8FECeE532512434A7d275d41",
+              logo: test_hrse_token,
+              tokenManagerAddress: "0x36b8A9cd6Bf9bfA5984093005cf81CAfB1Bf06F7",
+              tokenManagerType: TokenManagerType.MintAndBurn,
+            },
           ],
           chainId: 97,
           isZilliqa: false,
@@ -194,4 +285,10 @@ export type TokenConfig = {
   address: `0x${string}`;
   blockExplorer: string;
   logo?: string;
+};
+
+export type SiteConfig = {
+  addTokensToMetamask: boolean;
+  showAllowance: boolean;
+  logTxnHashes: boolean;
 };
