@@ -118,8 +118,6 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
         "zq-testnet": {
           chain: "zq-testnet",
           name: "Zilliqa Testnet",
-          tokenManagerAddress: "0x1509988c41f02014aA59d455c6a0D67b5b50f129",
-          tokenManagerType: TokenManagerType.LockAndRelease,
           chainGatewayAddress: "0x7370e69565BB2313C4dA12F9062C282513919230",
           wagmiChain: zilliqaTestnet,
           tokens: [
@@ -198,8 +196,6 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
             bscTestnet,
             `${import.meta.env.VITE_BSC_TESTNET_API}/${import.meta.env.VITE_BSC_TESTNET_KEY}`,
           ),
-          tokenManagerAddress: "0xA6D73210AF20a59832F264fbD991D2abf28401d0",
-          tokenManagerType: TokenManagerType.MintAndBurn,
           chainGatewayAddress: "0xa9A14C90e53EdCD89dFd201A3bF94D867f8098fE",
           tokens: [
             {
@@ -208,6 +204,8 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
               blockExplorer:
                 "https://testnet.bscscan.com/address/0x486722DbA2F76aeFb9977641D11f3aC3e5bA281f",
               logo: seed_token,
+              tokenManagerAddress: "0xA6D73210AF20a59832F264fbD991D2abf28401d0",
+              tokenManagerType: TokenManagerType.MintAndBurn,
             },
             {
               name: "TST",
@@ -215,6 +213,8 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
               blockExplorer:
                 "https://testnet.bscscan.com/address/0x5190e8b4Bbe8C3a732BAdB600b57fD42ACbB9F4B",
               logo: fps_token,
+              tokenManagerAddress: "0xA6D73210AF20a59832F264fbD991D2abf28401d0",
+              tokenManagerType: TokenManagerType.MintAndBurn,
             },
             {
               name: "TSLM B",
@@ -222,6 +222,8 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
               blockExplorer:
                 "https://testnet.bscscan.com/address/0x7Cc585de659E8938Aa7d5709BeaF34bD108bdC03",
               logo: test_hrse_token,
+              tokenManagerAddress: "0xA6D73210AF20a59832F264fbD991D2abf28401d0",
+              tokenManagerType: TokenManagerType.MintAndBurn,
             },
             {
               name: "TST",
@@ -270,9 +272,7 @@ export type ChainConfig = {
   name: string;
   chain: Chains;
   wagmiChain: Chain;
-  tokenManagerAddress: `0x${string}`;
   chainGatewayAddress: `0x${string}`;
-  tokenManagerType: TokenManagerType;
   tokens: TokenConfig[];
   chainId: number;
   isZilliqa: boolean;
@@ -282,9 +282,11 @@ export type ChainConfig = {
 
 export type TokenConfig = {
   name: string;
-  address: `0x${string}`;
+  address: `0x${string}` | null;
   blockExplorer: string;
   logo?: string;
+  tokenManagerAddress: `0x${string}`;
+  tokenManagerType: TokenManagerType;
 };
 
 export type SiteConfig = {

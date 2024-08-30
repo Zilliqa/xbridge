@@ -90,13 +90,13 @@ function App() {
   const { data: contractDecimals } = useContractRead({
     abi: erc20ABI,
     functionName: "decimals",
-    address: token.address,
+    address: token.address ?? zeroAddress,
     enabled: !!token.address,
   });
   const { data: contractSymbol } = useContractRead({
     abi: erc20ABI,
     functionName: "symbol",
-    address: token.address,
+    address: token.address ?? zeroAddress,
     enabled: !!token.address,
   });
   const { data: fees } = useContractRead({
@@ -123,7 +123,7 @@ function App() {
     abi: erc20ABI,
     functionName: "balanceOf",
     args: account ? [account!] : undefined,
-    address: token.address,
+    address: token.address ?? zeroAddress,
     enabled: !!account && !!token.address,
     watch: true,
   });
@@ -143,7 +143,7 @@ function App() {
   const { data: allowance } = useContractRead({
     abi: erc20ABI,
     functionName: "allowance",
-    address: token.address,
+    address: token.address ?? zeroAddress,
     args: [account!, token.tokenManagerAddress],
     enabled:
       !isNative && !!account && !!token.address && !!token.tokenManagerAddress,
@@ -168,7 +168,7 @@ function App() {
 
   let addressForTokenManager = isNative
     ? zeroAddress
-    : getAddress(token.address);
+    : getAddress(token.address ?? zeroAddress);
   const { config: transferConfig } = usePrepareContractWrite({
     address: token.tokenManagerAddress,
     abi: tokenManagerAbi,
@@ -219,7 +219,7 @@ function App() {
 
   // Approvals
   const { config: approveConfig } = usePrepareContractWrite({
-    address: token.address,
+    address: token.address ?? zeroAddress,
     abi: erc20ABI,
     args: [
       token.tokenManagerAddress,
