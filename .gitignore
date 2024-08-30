@@ -9,3 +9,4 @@ Debug/
 
 .trunk/**
 !.trunk/trunk.yaml
+**/.env
