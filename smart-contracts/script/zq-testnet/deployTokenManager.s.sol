@@ -5,12 +5,14 @@ import {Script} from "forge-std/Script.sol";
 import {LockAndReleaseTokenManagerUpgradeable} from "contracts/periphery/LockAndReleaseTokenManagerUpgradeable.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import {ChainGateway} from "contracts/core/ChainGateway.sol";
+import { TestnetConfig } from "script/testnetConfig.s.sol";
 import "forge-std/console.sol";
 
-contract Deployment is Script {
+
+contract Deployment is Script, TestnetConfig {
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY_TESTNET");
-        address chainGatewayAddress = 0x10917A34FE60eE8364a401a6b1d3adaf80D84eb6;
+        address chainGatewayAddress = zqChainGatewayAddress;
 
         vm.startBroadcast(deployerPrivateKey);
 
@@ -37,6 +39,8 @@ contract Deployment is Script {
             tokenManager.owner(),
             tokenManager.getGateway()
         );
+        console.log(
+            "    address public constant zqLockAndReleaseTokenManagerAddress = %s", address(tokenManager));
 
         ChainGateway chainGateway = ChainGateway(chainGatewayAddress);
         chainGateway.register(proxy);
