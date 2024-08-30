@@ -2,7 +2,8 @@
 [[chain_configs]]
 chain_gateway_block_deployed = 36696045
 rpc_url = "https://bsc-prebsc-dataseed.bnbchain.org"
-chain_gateway_address = "0x72B9B59e48779A8b64554A3e2bC8b5297A04c68a"
+chain_gateway_address = "0xa9A14C90e53EdCD89dFd201A3bF94D867f8098fE"
+legacy_gas_estimation_percent = 150
 
 # BSC Mainnet
 # [[chain_configs]]
@@ -24,7 +25,7 @@ chain_gateway_block_deployed = 6542681
 rpc_url = "https://evm-api-xbridge.testnet.zilliqa.com"
 chain_gateway_address = "0x10917A34FE60eE8364a401a6b1d3adaf80D84eb6"
 block_instant_finality = true
-legacy_gas_estimation = true
+legacy_gas_estimation_percent = 130
 
 # Zilliqa Mainnet
 # [[chain_configs]]

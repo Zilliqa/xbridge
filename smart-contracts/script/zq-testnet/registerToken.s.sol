@@ -5,9 +5,12 @@ import {Script} from "forge-std/Script.sol";
 import {LockAndReleaseTokenManagerUpgradeable} from "contracts/periphery/LockAndReleaseTokenManagerUpgradeable.sol";
 import {ITokenManagerStructs} from "contracts/periphery/TokenManagerUpgradeable.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import { TestnetConfig } from "script/testnetConfig.s.sol";
 import "forge-std/console.sol";
 
-contract Deployment is Script {
+/*** @dev uses hardwired addresses; I've left these alone ..
+ */
+contract Deployment is Script, TestnetConfig {
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY_TESTNET");
         address owner = vm.addr(deployerPrivateKey);
