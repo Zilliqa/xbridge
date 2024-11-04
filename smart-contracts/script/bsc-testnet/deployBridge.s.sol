@@ -8,6 +8,7 @@ import {MintAndBurnTokenManagerUpgradeable} from "contracts/periphery/MintAndBur
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import {ChainGateway} from "contracts/core/ChainGateway.sol";
 import "forge-std/console.sol";
+import { TestnetConfig } from "script/testnetConfig.s.sol";
 
 contract Deployment is Script {
     function run() external {
@@ -31,6 +32,8 @@ contract Deployment is Script {
             validatorManager.isValidator(validators[0]),
             validatorManager.validatorsSize()
         );
+        console.log(
+            "    address public constant bscValidatorManagerAddress = %s", address(validatorManager));
 
         // Deploy Chain Gateway
         ChainGateway chainGateway = new ChainGateway{salt: "zilliqa"}(
@@ -42,6 +45,8 @@ contract Deployment is Script {
             address(chainGateway),
             address(chainGateway.validatorManager())
         );
+        console.log(
+            "    address public constant bscChainGatewayAddress = %s", address(chainGateway));
 
         // Deploy MintAndBurnTokenManager
         address implementation = address(
@@ -51,7 +56,6 @@ contract Deployment is Script {
             MintAndBurnTokenManagerUpgradeable.initialize,
             address(chainGateway)
         );
-
         address proxy = address(
             new ERC1967Proxy(implementation, initializeData)
         );
@@ -65,6 +69,9 @@ contract Deployment is Script {
             tokenManager.owner(),
             tokenManager.getGateway()
         );
+        console.log(
+            "    address public constant bscMintAndBurnTokenManagerAddress = %s", address(tokenManager));
+
 
         // Register TokenManager to ChainGateway
         chainGateway.register(proxy);

@@ -6,8 +6,9 @@ import {Relayer} from "contracts/core/Relayer.sol";
 import {ValidatorManager} from "contracts/core/ValidatorManager.sol";
 import {ChainGateway} from "contracts/core/ChainGateway.sol";
 import "forge-std/console.sol";
+import { TestnetConfig } from "script/testnetConfig.s.sol";
 
-contract Deployment is Script {
+contract Deployment is Script, TestnetConfig {
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY_TESTNET");
         address owner = vm.addr(deployerPrivateKey);
@@ -40,6 +41,10 @@ contract Deployment is Script {
             address(chainGateway),
             address(chainGateway.validatorManager())
         );
+        console.log(
+            "    address public constant zqChainGatewayAddress = %s", address(chainGateway));
+        console.log(
+            "    address public constant zqValidatorManagerAddress = %s", address(chainGateway.validatorManager()));
 
         vm.stopBroadcast();
     }
