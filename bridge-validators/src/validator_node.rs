@@ -27,6 +27,7 @@ pub struct ValidatorNodeConfig {
     pub chain_configs: Vec<ChainConfig>,
     pub private_key: SecretKey,
     pub is_leader: bool,
+    #[allow(dead_code)]
     pub bootstrap_address: Option<(PeerId, Multiaddr)>,
 }
 
@@ -47,18 +48,16 @@ impl ValidatorNode {
     pub async fn new(
         config: ValidatorNodeConfig,
         bridge_outbound_message_sender: UnboundedSender<ExternalMessage>,
+        dispatch_history: bool,
     ) -> Result<Self> {
         let mut chain_node_senders = HashMap::new();
         let mut chain_clients = HashMap::new();
         let wallet = config.private_key.as_wallet()?;
 
         println!("Node address is: {:?}", wallet.address());
-
         let (bridge_message_sender, bridge_message_receiver) = mpsc::unbounded_channel();
         let bridge_message_receiver = UnboundedReceiverStream::new(bridge_message_receiver);
-
         let mut bridge_node_threads: JoinSet<Result<()>> = JoinSet::new();
-
         for chain_config in config.chain_configs {
             let chain_client = ChainClient::new(&chain_config, wallet.clone()).await?;
 
@@ -72,12 +71,12 @@ impl ValidatorNode {
                 validator_chain_node.chain_client.chain_id,
                 validator_chain_node.get_inbound_message_sender(),
             );
-
             chain_clients.insert(validator_chain_node.chain_client.chain_id, chain_client);
-
             bridge_node_threads.spawn(async move {
                 // Fill all historic events first
-                // validator_chain_node.sync_historic_events().await
+                if dispatch_history {
+                    validator_chain_node.sync_historic_events().await?;
+                }
                 // Then start listening to new ones
                 validator_chain_node.listen_events().await
             });
@@ -140,10 +139,12 @@ impl ValidatorNode {
                         Ok(Ok(())) => unreachable!(),
                         Ok(Err(e)) => {
                             error!(%e);
+                            #[allow(clippy::useless_conversion)]
                             return Err(e.into())
                         }
                         Err(e) =>{
                             error!(%e);
+                            #[allow(clippy::useless_conversion)]
                             return Err(e.into())
                         }
                     }
@@ -180,7 +181,7 @@ impl ValidatorNode {
             event.target_chain_id, event.nonce
         );
 
-        let function_call = if client.legacy_gas_estimation {
+        let function_call = if client.legacy_gas_estimation_percent.is_some() {
             function_call.legacy()
         } else {
             function_call
@@ -191,7 +192,7 @@ impl ValidatorNode {
 
             // Get gas estimate
             // TODO: refactor configs specifically for zilliqa
-            let _function_call = if client.legacy_gas_estimation {
+            let _function_call = if let Some(percent) = client.legacy_gas_estimation_percent {
                 let gas_estimate = match function_call.estimate_gas().await {
                     Ok(estimate) => estimate,
                     Err(err) => {
@@ -199,8 +200,8 @@ impl ValidatorNode {
                         return Ok(());
                     }
                 };
-                info!("Gas estimate {:?}", gas_estimate);
-                function_call.clone().gas(gas_estimate * 130 / 100) // Apply multiplier
+                info!("Legacy gas estimation: estimate {:?}", gas_estimate);
+                function_call.clone().gas(gas_estimate * percent / 100) // Apply multiplier
             } else {
                 let function_call = function_call.clone();
                 // `eth_call` does not seem to work on ZQ so it had to be skipped
@@ -231,7 +232,7 @@ impl ValidatorNode {
             // Make the actual call
             match _function_call.send().await {
                 Ok(tx) => {
-                    println!(
+                    info!(
                         "Transaction Sent {}.{} {:?}",
                         event.target_chain_id,
                         event.nonce,

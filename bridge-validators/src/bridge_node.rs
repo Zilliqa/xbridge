@@ -69,7 +69,7 @@ impl BridgeNode {
     async fn get_historic_events<D>(
         &self,
         event: Event<Arc<Client>, Client, D>,
-        to_block: BlockNumber,
+        to_block: u64,
     ) -> Result<Vec<D>>
     where
         D: EthEvent,
@@ -91,7 +91,10 @@ impl BridgeNode {
         } else {
             BlockNumber::Finalized
         };
-        info!("Getting Historic Events {}", to_block);
+        info!(
+            "Getting Historic Events for chainId#{}: {}",
+            self.chain_client.chain_id, to_block
+        );
 
         let to_block_number = self
             .chain_client
@@ -109,10 +112,10 @@ impl BridgeNode {
         let dispatch_events = self
             .get_historic_events(
                 chain_gateway.event::<DispatchedFilter>(),
-                BlockNumber::Number(to_block_number.into()),
+                to_block_number.as_u64(),
             )
             .await?;
-        dbg!(dispatch_events.len());
+        info!("  .. dispatch_events: {}", dispatch_events.len());
 
         for dispatch in dispatch_events {
             self.handle_dispatch_event(dispatch)?;
@@ -121,21 +124,21 @@ impl BridgeNode {
         let relay_events = self
             .get_historic_events(
                 chain_gateway.event::<RelayedFilter>(),
-                BlockNumber::Number(to_block_number.into()),
+                to_block_number.as_u64(),
             )
             .await?;
 
-        dbg!(relay_events.len());
+        info!("  .. relay_events: {}", relay_events.len());
 
         for relay in relay_events {
             self.handle_relay_event(relay)?;
         }
 
-        unimplemented!();
+        Ok(())
     }
 
     pub async fn listen_events(&mut self) -> Result<()> {
-        println!("Start Listening: {:?}", self.chain_client.chain_id);
+        info!("Start Listening: {:?}", self.chain_client.chain_id);
 
         let chain_gateway: ChainGateway<Client> = self.chain_client.get_contract();
 
@@ -218,11 +221,6 @@ impl BridgeNode {
             return Ok(());
         }
 
-        info!(
-            "Chain: {} event found to be broadcasted: {}",
-            self.chain_client.chain_id, event
-        );
-
         if let Some(RelayEventSignatures {
             dispatched: true, ..
         }) = self.event_signatures.get(&event.nonce)
@@ -286,7 +284,7 @@ impl BridgeNode {
         let Relay { signature, event } = echo;
         let nonce = event.nonce;
         let event_hash = event.hash();
-
+        info!("handling relay {:?}", echo);
         let signature = Signature::try_from(signature.to_vec().as_slice())?;
 
         // update validator set in case it has changed
@@ -337,9 +335,11 @@ impl BridgeNode {
         };
 
         info!(
-            "Handling received: {:?}, collected: {:?}",
+            "Handling received: {:?}, collected: {:?}, is_leader {:?}, has_supermajority {:?}",
             &echo,
-            event_signatures.signatures.len()
+            event_signatures.signatures.len(),
+            self.is_leader,
+            self.has_supermajority(event_signatures.signatures.len())
         );
 
         // if leader and majority, create request to dispatch
