@@ -12,6 +12,7 @@ import { EthCrossChainManager } from "test/zilbridge/infrastructure/ccmCrossChai
 import { EthCrossChainData } from "test/zilbridge/infrastructure/ethCrossChainData.sol";
 import { EthExtendCrossChainManager } from "contracts/periphery/ZilBridge/ccmExtendCrossChainManager.sol";
 import { ChainGateway } from "contracts/core/ChainGateway.sol";
+import { LockProxyProxy } from "contracts/periphery/LockProxyProxy.sol";
 import { LockProxyTokenManagerUpgradeableV3 } from "contracts/periphery/TokenManagerV3/LockProxyTokenManagerUpgradeableV3.sol";
 import { LockProxyTokenManagerDeployer } from "test/zilbridge/TokenManagerDeployers/LockProxyTokenManagerDeployer.sol";
 import {LockProxyTokenManagerUpgradeableV3} from "contracts/periphery/TokenManagerV3/LockProxyTokenManagerUpgradeableV3.sol";
@@ -39,12 +40,18 @@ contract deployZilBridgeTokenManagers is Script, LockProxyTokenManagerDeployer, 
     uint256 bridgePrivateKey = vm.envUint("PRIVATE_KEY_ZILBRIDGE");
     // token managers are apparently not pausable, so ..
     vm.startBroadcast(validatorPrivateKey);
-    LockProxyTokenManagerUpgradeableV3 tokenManager = deployLatestLockProxyTokenManager(address(chainGateway), address(lockProxy), fees);
+    address[] memory allowedTokens = new address[](3);
+    allowedTokens[0] = bscERC20Address;
+    allowedTokens[1] = bscBridgedZRC2Address;
+    allowedTokens[2] = bscBridgedZILAddress;
+    LockProxyProxy lockProxyProxy = new LockProxyProxy(allowedTokens, vm.addr(validatorPrivateKey), address(lockProxy));
+    LockProxyTokenManagerUpgradeableV3 tokenManager = deployLatestLockProxyTokenManager(address(chainGateway), address(lockProxy), address(lockProxyProxy), fees);
+    lockProxyProxy.addCaller(address(tokenManager));
     console.log(
         "    address public constant bscLockProxyTokenManagerAddress =  %s", address(tokenManager));
     vm.stopBroadcast();
     vm.startBroadcast(bridgePrivateKey);
-    extendCCM.forciblyAddExtension(address(lockProxy), address(tokenManager), COUNTERPART_CHAIN_ID);
+    extendCCM.forciblyAddExtension(address(lockProxyProxy), address(tokenManager), COUNTERPART_CHAIN_ID);
     vm.stopBroadcast();
     vm.startBroadcast(validatorPrivateKey);
     chainGateway.register(address(tokenManager));

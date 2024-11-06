@@ -5,23 +5,12 @@ import {TokenManagerUpgradeableV3, ITokenManager} from "contracts/periphery/Toke
 import {BridgedToken} from "contracts/periphery/BridgedToken.sol";
 import {IERC20} from "contracts/periphery/LockAndReleaseTokenManagerUpgradeable.sol";
 import { ILockProxyTokenManagerStorage, LockProxyTokenManagerStorage } from "contracts/periphery/LockProxyTokenManagerStorage.sol";
+import { ILockProxyExtensionTransfer } from "contracts/periphery/ILockProxyExtensionTransfer.sol";
 
 interface ILockProxyTokenManager is ILockProxyTokenManagerStorage {
   // Args in this order to match other token managers.
   event SentToLockProxy(address indexed token, address indexed sender, uint amount);
   event WithdrawnFromLockProxy(address indexed token, address indexed receipient, uint amount);
-}
-
-// Exists purely so that we can call the extensionTransfer() endpoint on the lock proxy without having
-// to include its code here.
-interface ILockProxyExtensionTransfer {
-    function extensionTransfer(
-        address _receivingAddress,
-        address _assetHash,
-        uint256 _amount
-    )
-        external
-        returns (bool);
 }
 
 // This is the lock proxy token manager that runs on EVM chains. It talks to an EVM LockProxy.
@@ -36,7 +25,7 @@ contract LockProxyTokenManagerUpgradeableV3 is TokenManagerUpgradeableV3, ILockP
     _setFees(fees);
   }
 
-  // Incoming currency - transfer into the lock proxy
+  // Incoming currency - transfer into the lock proxy (directly!)
   function _handleTransfer(address token, address from, uint amount) internal override {
     address lockProxyAddress = getLockProxy();
     // Just transfer value to the lock proxy.
@@ -52,9 +41,11 @@ contract LockProxyTokenManagerUpgradeableV3 is TokenManagerUpgradeableV3, ILockP
     emit SentToLockProxy(token, from, amount);
   }
 
+  // Withdrawals are processed via the lockProxyProxy.
   function _handleAccept(address token, address recipient, uint amount) internal override {
+    address lockProxyProxyAddress = getLockProxyProxy();
     address lockProxyAddress = getLockProxy();
-    ILockProxyExtensionTransfer lp = ILockProxyExtensionTransfer(payable(lockProxyAddress));
+    ILockProxyExtensionTransfer lp = ILockProxyExtensionTransfer(payable(lockProxyProxyAddress));
     // Sadly, extensionTransfer() takes the same arguments as the withdrawn event but in a
     // different order. This will automagically transfer native token if token==0.
 
@@ -65,13 +56,15 @@ contract LockProxyTokenManagerUpgradeableV3 is TokenManagerUpgradeableV3, ILockP
     } else {
       lp.extensionTransfer(address(this), token, amount);
       IERC20 erc20token = IERC20(token);
-      erc20token.transferFrom(address(lp), recipient, amount);
+      // Although the lockProxyProxy is the registered extension, the tokens are held by the actual
+      // lockProxy
+      erc20token.transferFrom(lockProxyAddress, recipient, amount);
     }
     emit WithdrawnFromLockProxy(token, recipient, amount);
   }
 
-  function setLockProxy(address lockProxy) external onlyOwner {
-    _setLockProxy(lockProxy);
+  function setLockProxyData(address lockProxy, address lockProxyProxy) external onlyOwner {
+    _setLockProxyData(lockProxy, lockProxyProxy);
   }
 
 }

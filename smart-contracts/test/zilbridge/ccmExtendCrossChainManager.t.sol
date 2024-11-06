@@ -9,6 +9,7 @@ import { Utils, ZeroCopySink, ZeroCopySource } from "test/zilbridge/infrastructu
 import { EthCrossChainData } from "test/zilbridge/infrastructure/ethCrossChainData.sol";
 import { ZilBridgeFixture } from "./DeployZilBridge.t.sol";
 import { LockProxyTokenManagerUpgradeableV3 } from "contracts/periphery/TokenManagerV3/LockProxyTokenManagerUpgradeableV3.sol";
+import { LockProxyProxy } from "contracts/periphery/LockProxyProxy.sol";
 
 contract ccmExtendCrossChainManager is ZilBridgeFixture {
 
@@ -48,9 +49,10 @@ contract ccmExtendCrossChainManager is ZilBridgeFixture {
     setUpZilBridgeForTesting();
     uint fees = 0.1 ether;
     // Create a lock proxy token manager - fake out the source chain gateway
-    LockProxyTokenManagerUpgradeableV3 lpTokenManager = deployLatestLockProxyTokenManager(address(0), address(lockProxy), fees);
-    installTokenManager(address(lpTokenManager));
-    require(lockProxy.extensions(address(lpTokenManager))==true);
+    address[] memory addresses = new address[](0);
+    LockProxyProxy lpp = new LockProxyProxy(addresses, address(this), address(lockProxy));
+    installLockProxyProxy(address(lpp));
+    require(lockProxy.extensions(address(lpp))==true);
   }
 
   function test_Pickle() view external {

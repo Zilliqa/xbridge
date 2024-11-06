@@ -7,6 +7,7 @@ import {ITokenManagerStructs, TokenManagerUpgradeable} from "contracts/periphery
 import {LockAndReleaseTokenManagerUpgradeableV3} from "contracts/periphery/TokenManagerV3/LockAndReleaseTokenManagerUpgradeableV3.sol";
 import {MintAndBurnTokenManagerUpgradeableV3} from "contracts/periphery/TokenManagerV3/MintAndBurnTokenManagerUpgradeableV3.sol";
 import {BridgedToken} from "contracts/periphery/BridgedToken.sol";
+import { LockProxyProxy } from "contracts/periphery/LockProxyProxy.sol";
 import {CallMetadata, IRelayerEvents} from "contracts/core/Relayer.sol";
 import {ValidatorManager} from "contracts/core/ValidatorManager.sol";
 import {ChainGateway} from "contracts/core/ChainGateway.sol";
@@ -41,6 +42,8 @@ Tester, IRelayerEvents, LockAndReleaseTokenManagerDeployer, LockProxyTokenManage
   uint fees = 0.1 ether;
 
   LockProxyTokenManagerUpgradeableV3 sourceTokenManager;
+  LockProxyProxy lockProxyProxy;
+
   // There are "actually" three of these - native (which is lock/release), a mint/burn token and a conventional token.
   // This means we need a remote lock manager and a remote mint burn manager.
   TestToken nativelyOnSource;
@@ -50,6 +53,7 @@ Tester, IRelayerEvents, LockAndReleaseTokenManagerDeployer, LockProxyTokenManage
 
   // see doc/zilbridge.md
   MockLockProxy mockRemoteLockProxy;
+  LockProxyProxy remoteLockProxyProxy;
   LockProxyTokenManagerUpgradeableV3 remoteTokenManager;
   SwitcheoToken remoteNativelyOnSource;
   SwitcheoToken remoteBridgedGasToken;
@@ -72,14 +76,41 @@ Tester, IRelayerEvents, LockAndReleaseTokenManagerDeployer, LockProxyTokenManage
     remoteValidatorManager.initialize(validators);
     remoteChainGateway = new ChainGateway(address(remoteValidatorManager), validator);
 
-    // Deploy the token managers
-    sourceTokenManager = deployLatestLockProxyTokenManager(address(sourceChainGateway), address(lockProxy), fees);
+    // Deploy the tokens
+    nativelyOnSource = new TestToken(originalTokenSupply);
     mockRemoteLockProxy = new MockLockProxy();
-    remoteTokenManager = deployLatestLockProxyTokenManager(address(remoteChainGateway), address(mockRemoteLockProxy), fees);
+    remoteNativelyOnSource = new SwitcheoToken(address(mockRemoteLockProxy), "Bridged testToken", "eTST", 18);
+    remoteBridgedGasToken = new SwitcheoToken(address(mockRemoteLockProxy), "Bridged gas", "eGAS", 18);
+    sourceNativelyOnRemote = new SwitcheoToken(address(lockProxy), "Back-ported test token", "bTST", 18);
+    nativelyOnRemote = new TestToken(originalTokenSupply);
+
+    address[] memory locallyPermittedTokens = new address[](3);
+    locallyPermittedTokens[0] = address(sourceNativelyOnRemote);
+    locallyPermittedTokens[1] = address(nativelyOnSource);
+    locallyPermittedTokens[2] = address(0);
+    console.log("locallyPermittedTokens = %s %s %s", address(sourceNativelyOnRemote), address(nativelyOnSource), address(0));
+    lockProxyProxy = new LockProxyProxy(locallyPermittedTokens, validator, address(lockProxy));
+
+    address[] memory remotelyPermittedTokens = new address[](3);
+    remotelyPermittedTokens[0] = address(remoteNativelyOnSource);
+    remotelyPermittedTokens[1] = address(remoteBridgedGasToken);
+    remotelyPermittedTokens[2] = address(nativelyOnRemote);
+    console.log("remotelyPermittedTokens = %s %s", address(remoteNativelyOnSource), address(remoteBridgedGasToken), address(nativelyOnRemote));
+    remoteLockProxyProxy = new LockProxyProxy(remotelyPermittedTokens, validator, address(mockRemoteLockProxy));
+
+    // Deploy the token managers
+    sourceTokenManager = deployLatestLockProxyTokenManager(address(sourceChainGateway), address(lockProxy), address(lockProxyProxy), fees);
+    remoteTokenManager = deployLatestLockProxyTokenManager(address(remoteChainGateway), address(mockRemoteLockProxy), address(remoteLockProxyProxy), fees);
+
+    // Allow them to access the LPP
+    lockProxyProxy.addCaller(address(sourceTokenManager));
+    remoteLockProxyProxy.addCaller(address(remoteTokenManager));
 
     vm.stopPrank();
     // Make the token manager an extension.
-    installTokenManager(address(sourceTokenManager));
+    installLockProxyProxy(address(lockProxyProxy));
+    // No need for remoteLockProxyProxy, since that's talking to a MockLockProxy which doesn't validate its
+    // caller.
 
     // That involved a prank, so we need to reset our caller to the validator.
     vm.startPrank(validator);
@@ -89,10 +120,8 @@ Tester, IRelayerEvents, LockAndReleaseTokenManagerDeployer, LockProxyTokenManage
     remoteChainGateway.register(address(remoteTokenManager));
 
     // Deploy the test tokens.
-    nativelyOnSource = new TestToken(originalTokenSupply);
     nativelyOnSource.transfer(sourceUser, originalTokenSupply);
 
-    remoteNativelyOnSource = new SwitcheoToken(address(mockRemoteLockProxy), "Bridged testToken", "eTST", 18);
     // When coins arrive at the remote token manager for remoteNativelyOnSource, send them to nativelyOnSource's
     // manager at sourceTokenManager.
     ITokenManagerStructs.RemoteToken memory sourceNOSStruct = ITokenManagerStructs.RemoteToken({
@@ -110,7 +139,7 @@ Tester, IRelayerEvents, LockAndReleaseTokenManagerDeployer, LockProxyTokenManage
 
     // Now, we'll do the gas token. This has to be a switcheo token, because
     // the other side can hardly be mint & burn.
-    remoteBridgedGasToken = new SwitcheoToken(address(mockRemoteLockProxy), "Bridged gas", "eGAS", 18);
+
     console.log("remoteBridgedGasToken = %s", address(remoteBridgedGasToken));
     console.log("mockLockProxy = %s", address(mockRemoteLockProxy));
     // When coins arrive at the remote token manager, send them to 0 on the source token manager.
@@ -127,8 +156,6 @@ Tester, IRelayerEvents, LockAndReleaseTokenManagerDeployer, LockProxyTokenManage
      chainId: block.chainid });
     sourceTokenManager.registerToken(address(0), remoteGasStruct);
 
-    nativelyOnRemote = new TestToken(originalTokenSupply);
-    sourceNativelyOnRemote = new SwitcheoToken(address(lockProxy), "Back-ported test token", "bTST", 18);
     nativelyOnRemote.transfer(remoteUser, originalTokenSupply);
     
     // When tokens arrive at the remote token manager, send them to the source

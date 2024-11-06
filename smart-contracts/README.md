@@ -97,6 +97,14 @@ classDiagram
   }
 ```
 
+## Testing
+
+When testing, you'll need to artificially raise the gas limit for `forge test` to make the `largeValidatorSet()` tests run:
+
+```sh
+forge test --gas-limit 2000000000000
+```
+
 ## Deployments
 
 ### Core
