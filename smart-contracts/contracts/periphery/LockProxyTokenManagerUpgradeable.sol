@@ -9,7 +9,7 @@ interface ILockProxyTokenManager is ITokenManager {
   // Args in this order to match other token managers.
   event SentToLockProxy(address indexed token, address indexed sender, uint amount);
   event WithdrawnFromLockProxy(address indexed token, address indexed receipient, uint amount);
-  function setLockProxy(address lockProxy) external;
+  function setLockProxyData(address lockProxy, address lockProxyProxy) external;
 }
 
 // This contract exists almost entirely to be used in tests to prove upgradeability.
@@ -24,14 +24,14 @@ contract LockProxyTokenManagerUpgradeable is
     }
 
 
-    function setLockProxy(address lockProxy) external override(ILockProxyTokenManagerStorage, ILockProxyTokenManager) onlyOwner {
-      _setLockProxy(lockProxy);
+    function setLockProxyData(address lockProxy, address lockProxyProxy) external override(ILockProxyTokenManagerStorage, ILockProxyTokenManager) onlyOwner {
+      _setLockProxyData(lockProxy, lockProxyProxy);
     }
 
-    function initialize(address _gateway, address lockProxy) external initializer {
-        __TokenManager_init(_gateway);
-        // for some reason we can't call setLockProxy() here, so ..
-        _setLockProxy(lockProxy);
+    function initialize(address _gateway, address lockProxy, address lockProxyProxy) external initializer {
+      __TokenManager_init(_gateway);
+      // for some reason we can't call setLockProxy() here, so ..
+      _setLockProxyData(lockProxy, lockProxyProxy);
     }
 
     // Outgoing

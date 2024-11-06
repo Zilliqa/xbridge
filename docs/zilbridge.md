@@ -113,11 +113,6 @@ forge script script/bsc-testnet/deployXBridgeOverMockZilBridge.s.sol \
    --rpc-url https://bsc-testnet.bnbchain.org --broadcast
 forge verify-contract <address> --rpc-url https://bsc-testnet.bnbchain.org \
   --chain-id 97
-# and again ..
-forge script scripts/bsc-testnet/deployZilBridgeTokenManagers.s.sol \
-  --rpc-url https://bsc-testnet.bnbchain.org --broadcast
-forge verify-contract <address> --rpc-url https://bsc-testnet.bnbchain.org \
-  --chain-id 97
 
 ```
 
@@ -150,6 +145,16 @@ Now we can deploy some contracts to the BNB testnet:
 forge script script/bsc-testnet/deployZilBridgeTokens.s.sol \
   --tc Deployment --rpc-url https://bsc-testnet.bnbchain.org \
   --broadcast
+```
+
+And, once we've recorded the token addresses (so that the
+`LockProxyProxy` knows about them):
+
+```
+forge script scripts/bsc-testnet/deployZilBridgeTokenManagers.s.sol \
+  --rpc-url https://bsc-testnet.bnbchain.org --broadcast
+forge verify-contract <address> --rpc-url https://bsc-testnet.bnbchain.org \
+  --chain-id 97
 forge verify-contract <address> --rpc-url https://bsc-testnet.bnbchain.org \
   --chain-id 97
 ```

@@ -4,14 +4,16 @@ pragma solidity ^0.8.20;
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 interface ILockProxyTokenManagerStorage {
-  event LockProxyUpdated(address oldLockProxy, address newLockProxy);
+  event LockProxyStorageUpdated(address oldLockProxy, address newLockProxy, address oldLockProxyProxy, address newLockProxyProxy);
   function getLockProxy() external view returns (address);
-  function setLockProxy(address lockProxy) external;
+  function getLockProxyProxy() external view returns (address);
+  function setLockProxyData(address lockProxy, address lockProxyProxy) external;
 }
 
 abstract contract LockProxyTokenManagerStorage is ILockProxyTokenManagerStorage {
   /// @custom:storage-location erc7201:zilliqa.storage.LockProxyTokenManagerStorage
   struct LockProxyTokenManagerStorageStruct {
+    address lockProxyProxy;
     address lockProxy;
   }
 
@@ -25,14 +27,21 @@ abstract contract LockProxyTokenManagerStorage is ILockProxyTokenManagerStorage 
     }
   }
 
+  function getLockProxyProxy() public view returns (address) {
+    LockProxyTokenManagerStorageStruct storage $ = _getLockProxyTokenManagerStorageStruct();
+    return $.lockProxyProxy;
+  }
+
   function getLockProxy() public view returns (address) {
     LockProxyTokenManagerStorageStruct storage $ = _getLockProxyTokenManagerStorageStruct();
     return $.lockProxy;
   }
 
-  function _setLockProxy(address lockProxy) internal {
+  function _setLockProxyData(address lockProxy, address lockProxyProxy) internal {
     LockProxyTokenManagerStorageStruct storage $ = _getLockProxyTokenManagerStorageStruct();
-    emit LockProxyUpdated($.lockProxy, lockProxy);
+    emit LockProxyStorageUpdated($.lockProxy, lockProxy, $.lockProxyProxy, lockProxyProxy);
     $.lockProxy = lockProxy;
+    $.lockProxyProxy = lockProxyProxy;
   }
+
 }
