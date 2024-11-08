@@ -5,16 +5,17 @@ import {Script} from "forge-std/Script.sol";
 import {ValidatorManagerUpgradeable} from "contracts/core-upgradeable/ValidatorManagerUpgradeable.sol";
 import {ChainGatewayUpgradeable} from "contracts/core-upgradeable/ChainGatewayUpgradeable.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+import { TestnetConfig } from "script/testnetConfig.s.sol";
 import "forge-std/console.sol";
 
-contract Deployment is Script {
+contract Deployment is Script, TestnetConfig {
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY_TESTNET");
         address owner = vm.addr(deployerPrivateKey);
         console.log("Owner is %s", owner);
 
         address[] memory validators = new address[](1);
-        address tokenManager = 0x1509988c41f02014aA59d455c6a0D67b5b50f129;
+        address tokenManager = zqLockAndReleaseTokenManagerAddress;
         validators[0] = owner;
 
         vm.startBroadcast(deployerPrivateKey);
@@ -38,6 +39,8 @@ contract Deployment is Script {
             validatorManager.isValidator(validators[0]),
             validatorManager.validatorsSize()
         );
+        console.log(
+            "    address public constant zqValidatorManagerAddress = %s", address(validatorManager));
 
         // Deploy Chain Gateway
         address cgImplementation = address(new ChainGatewayUpgradeable());
@@ -55,6 +58,8 @@ contract Deployment is Script {
             address(chainGateway),
             address(chainGateway.validatorManager())
         );
+        console.log(
+            "    address public constant zqChainGatewayAddress = %s", address(chainGateway));
 
         // Register TokenManager to ChainGateway
         chainGateway.register(tokenManager);
@@ -64,6 +69,8 @@ contract Deployment is Script {
             address(chainGateway),
             chainGateway.registered(tokenManager)
         );
+        console.log(
+            "    address public constant zqLockAndReleaseTokenManagerAddress = %s", address(tokenManager));
 
         vm.stopBroadcast();
     }
