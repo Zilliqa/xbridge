@@ -35,6 +35,7 @@ pub struct ChainClient {
     pub legacy_gas_estimation_percent: Option<u64>,
     pub scan_behind_blocks: u64,
     pub log_strategy: LogStrategy,
+    pub to_block_number: Option<u64>,
 }
 
 impl fmt::Display for ChainClient {
@@ -80,6 +81,7 @@ impl ChainClient {
             legacy_gas_estimation_percent: config.legacy_gas_estimation_percent,
             scan_behind_blocks: config.scan_behind_blocks.unwrap_or_default(),
             log_strategy: strategy,
+            to_block_number: config.to_block_number,
         })
     }
 }

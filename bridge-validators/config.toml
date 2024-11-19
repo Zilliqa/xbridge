@@ -7,6 +7,13 @@
 [[chain_configs]]
 ## The block at which history replay should start.
 chain_gateway_block_deployed = 36696045
+
+## When replaying history, we replay dispatches first, then relays. In order to do this
+## on old blocks in a reasonable time, we should not only start just before the message to be
+## replayed, but stop just after. This allows us to stop at a particular block when catching
+## up
+## to_block_number = 4000000
+
 ## RPC URL to talk to for this chain.
 rpc_url = "https://bsc-prebsc-dataseed.bnbchain.org"
 ## The (EVM) address of the chain gateway contract
@@ -34,6 +41,7 @@ legacy_gas_estimation_percent = 130
 ## So, if you set this to true, we will call eth_getBlock() and then iterate through each transaction
 ## fetching the receipt and scanning it for relevant logs. This is slow, but at least it works ..
 ## use_get_transactions = true
+
 
 
 # BSC Mainnet

@@ -34,6 +34,7 @@ pub struct ChainConfig {
     pub legacy_gas_estimation_percent: Option<u64>,
     pub scan_behind_blocks: Option<u64>,
     pub use_get_transactions: Option<bool>,
+    pub to_block_number: Option<u64>,
 }
 
 #[derive(Debug, Clone, Deserialize)]

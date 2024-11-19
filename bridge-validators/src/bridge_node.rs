@@ -86,11 +86,16 @@ impl BridgeNode {
     }
 
     pub async fn sync_historic_events(&mut self) -> Result<()> {
-        let to_block = if self.chain_client.block_instant_finality {
-            BlockNumber::Latest
+        let to_block = if let Some(v) = self.chain_client.to_block_number {
+            BlockNumber::Number(v.into())
         } else {
-            BlockNumber::Finalized
+            if self.chain_client.block_instant_finality {
+                BlockNumber::Latest
+            } else {
+                BlockNumber::Finalized
+            }
         };
+
         info!(
             "Getting Historic Events for chainId#{}: {}",
             self.chain_client.chain_id, to_block
