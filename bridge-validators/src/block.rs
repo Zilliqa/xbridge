@@ -11,7 +11,7 @@ use ethers::{
 use ethers_contract::{parse_log, EthEvent};
 use futures::{Stream, StreamExt, TryStreamExt};
 use tokio::time::interval;
-use tracing::{debug, info, warn};
+use tracing::{info, warn};
 
 use crate::client::{ChainClient, LogStrategy};
 
@@ -50,7 +50,7 @@ impl ChainClient {
                 // go through all the transactions
                 for txn_hash in block.transactions {
                     // We have a transaction. Did it have any logs?
-                    debug!("block {} txn {:#x}", block_number, txn_hash);
+                    info!("block {} txn {:#x}", block_number, txn_hash);
                     // Get the receipt
                     let maybe_receipt = self
                         .client
@@ -59,6 +59,16 @@ impl ChainClient {
                         .await?;
                     if let Some(receipt) = maybe_receipt {
                         // Yay!
+                        if let Some(v) = &receipt.status {
+                            info!("[1] txn {:#x} has status {v}", txn_hash);
+                            if *v != U64::from(1) {
+                                info!("[1] txn failed - skipping");
+                                continue;
+                            }
+                        } else {
+                            info!("[1] txn {:#x} has no status - ignoring", txn_hash);
+                            continue;
+                        }
                         info!("Got receipt for txn {:#x}", txn_hash);
                         for log in receipt.logs {
                             // Because FML, the filter doesn't actually include the address.
@@ -101,6 +111,7 @@ impl ChainClient {
                                 // If there's no filter element for this topic, we're fine.
                             }
                             if matches {
+                                info!("Event matches; pushing for transit");
                                 result.push(log);
                             }
                         }
@@ -153,6 +164,19 @@ impl BlockPolling for ChainClient {
                     .request("eth_getLogs", [event])
                     .await?;
                 logs.into_iter()
+                    // Zilliqa 1 will generate logs for failed txns.
+                    .filter(|log| {
+                        log.get("status")
+                            .and_then(|v| v.as_i64())
+                            .map_or(false, |s| {
+                                if s != 1 {
+                                    info!("txn failed: status = {s:#x}");
+                                    false
+                                } else {
+                                    true
+                                }
+                            })
+                    })
                     .filter(|log| {
                         log.get("address")
                             .and_then(|val| val.as_str())
