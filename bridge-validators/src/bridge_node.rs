@@ -86,39 +86,43 @@ impl BridgeNode {
     }
 
     pub async fn sync_historic_events(&mut self) -> Result<()> {
-        let to_block = if let Some(v) = self.chain_client.to_block_number {
-            BlockNumber::Number(v.into())
+        let max_block_specifier = if self.chain_client.block_instant_finality {
+            BlockNumber::Latest
         } else {
-            if self.chain_client.block_instant_finality {
-                BlockNumber::Latest
-            } else {
-                BlockNumber::Finalized
-            }
+            BlockNumber::Finalized
         };
-
-        info!(
-            "Getting Historic Events for chainId#{}: {}",
-            self.chain_client.chain_id, to_block
-        );
-
-        let to_block_number = self
+        let finalized_block_number = self
             .chain_client
             .client
-            .get_block(to_block)
+            .get_block(max_block_specifier)
             .await?
             .expect("Latest finalized block should be retrieved")
             .number
             .expect("Number should be here");
+
+        let to_block_number = if let Some(v) = self.chain_client.to_block_number {
+            if v > finalized_block_number.as_u64() {
+                warn!("to_block in config file {} was greater than latest finalized block {} - will terminate at {}",
+                      v, finalized_block_number, v);
+            }
+            std::cmp::min(v, finalized_block_number.as_u64())
+        } else {
+            finalized_block_number.as_u64()
+        };
+
+        info!(
+            "Getting Historic Events for chainId#{} from blk# {} to blk# {}",
+            self.chain_client.chain_id,
+            self.chain_client.chain_gateway_block_deployed,
+            to_block_number
+        );
 
         dbg!(to_block_number);
 
         let chain_gateway: ChainGateway<Client> = self.chain_client.get_contract();
 
         let dispatch_events = self
-            .get_historic_events(
-                chain_gateway.event::<DispatchedFilter>(),
-                to_block_number.as_u64(),
-            )
+            .get_historic_events(chain_gateway.event::<DispatchedFilter>(), to_block_number)
             .await?;
         info!("  .. dispatch_events: {}", dispatch_events.len());
 
@@ -127,10 +131,7 @@ impl BridgeNode {
         }
 
         let relay_events = self
-            .get_historic_events(
-                chain_gateway.event::<RelayedFilter>(),
-                to_block_number.as_u64(),
-            )
+            .get_historic_events(chain_gateway.event::<RelayedFilter>(), to_block_number)
             .await?;
 
         info!("  .. relay_events: {}", relay_events.len());
