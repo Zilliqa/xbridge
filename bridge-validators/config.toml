@@ -43,7 +43,6 @@ legacy_gas_estimation_percent = 130
 ## use_get_transactions = true
 
 
-
 # BSC Mainnet
 # [[chain_configs]]
 # chain_gateway_block_deployed = 0
