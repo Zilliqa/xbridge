@@ -8,6 +8,7 @@ use ethers::{
     signers::{LocalWallet, Signer},
     types::{Address, U256},
 };
+use serde::{Deserialize, Serialize};
 use std::fmt;
 use tracing::info;
 
@@ -44,6 +45,12 @@ impl fmt::Display for ChainClient {
     }
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct VersionStruct {
+    #[serde(rename = "Version")]
+    pub version: String,
+}
+
 impl ChainClient {
     pub async fn new(config: &ChainConfig, wallet: LocalWallet) -> Result<Self> {
         info!(
@@ -52,6 +59,10 @@ impl ChainClient {
             config.chain_gateway_address
         );
         let provider = Provider::<Http>::try_from(config.rpc_url.as_str())?;
+        let maybe_version = provider
+            .request::<(), VersionStruct>("GetVersion", ())
+            .await
+            .ok();
         // let provider = Provider::<Ws>::connect(&config.rpc_url).await?;
         let chain_id = provider.get_chainid().await?;
         let client: Arc<Client> = Arc::new(
@@ -62,14 +73,27 @@ impl ChainClient {
         // TODO: get the validator_manager_address from chain_gateway itself
         let chain_gateway = ChainGateway::new(config.chain_gateway_address, client.clone());
         let validator_manager_address: Address = chain_gateway.validator_manager().call().await?;
-        let strategy = match config.use_get_transactions {
-            None => LogStrategy::GetLogs,
-            Some(v) => match v {
-                false => LogStrategy::GetLogs,
-                true => LogStrategy::GetTransactions,
-            },
+        let is_zilliqa1 = if let Some(version) = &maybe_version {
+            version.version.to_lowercase().starts_with("v9.")
+        } else {
+            false
         };
-        info!("... success!");
+        let strategy = if is_zilliqa1 {
+            info!(
+                "   ... this chain looks like zilliqa 1 ; forcing the GetTransactions log strategy"
+            );
+            LogStrategy::GetTransactions
+        } else {
+            match config.use_get_transactions {
+                None => LogStrategy::GetLogs,
+                Some(v) => match v {
+                    false => LogStrategy::GetLogs,
+                    true => LogStrategy::GetTransactions,
+                },
+            }
+        };
+        info!("   ... chain client initialised for chain_id {chain_id}, url {0}, with version {maybe_version:?} and strategy {strategy:?}.",
+              config.rpc_url.as_str());
         Ok(ChainClient {
             client,
             validator_manager_address,

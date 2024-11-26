@@ -163,20 +163,9 @@ impl BlockPolling for ChainClient {
                     .provider()
                     .request("eth_getLogs", [event])
                     .await?;
+                // zq1 will send logs for failed txns; this is avoided here at a higher
+                // level, by forcing the strategy to be GetTransactions in client.rs
                 logs.into_iter()
-                    // Zilliqa 1 will generate logs for failed txns.
-                    .filter(|log| {
-                        log.get("status")
-                            .and_then(|v| v.as_i64())
-                            .map_or(false, |s| {
-                                if s != 1 {
-                                    info!("txn failed: status = {s:#x}");
-                                    false
-                                } else {
-                                    true
-                                }
-                            })
-                    })
                     .filter(|log| {
                         log.get("address")
                             .and_then(|val| val.as_str())
