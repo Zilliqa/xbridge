@@ -42,6 +42,11 @@ legacy_gas_estimation_percent = 130
 ## fetching the receipt and scanning it for relevant logs. This is slow, but at least it works ..
 ## use_get_transactions = true
 
+## Some chains (like ZQ1) insist on generating events for failed txns; these come with a status==0
+## value. However, other chains (eg. BSC) do not send a status==0 value but only generate events
+## for txns which succeed. In order to fail safe, we need to mark when we should accept logs with
+## nonexistent statuses
+accept_events_with_no_status = true
 
 # BSC Mainnet
 # [[chain_configs]]

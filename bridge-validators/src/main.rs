@@ -35,6 +35,11 @@ pub struct ChainConfig {
     pub scan_behind_blocks: Option<u64>,
     pub use_get_transactions: Option<bool>,
     pub to_block_number: Option<u64>,
+    /// If set, we will accept events with no status - this covers the vast
+    /// majority of networks; Zilliqa 1 unfortunely will emit events with no
+    /// status, and failing safe requires us to generate the option this way
+    /// around :-(
+    pub accept_events_with_no_status: Option<bool>,
 }
 
 #[derive(Debug, Clone, Deserialize)]

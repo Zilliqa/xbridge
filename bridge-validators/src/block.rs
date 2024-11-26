@@ -65,8 +65,10 @@ impl ChainClient {
                                 info!("[1] txn failed - skipping");
                                 continue;
                             }
+                        } else if self.accept_events_with_no_status {
+                            info!("[1] txn {:#x} has no status - accept_events_with_no_status = true; accepting", txn_hash);
                         } else {
-                            info!("[1] txn {:#x} has no status - ignoring", txn_hash);
+                            info!("[1] txn {:#x} has no status - accept_events_with_no_status = false; rejecting", txn_hash);
                             continue;
                         }
                         info!("Got receipt for txn {:#x}", txn_hash);
@@ -168,7 +170,8 @@ impl BlockPolling for ChainClient {
                     .filter(|log| {
                         log.get("status")
                             .and_then(|v| v.as_i64())
-                            .map_or(false, |s| {
+                            .map_or(
+                                self.accept_events_with_no_status, |s| {
                                 if s != 1 {
                                     info!("txn failed: status = {s:#x}");
                                     false
@@ -183,10 +186,12 @@ impl BlockPolling for ChainClient {
                             .and_then(|val| val.parse::<Address>().ok())
                             .map(|from_address| {
                                 if from_address == self.chain_gateway_address {
+                                    info!("event from {0:#x} has correct chain_gateway_address {1:#x}; accepting",
+                                          from_address, self.chain_gateway_address);
                                     true
                                 } else {
                                     info!(
-                                        "event from {0:#x} , chain gateway {1:#x}",
+                                        "event from {0:#x} , chain gateway {1:#x} - rejecting",
                                         from_address, self.chain_gateway_address
                                     );
                                     false

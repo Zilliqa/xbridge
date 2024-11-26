@@ -36,6 +36,7 @@ pub struct ChainClient {
     pub scan_behind_blocks: u64,
     pub log_strategy: LogStrategy,
     pub to_block_number: Option<u64>,
+    pub accept_events_with_no_status: bool,
 }
 
 impl fmt::Display for ChainClient {
@@ -46,8 +47,9 @@ impl fmt::Display for ChainClient {
 
 impl ChainClient {
     pub async fn new(config: &ChainConfig, wallet: LocalWallet) -> Result<Self> {
+        let accept_events_with_no_status = config.accept_events_with_no_status.unwrap_or(false);
         info!(
-            "initialising chain client for URL {0} with gateway {1:#x} ... ",
+            "initialising chain client for URL {0} with gateway {1:#x}; accept_events_with_no_status = {accept_events_with_no_status} ... ",
             config.rpc_url.as_str(),
             config.chain_gateway_address
         );
@@ -82,6 +84,7 @@ impl ChainClient {
             scan_behind_blocks: config.scan_behind_blocks.unwrap_or_default(),
             log_strategy: strategy,
             to_block_number: config.to_block_number,
+            accept_events_with_no_status,
         })
     }
 }
