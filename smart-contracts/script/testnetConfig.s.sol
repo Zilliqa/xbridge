@@ -49,4 +49,11 @@ abstract contract TestnetConfig {
   /// ZilBridge constants that we use whilst testing the zilbridge/xbridge integration
   uint64 public constant zbZilliqaChainId = 18;
   uint64 public constant zbBscChainId = 6;
+
+
+  // Sepolia
+  address public constant ethLockProxyProxy = 0x405e42de24Dc4894dB22595D041EBb170dC21D60;
+
+  // Polygon
+  address public constant polLockProxyProxy = 0xD819257C964A78A493DF93D5643E9490b54C5af2;
 }
