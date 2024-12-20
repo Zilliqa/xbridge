@@ -16,7 +16,7 @@ Deploy the `LockProxyProxy` to `BSC`:
 ```
 export PRIVATE_KEY_OWNER=<p>
 export ETHERSCAN_API_KEY=<p>
-forge script script/bsc/deploy/deployLockProxyProxy.s.sol --rpc-url https://evocative-icy-arrow.bsc.quiknode.pro/1585a43e422e8f116bdc5b261c7e5eaa2efe4ca7/ --broadcast --chain-id 56 --verify
+forge script script/bsc/deploy/deployLockProxyProxy.s.sol --rpc-url ${BSC_RPC_URL} --broadcast --chain-id 56 --verify
 ```
 
 Now Ethereum
@@ -66,7 +66,14 @@ forge script script/zq/deploy/03_registerLockProxy.s.sol --rpc-url https://api.z
 
 ## bsc
 
-Deploy the token managers:
+Same as `zq`:
+
+```
+export ETHERSCAN_API_KEY=...
+export BSC_RPC_URL=..
+forge script script/bsc/deploy/02_deployZilbridgeTokenManagers.s.sol --rpc-url ${BSC_RPC_URL} --broadcast --chain-id 56 --verify  --legacy
+```
+
 
 
 
