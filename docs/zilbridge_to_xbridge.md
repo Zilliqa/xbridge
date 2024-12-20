@@ -28,13 +28,13 @@ forge script script/bsc/deploy/deployLockProxyProxy.s.sol --rpc-url rpc --broadc
 forge verify-contract <address> --rpc-url rpc --chain-id 56
 ```
 
-Polygon Amoy
+Polygon 
 
 ```
 export PRIVATE_KEY_OWNER=<p>
 export ETHERSCAN_API_KEY=<p>
-forge script script/pol/deploy/deployLockProxyProxy.s.sol --rpc-url rpc --broadcast --chain-id 56 --verify
-forge verify-contract <address> --rpc-url rpc --chain-id 56
+forge script script/pol/deploy/deployLockProxyProxy.s.sol --rpc-url rpc --broadcast --chain-id 137  --verify
+forge verify-contract <address> --rpc-url rpc --chain-id 137
 ```
 
 Zil
@@ -74,6 +74,15 @@ export BSC_RPC_URL=..
 forge script script/bsc/deploy/02_deployZilbridgeTokenManagers.s.sol --rpc-url ${BSC_RPC_URL} --broadcast --chain-id 56 --verify  --legacy
 forge script script/bsc/deploy/03_registerLockProxy.s.sol --rpc-url ${BSC_RPC_URL} --broadcast --chain-id 56 --verify  --legacy
 ```
+
+## pol
+
+This requires the core to be deployed as well as the token managers.
+
+```
+export ETHERSCAN_API_KEY=...
+export POL_RPC_URL=..
+forge script script/pol/deploy/02_deployCoreUpgradeable.s.sol --rpc-url ${POL_RPC_URL} --broadcast --chain-id 137 --verify
 
 
 

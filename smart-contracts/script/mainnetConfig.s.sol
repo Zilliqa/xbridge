@@ -24,6 +24,12 @@ abstract contract MainnetConfig {
 
   address public constant polLockProxy = 0x43138036d1283413035B8eca403559737E8f7980;
   address public constant polLockProxyProxy = 0x9121A67cA79B6778eAb477c5F76dF6de7C79cC4b;
+  address public constant polChainGatewayAddress = 0x796d796F28b3dB5287e560dDf75BC9B00F0CD609;
+  address public constant polLockAndReleaseOrNativeTokenManagerUpgradeable = 0x7519550ae8b6f9d32E9c1A939Fb5C186f660BE5b;
+  address public constant polLockProxyTokenManager = 0x3faC7cb5b45A3B59d76b6926bc704Cf3cc522437;
+
+
+
   address public constant arbLockProxy = 0xb1E6F8820826491FCc5519f84fF4E2bdBb6e3Cad;
   address public constant arbLockProxyProxy = 0x405e42de24Dc4894dB22595D041EBb170dC21D60;
   address public constant ethLockProxy = 0x9a016Ce184a22DbF6c17daA59Eb7d3140DBd1c54;
