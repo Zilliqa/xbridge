@@ -75,16 +75,20 @@ forge script script/bsc/deploy/02_deployZilbridgeTokenManagers.s.sol --rpc-url $
 forge script script/bsc/deploy/03_registerLockProxy.s.sol --rpc-url ${BSC_RPC_URL} --broadcast --chain-id 56 --verify  --legacy
 ```
 
-## pol
+## pol, arb
 
-This requires the core to be deployed as well as the token managers.
+These requires the core to be deployed as well as the token managers; just run the deployments one by one.
 
 ```
 export ETHERSCAN_API_KEY=...
 export POL_RPC_URL=..
 forge script script/pol/deploy/02_deployCoreUpgradeable.s.sol --rpc-url ${POL_RPC_URL} --broadcast --chain-id 137 --verify
+```
 
 
+```
+forge script script/arb/deploy/04_registerTokenManagers.s.sol --rpc-url ${ARB_RPC_URL} --broadcast --chain-id 42161 --verify
+```
 
 
 
