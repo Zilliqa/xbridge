@@ -64,6 +64,12 @@ forge script script/zq/deploy/03_registerLockProxy.s.sol --rpc-url https://api.z
 ```
 
 
+## bsc
+
+Deploy the token managers:
+
+
+
 
 ## Routing
 
