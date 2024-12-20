@@ -37,3 +37,43 @@ forge script script/pol/deploy/deployLockProxyProxy.s.sol --rpc-url rpc --broadc
 forge verify-contract <address> --rpc-url rpc --chain-id 56
 ```
 
+Zil
+
+```
+forge script script/zq/deploy/deployLockProxyProxy.s.sol --rpc-url https://api.zilliqa.com/ --broadcast --chain-id 32769 --verify  --legacy --verifier sourcify
+```
+
+-----------------
+
+.. and set the relevant addresses in `mainnetConfig.s.sol`.
+
+## zq
+
+Now deploy the token managers
+
+  * for zq, this is `02_deployZilbridgeTokenManagers.s.sol` - fill in `mainnetConfig.s.sol` and once this is verified.
+
+  ```
+forge script script/zq/deploy/02_deployZilbridgeTokenManagers.s.sol --rpc-url https://api.zilliqa.com/ --broadcast --chain-id 32769 --verify  --legacy --verifier sourcify
+  ```
+
+  * Now set up the lockproxy data
+
+```
+forge script script/zq/deploy/03_registerLockProxy.s.sol --rpc-url https://api.zilliqa.com/ --broadcast --chain-id 32769 --verify  --legacy --verifier sourcify
+```
+
+
+
+## Routing
+
+
+Now it's time to route between tokens and tokenmanagers on the various chains:
+
+
+
+
+
+
+
+# NOTE! On ethereum, you can't use fees in the token manager - doing so would've cost several $1000 US in deployment fees.

@@ -8,7 +8,7 @@ import { ILockProxyExtensionTransfer } from "contracts/periphery/ILockProxyExten
 
 /// @dev A variant of LockProxyProxy which doesn't do any checks. This is used on Zilliqa
 /// where any token coming through the LockProxy should be manipulated by the extension
-contract DummyLockProxyProxy is ILockProxyExtensionTransfer, Ownable2Step {
+contract UnrestrictedLockProxyProxy is ILockProxyExtensionTransfer, Ownable2Step {
   using EnumerableSet for EnumerableSet.AddressSet;
 
   address public lockProxy;
