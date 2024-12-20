@@ -72,6 +72,7 @@ Same as `zq`:
 export ETHERSCAN_API_KEY=...
 export BSC_RPC_URL=..
 forge script script/bsc/deploy/02_deployZilbridgeTokenManagers.s.sol --rpc-url ${BSC_RPC_URL} --broadcast --chain-id 56 --verify  --legacy
+forge script script/bsc/deploy/03_registerLockProxy.s.sol --rpc-url ${BSC_RPC_URL} --broadcast --chain-id 56 --verify  --legacy
 ```
 
 

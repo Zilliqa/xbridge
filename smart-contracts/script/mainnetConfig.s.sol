@@ -19,6 +19,8 @@ abstract contract MainnetConfig {
   address public constant bscLockProxyProxy = 0xD819257C964A78A493DF93D5643E9490b54C5af2;
   address public constant bscChainGatewayAddress = 0x3967f1a272Ed007e6B6471b942d655C802b42009;
   address public constant bscTokenManagerMintAndBurn = 0xF391A1Ee7b3ccad9a9451D2B7460Ac646F899f23;
+  address public constant bscLockAndReleaseOrNativeTokenManagerUpgradeable = 0x1202078D298Ff0358A95b6fbf48Ec166dB414660;
+  address public constant bscLockProxyTokenManager = 0x2EE8e8D7C113Bb7c180f4755f06ed50bE53BEDe5;
 
   address public constant polLockProxy = 0x43138036d1283413035B8eca403559737E8f7980;
   address public constant polLockProxyProxy = 0x9121A67cA79B6778eAb477c5F76dF6de7C79cC4b;
