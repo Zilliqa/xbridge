@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::{ChainGateway, ValidatorManager};
+use crate::{exceptions, ChainGateway, ValidatorManager};
 use anyhow::Result;
 use ethers::{
     middleware::{MiddlewareBuilder, NonceManagerMiddleware, SignerMiddleware},
@@ -37,6 +37,7 @@ pub struct ChainClient {
     pub scan_behind_blocks: u64,
     pub log_strategy: LogStrategy,
     pub to_block_number: Option<u64>,
+    pub except: exceptions::ExceptionProcessor,
 }
 
 impl fmt::Display for ChainClient {
@@ -106,6 +107,7 @@ impl ChainClient {
             scan_behind_blocks: config.scan_behind_blocks.unwrap_or_default(),
             log_strategy: strategy,
             to_block_number: config.to_block_number,
+            except: exceptions::ExceptionProcessor::new(),
         })
     }
 }

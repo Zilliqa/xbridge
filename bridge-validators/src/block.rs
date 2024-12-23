@@ -112,7 +112,11 @@ impl ChainClient {
                             }
                             if matches {
                                 info!("Event matches; pushing for transit");
-                                result.push(log);
+                                if let Some(v) = self.except.transform_log(&log) {
+                                    result.push(v);
+                                } else {
+                                    info!("Log {log:?} could not be sent for transit due transform_log() failure");
+                                }
                             }
                         }
                     } else {
@@ -202,6 +206,7 @@ impl BlockPolling for ChainClient {
 
         let events: Vec<D> = logs
             .into_iter()
+            .filter_map(|log| self.except.transform_log(&log))
             .map(|log| Ok(parse_log::<D>(log)?))
             .collect::<Result<Vec<D>>>()?;
 

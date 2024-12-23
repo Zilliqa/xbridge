@@ -3,6 +3,7 @@ mod bridge_node;
 mod client;
 mod crypto;
 mod event;
+mod exceptions;
 mod message;
 mod p2p_node;
 mod signature;
