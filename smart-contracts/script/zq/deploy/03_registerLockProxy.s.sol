@@ -15,7 +15,7 @@ contract registerLockProxy is Script, MainnetConfig {
     LockProxyTokenManagerUpgradeableV3 lockProxyTokenManager = LockProxyTokenManagerUpgradeableV3(payable(zilLockProxyTokenManager));
     // LockAndReleaseOrNativeTokenManagerUpgradeableV3 lockAndReleaseOrNativeTokenManager = LockAndReleaseOrNativeTokenManagerUpgradeableV3(payable(zilLockAndReleaseOrNativeTokenManagerUpgradeable));
 
-    lockProxyTokenManager.setLockProxyData(zilLockProxy, zilUnrestrictedLockProxyProxy);
+    lockProxyTokenManager.setLockProxyData(zilLockProxy, zilUnrestrictedLockProxyProxyDoNotUse);
     vm.stopBroadcast();
   }
 

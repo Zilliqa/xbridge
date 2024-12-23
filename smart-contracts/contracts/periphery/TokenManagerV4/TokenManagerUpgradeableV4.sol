@@ -193,7 +193,9 @@ abstract contract TokenManagerUpgradeableV4 is
         uint amount
     ) external payable virtual whenNotPaused checkFees {
         RemoteToken memory remoteToken = getRemoteTokens(token, remoteChainId);
-        require(remoteToken.tokenManager != address(0));
+        if (remoteToken.tokenManager == address(0)) {
+            revert InvalidTokenRouting();
+        }
 
         _handleTransfer(token, _msgSender(), amount);
 
@@ -218,10 +220,11 @@ abstract contract TokenManagerUpgradeableV4 is
             args.token,
             metadata.sourceChainId
         );
-        // We use a chainId != 0 as a proxy for the existence of
+        // We use tokenManager != 0 as a proxy for the existence of
         // this mapping entry.
-        require(remoteToken.tokenManager != address(0));
-        
+        if (remoteToken.tokenManager == address(0)) {
+            revert InvalidTokenRouting();
+        }
         if (metadata.sourceChainId != remoteToken.chainId) {
             revert InvalidSourceChainId();
         }

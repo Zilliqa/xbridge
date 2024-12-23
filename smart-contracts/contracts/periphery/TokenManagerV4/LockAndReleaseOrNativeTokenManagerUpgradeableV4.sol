@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity ^0.8.20;
 
-import {TokenManagerUpgradeableV3, ITokenManager} from "contracts/periphery/TokenManagerV4/TokenManagerUpgradeableV4.sol";
+import {TokenManagerUpgradeableV4, ITokenManager} from "contracts/periphery/TokenManagerV4/TokenManagerUpgradeableV4.sol";
 import {IERC20} from "contracts/periphery/LockAndReleaseTokenManagerUpgradeable.sol";
 import {IRelayer, CallMetadata} from "contracts/core/Relayer.sol";
 
@@ -14,9 +14,9 @@ interface ILockAndReleaseOrNativeTokenManager {
     );
 }
 
-contract LockAndReleaseOrNativeTokenManagerUpgradeableV3 is
+contract LockAndReleaseOrNativeTokenManagerUpgradeableV4 is
     ILockAndReleaseOrNativeTokenManager,
-    TokenManagerUpgradeableV3
+    TokenManagerUpgradeableV4
 {
     address public constant NATIVE_ASSET_HASH = address(0);
 

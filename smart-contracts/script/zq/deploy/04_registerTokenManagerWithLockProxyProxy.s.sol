@@ -15,7 +15,7 @@ contract registerLockProxy is Script, MainnetConfig {
     vm.startBroadcast(deployerPrivateKey);
     // The lock proxy token manager needs to know where its lock proxy is.
     LockProxyTokenManagerUpgradeableV3 lockProxyTokenManager = LockProxyTokenManagerUpgradeableV3(payable(zilLockProxyTokenManager));
-    LockProxyProxy lockProxyProxy = LockProxyProxy(payable(zilUnrestrictedLockProxyProxy));
+    LockProxyProxy lockProxyProxy = LockProxyProxy(payable(zilUnrestrictedLockProxyProxyDoNotUse));
     lockProxyProxy.addCaller(address(lockProxyTokenManager));
     vm.stopBroadcast();
   }

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity ^0.8.20;
 
-import {TokenManagerUpgradeableV4, ITokenManager} from "contracts/periphery/TokenManagerV3/TokenManagerUpgradeableV4.sol";
+import {TokenManagerUpgradeableV4, ITokenManager} from "contracts/periphery/TokenManagerV4/TokenManagerUpgradeableV4.sol";
 import {BridgedToken} from "contracts/periphery/BridgedToken.sol";
 import {IERC20} from "contracts/periphery/LockAndReleaseTokenManagerUpgradeable.sol";
 import { ILockProxyTokenManagerStorage, LockProxyTokenManagerStorage } from "contracts/periphery/LockProxyTokenManagerStorage.sol";

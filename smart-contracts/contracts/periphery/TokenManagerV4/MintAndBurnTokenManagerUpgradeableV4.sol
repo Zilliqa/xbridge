@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity ^0.8.20;
 
-import {TokenManagerUpgradeableV4, ITokenManager} from "contracts/periphery/TokenManagerV3/TokenManagerUpgradeableV4.sol";
+import {TokenManagerUpgradeableV4, ITokenManager} from "contracts/periphery/TokenManagerV4/TokenManagerUpgradeableV4.sol";
 import {BridgedToken} from "contracts/periphery/BridgedToken.sol";
 
 interface IMintAndBurnTokenManager {
@@ -15,9 +15,9 @@ interface IMintAndBurnTokenManager {
     );
 }
 
-contract MintAndBurnTokenManagerUpgradeableV3 is
+contract MintAndBurnTokenManagerUpgradeableV4 is
     IMintAndBurnTokenManager,
-    TokenManagerUpgradeableV3
+    TokenManagerUpgradeableV4
 {
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
