@@ -107,7 +107,7 @@ impl ChainClient {
             scan_behind_blocks: config.scan_behind_blocks.unwrap_or_default(),
             log_strategy: strategy,
             to_block_number: config.to_block_number,
-            except: exceptions::ExceptionProcessor::new(),
+            except: exceptions::ExceptionProcessor::new(config, chain_id),
         })
     }
 }
