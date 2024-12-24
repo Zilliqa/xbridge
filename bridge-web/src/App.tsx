@@ -149,16 +149,16 @@ function App() {
       !isNative && !!account && !!token.address && !!token.tokenManagerAddress,
     watch: true,
   });
-  const hasEnoughAllowance =
+  const hasEnoughAllowance = siteConfig.allowZeroValueTransfers || (
     isNative ||
     (decimals && isAmountNonZero
       ? (allowance ?? 0n) >= parseUnits(amount!, decimals)
-      : true);
+      : true));
 
-  const hasEnoughBalance =
+  const hasEnoughBalance = siteConfig.allowZeroValueTransfers || (
     decimals && balance && amount
       ? parseUnits(amount, decimals) <= balance
-      : false;
+      : false);
 
   let transferAmount = fees ?? BigInt(0);
   if (isNative) {
@@ -235,7 +235,7 @@ function App() {
     useContractWrite(approveConfig);
 
   const canBridge =
-    isAmountNonZero &&
+    (siteConfig.allowZeroValueTransfers || isAmountNonZero) &&
     isAddressValid &&
     hasEnoughAllowance &&
     hasEnoughBalance &&

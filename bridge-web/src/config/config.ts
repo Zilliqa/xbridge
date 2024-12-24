@@ -16,6 +16,7 @@ export type Chains = "bsc-testnet" | "zq-testnet" | "bsc" | "zq";
 export const siteConfig: SiteConfig = {
   addTokensToMetamask: false,
   showAllowance: false,
+  allowZeroValueTransfers: false,
   logTxnHashes: false,
 };
 
@@ -292,5 +293,6 @@ export type TokenConfig = {
 export type SiteConfig = {
   addTokensToMetamask: boolean;
   showAllowance: boolean;
+  allowZeroValueTransfers: boolean;
   logTxnHashes: boolean;
 };
