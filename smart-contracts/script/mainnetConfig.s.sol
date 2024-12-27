@@ -43,5 +43,6 @@ abstract contract MainnetConfig {
   address public constant arbLockProxyTokenManager = 0x4fa6148C9DAbC7A737422fb1b3AB9088c878d26C;
 
   address public constant ethLockProxy = 0x9a016Ce184a22DbF6c17daA59Eb7d3140DBd1c54;
-  address public constant ethLockProxyProxy = 0x405e42de24Dc4894dB22595D041EBb170dC21D60;
+  address public constant ethLockProxyProxy = 0xD819257C964A78A493DF93D5643E9490b54C5af2;
+  address public constant ethLockProxyProxyOld = 0x405e42de24Dc4894dB22595D041EBb170dC21D60;
 }

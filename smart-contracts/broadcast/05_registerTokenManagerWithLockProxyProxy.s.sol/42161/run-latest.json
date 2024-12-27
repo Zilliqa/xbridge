@@ -1,0 +1,51 @@
+{
+  "transactions": [
+    {
+      "hash": "0x0fa44a95b1f46330c3185af89da38e100381078632f00f1afd96eaf49ed17b8a",
+      "transactionType": "CALL",
+      "contractName": "LockProxyProxy",
+      "contractAddress": "0x405e42de24dc4894db22595d041ebb170dc21d60",
+      "function": "addCaller(address)",
+      "arguments": [
+        "0x4fa6148C9DAbC7A737422fb1b3AB9088c878d26C"
+      ],
+      "transaction": {
+        "from": "0xd89421cd5dd6d6269fbb9307535c386afe11a23e",
+        "to": "0x405e42de24dc4894db22595d041ebb170dc21d60",
+        "gas": "0x6b124",
+        "value": "0x0",
+        "input": "0x747293fb0000000000000000000000004fa6148c9dabc7a737422fb1b3ab9088c878d26c",
+        "nonce": "0x12",
+        "chainId": "0xa4b1"
+      },
+      "additionalContracts": [],
+      "isFixedGasLimit": false
+    }
+  ],
+  "receipts": [
+    {
+      "status": "0x1",
+      "cumulativeGasUsed": "0x14fa8a",
+      "logs": [],
+      "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "type": "0x2",
+      "transactionHash": "0x0fa44a95b1f46330c3185af89da38e100381078632f00f1afd96eaf49ed17b8a",
+      "transactionIndex": "0x3",
+      "blockHash": "0x512758d9cf627d96274178695e24fd8fb0e7d4797c7fab9d1f3e1ab6ffbc8929",
+      "blockNumber": "0x1118c859",
+      "gasUsed": "0x3d2da",
+      "effectiveGasPrice": "0xd25b90",
+      "from": "0xd89421cd5dd6d6269fbb9307535c386afe11a23e",
+      "to": "0x405e42de24dc4894db22595d041ebb170dc21d60",
+      "contractAddress": null,
+      "gasUsedForL1": "0x2705c",
+      "l1BlockNumber": "0x1473ced"
+    }
+  ],
+  "libraries": [],
+  "pending": [],
+  "returns": {},
+  "timestamp": 1734723507,
+  "chain": 42161,
+  "commit": "4b64fac"
+}
