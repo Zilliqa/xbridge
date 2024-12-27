@@ -35,10 +35,9 @@ LockAndReleaseTokenManagerUpgradeable polLockAndReleaseOrNativeTokenManager = Lo
             polLockProxyTokenManager.registerToken(address(0xCc88D28f7d4B0D5AFACCC77F6102d88EE630fA17), ZILBridgedTokenRouting);
             
 // native on polygon: token matic.1.17.3254b4 has zq_denom zmatic.1.18.45185c, name zMATIC and is on zilliqa as 0x4345472A0c6164F35808CDb7e7eCCd3d326CC50b, zmatic.1.18.45185c
-
             ITokenManagerStructs.RemoteToken memory zMATICNativeTokenRouting = ITokenManagerStructs.RemoteToken({
               token: address(0x4345472A0c6164F35808CDb7e7eCCd3d326CC50b),
-              tokenManager: address(zilLockProxyTokenManager),
+              tokenManager: address(zilLockAndReleaseOrNativeTokenManagerUpgradeable),
               chainId: zilChainId });
             polLockAndReleaseOrNativeTokenManager.registerToken(address(0x0000000000000000000000000000000000000000), zMATICNativeTokenRouting);
             

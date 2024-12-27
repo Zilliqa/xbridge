@@ -11,6 +11,9 @@ abstract contract MainnetConfig {
   uint public constant arbChainId = 42161;
   uint public constant ethChainId = 1;
 
+  address public constant primaryValidatorAddress = 0x250572Ed005BaD64Ff24FbDc0d41875dAF58944f;
+  address public constant deployerAddress = 0xD89421Cd5dD6d6269FbB9307535c386AFe11a23E;
+  
   address public constant zilLockProxy = 0xd73C6b871b4D0E130d64581993B745FC938A5be7;
   // This exists, but is useless, because you can't set extensions on Scilla lockProxy.
   address public constant zilUnrestrictedLockProxyProxyDoNotUse = 0x7519550ae8b6f9d32E9c1A939Fb5C186f660BE5b;

@@ -86,6 +86,14 @@ impl BridgeNode {
     }
 
     pub async fn sync_historic_events(&mut self) -> Result<()> {
+        if self.chain_client.chain_gateway_block_deployed == 0 {
+            warn!(
+                "block_deployed=0 , so not synchronising historic events for chain id {}",
+                self.chain_client.chain_id
+            );
+            return Ok(());
+        }
+
         let max_block_specifier = if self.chain_client.block_instant_finality {
             BlockNumber::Latest
         } else {

@@ -54,7 +54,7 @@ Now deploy the token managers
   * for zq, this is `02_deployZilbridgeTokenManagers.s.sol` - fill in `mainnetConfig.s.sol` and once this is verified.
 
   ```
-forge script script/zq/deploy/02_deployZilbridgeTokenManagers.s.sol --rpc-url https://api.zilliqa.com/ --broadcast --chain-id 32769 --verify  --legacy --verifier sourcify
+forge script script/zq/deploy/02_deployZilbridgeTokenManagers.s.sol --rpc-url https://api.zilliqa.com/ --broadcast --chain-id 32769 --verify  --legacy --verifier sourcify --
   ```
 
   * Now set up the lockproxy data
