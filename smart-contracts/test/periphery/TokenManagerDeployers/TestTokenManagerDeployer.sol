@@ -12,7 +12,9 @@ import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {TestToken} from "test/Helpers.sol";
 import {LockAndReleaseTokenManagerDeployer} from "test/periphery/TokenManagerDeployers/LockAndReleaseTokenManagerDeployer.sol";
 
+
 contract TestTokenManagerUpgradeableV4 is TokenManagerUpgradeableV4 {
+  event Fish();
   event TransferEvent(address indexed token, address indexed from, uint indexed amount);
   event AcceptEvent(address indexed token, address indexed from, uint indexed amount);
 

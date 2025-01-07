@@ -10,7 +10,7 @@ import {PausableUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/Pau
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {TestToken} from "test/Helpers.sol";
-import { TestTokenManagerDeployer } from "test/periphery/TokenManagerDeployers/TestTokenManagerDeployer.sol";
+import { TestTokenManagerDeployer, TestTokenManagerUpgradeableV4 } from "test/periphery/TokenManagerDeployers/TestTokenManagerDeployer.sol";
 
 
 contract TokenManagerUpgradeableV4Tests is Tester, ITokenManagerStructs, ITokenManagerEvents, ITokenManagerV4Events, TestTokenManagerDeployer {
@@ -30,6 +30,10 @@ contract TokenManagerUpgradeableV4Tests is Tester, ITokenManagerStructs, ITokenM
         });
   uint transferAmount = 10 ether;
 
+  event TransferEvent(address indexed token, address indexed from, uint indexed amount);
+  event AcceptEvent(address indexed token, address indexed from, uint indexed amount);
+
+  
   function setUp() external {
     vm.startPrank(deployer);
     tokenManager = deployTestTokenManagerV4(fees);
@@ -111,4 +115,16 @@ contract TokenManagerUpgradeableV4Tests is Tester, ITokenManagerStructs, ITokenM
 
     vm.stopPrank();
   }
+
+  function test_scaling() external {
+    startHoax(deployer);
+    tokenManager.registerTokenWithScale(address(token1), remoteToken, 2);
+    vm.stopPrank();
+    startHoax(user);
+    vm.expectEmit();
+    emit TransferEvent(address(token1), user,1_000_000 );
+    tokenManager.transfer{value: fees}(address(token1), remoteChainId, remoteTokenAddr, 1_000_000);
+    vm.stopPrank();
+  }
+  
 }
