@@ -55,7 +55,6 @@ contract LockAndReleaseTokenManagerUpgradeableV4Tests is
         tokenManagerV2.registerToken(address(token), remoteToken);
         unregisteredToken = new TestToken(transferAmount);
 
-        
         // Premint some tokens for user testing
         token.transfer(user, transferAmount);
         assertEq(token.balanceOf(user), transferAmount);

@@ -9,29 +9,20 @@ import {ITokenManagerEvents, ITokenManagerStructs} from "contracts/periphery/Tok
 import {TokenManagerFees, ITokenManagerFees} from "contracts/periphery/TokenManagerV2/TokenManagerFees.sol";
 import {PausableUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 
-interface ITokenManagerV4Structs {
-  struct ScaledRemoteToken {
-    address token;
-    address tokenManager;
-    uint chainId;
-    int8 scale;
-  }
-}
-
 interface ITokenManagerV4Events {
-  event TokenScaleChanged (
+  event TokenRegisteredWithScale(
       address indexed token,
+      address remoteToken,
+      address remoteTokenManager,
       uint remoteChainId,
-      int8 remoteScale
-                           );
+      int8 scale);
 }
 
 interface ITokenManager is
     ITokenManagerEvents,
     ITokenManagerStructs,
     ITokenManagerFees,
-  ITokenManagerV4Structs,
-  ITokenManagerV4Events
+    ITokenManagerV4Events
 {
     error InvalidSourceChainId();
     error InvalidTokenManager();
@@ -126,10 +117,6 @@ abstract contract TokenManagerUpgradeableV4 is
         return $.remoteTokens[token][remoteChainId];
     }
 
-    function getRemoteTokenScale(address token, uint remoteChainId) public view returns (int8) {
-      TokenManagerStorage storage $ = _getTokenManagerStorage();
-      return $.scaleForRemoteTokens[token][remoteChainId];
-    }
 
     modifier onlyGateway() {
         if (_msgSender() != address(getGateway())) {
@@ -167,6 +154,9 @@ abstract contract TokenManagerUpgradeableV4 is
     ) internal {
         TokenManagerStorage storage $ = _getTokenManagerStorage();
         $.remoteTokens[localToken][remoteToken.chainId] = remoteToken;
+        // Forcibly reset the scale. not strictly necessary as the default is zero,
+        // but here as insurance.
+        $.scaleForRemoteTokens[localToken][remoteToken.chainId] = 0;
         emit TokenRegistered(
             localToken,
             remoteToken.token,
@@ -175,14 +165,20 @@ abstract contract TokenManagerUpgradeableV4 is
         );
     }
 
-    function _setScaleForToken(address localToken,
-                               uint remoteChainId,
-                               int8 scale) internal {
+    // You need to do this all together, because otherwise there is a point
+    // where the token doesn't have the right scale, and this is exploitable.
+    function _registerTokenWithScale(address localToken,
+                                     RemoteToken memory remoteToken,
+                                     int8 scale) internal {
+      _registerToken(localToken, remoteToken);
       TokenManagerStorage storage $ = _getTokenManagerStorage();
-      $.scaleForRemoteTokens[localToken][remoteChainId] = scale;
-      emit TokenScaleChanged( localToken,
-                              remoteChainId,
-                              scale );
+      $.scaleForRemoteTokens[localToken][remoteToken.chainId] = scale;
+      emit TokenRegisteredWithScale(
+          localToken,
+          remoteToken.token,
+          remoteToken.tokenManager,
+          remoteToken.chainId,
+          scale);
     }
 
 
@@ -194,7 +190,7 @@ abstract contract TokenManagerUpgradeableV4 is
 
     function _scaleAmount(uint amount,
                           address localToken,
-                          uint remoteChainId) internal returns (uint)
+                          uint remoteChainId) internal view returns (uint)
     {
       int8 scale = _getScaleForToken(localToken, remoteChainId);
       uint adjusted;
@@ -210,14 +206,16 @@ abstract contract TokenManagerUpgradeableV4 is
         uint multiplier = uint(10)**uint(int256(scale));
         adjusted = amount * multiplier;
         reconstructed = amount / multiplier;
+      } else {
+        adjusted = amount;
+        reconstructed = amount;
       }
-      // If scale == 0, nothing is done, which is what is intended.
       if (adjusted != reconstructed) {
         revert InvalidTokenAmount(amount, adjusted, reconstructed);
       }
       return adjusted;
     }
-    
+
     // Token Overrides
     function registerToken(
         address token,
@@ -251,12 +249,24 @@ abstract contract TokenManagerUpgradeableV4 is
     }
 
     // V4 new function
-    function setScaleForToken(address localToken,
-                              uint remoteChainId,
-                              int8 scale) external virtual onlyOwner {
-      _setScaleForToken(localToken, remoteChainId, scale);
+    function registerTokenWithScale(address token,
+                                    RemoteToken memory remoteToken,
+                                    int8 scale) external virtual onlyOwner {
+      _registerTokenWithScale(token, remoteToken, scale);
     }
 
+
+    // V4 new function
+    function getRemoteTokenWithScale(address token, uint remoteChainId) public view returns (RemoteToken memory, int8) {
+      TokenManagerStorage storage $ = _getTokenManagerStorage();
+      return ($.remoteTokens[token][remoteChainId], $.scaleForRemoteTokens[token][remoteChainId]);
+    }
+
+    // V4 new function
+    function removeToken(address token, uint remoteChainId) external virtual onlyOwner {
+      _removeToken(token, remoteChainId);
+    }
+    
     // TO OVERRIDE – Incoming
     function _handleTransfer(
         address token,
