@@ -17,7 +17,7 @@ contract Deployment is Script, LockAndReleaseOrNativeTokenManagerDeployer,Testne
 
         vm.startBroadcast(deployerPrivateKey);
         LockAndReleaseOrNativeTokenManagerUpgradeableV3 tokenManager =
-            deployLatestLockAndReleaseOrNativeTokenManager(chainGatewayAddress, fees);
+            deployLockAndReleaseOrNativeTokenManagerV3(chainGatewayAddress, fees);
         console.log(
             "LockAndReleaseOrNativeTokenManager Proxy deployed to %s, with owner %s and gateway %s",
             address(tokenManager),

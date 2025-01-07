@@ -3,22 +3,22 @@ pragma solidity 0.8.20;
 
 import {Tester, Vm} from "test/Tester.sol";
 import {ITokenManagerStructs, TokenManagerUpgradeable} from "contracts/periphery/TokenManagerUpgradeable.sol";
-import {LockAndReleaseTokenManagerUpgradeableV3} from "contracts/periphery/TokenManagerV3/LockAndReleaseTokenManagerUpgradeableV3.sol";
-import {MintAndBurnTokenManagerUpgradeableV3} from "contracts/periphery/TokenManagerV3/MintAndBurnTokenManagerUpgradeableV3.sol";
+import {LockAndReleaseOrNativeTokenManagerUpgradeableV4} from "contracts/periphery/TokenManagerV4/LockAndReleaseOrNativeTokenManagerUpgradeableV4.sol";
+import {MintAndBurnTokenManagerUpgradeableV4} from "contracts/periphery/TokenManagerV4/MintAndBurnTokenManagerUpgradeableV4.sol";
 import {BridgedToken} from "contracts/periphery/BridgedToken.sol";
 import {CallMetadata, IRelayerEvents} from "contracts/core/Relayer.sol";
 import {ValidatorManager} from "contracts/core/ValidatorManager.sol";
 import {ChainGateway} from "contracts/core/ChainGateway.sol";
 import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 import {TestToken} from "test/Helpers.sol";
-import {LockAndReleaseTokenManagerDeployer} from "test/periphery/TokenManagerDeployers/LockAndReleaseTokenManagerDeployer.sol";
+import {LockAndReleaseOrNativeTokenManagerDeployer} from "test/periphery/TokenManagerDeployers/LockAndReleaseOrNativeTokenManagerDeployer.sol";
 import {MintAndBurnTokenManagerDeployer} from "test/periphery/TokenManagerDeployers/MintAndBurnTokenManagerDeployer.sol";
 
 // Integration Tests combining the TokenManagers and ChainGateway
 contract TokenBridgeIntegrationTests is
     Tester,
     IRelayerEvents,
-    LockAndReleaseTokenManagerDeployer,
+    LockAndReleaseOrNativeTokenManagerDeployer,
     MintAndBurnTokenManagerDeployer
 {
     using MessageHashUtils for bytes;
@@ -32,12 +32,12 @@ contract TokenBridgeIntegrationTests is
     uint originalTokenSupply = 1000 ether;
     uint fees = 0.1 ether;
 
-    LockAndReleaseTokenManagerUpgradeableV3 sourceTokenManager;
+    LockAndReleaseOrNativeTokenManagerUpgradeableV4 sourceTokenManager;
     TestToken originalToken;
     ChainGateway sourceChainGateway;
     ValidatorManager sourceValidatorManager;
 
-    MintAndBurnTokenManagerUpgradeableV3 remoteTokenManager;
+    MintAndBurnTokenManagerUpgradeableV4 remoteTokenManager;
     BridgedToken bridgedToken;
     ChainGateway remoteChainGateway;
     ValidatorManager remoteValidatorManager;
@@ -61,7 +61,7 @@ contract TokenBridgeIntegrationTests is
         );
 
         // Deploy LockAndReleaseTokenManagerUpgradeable
-        sourceTokenManager = deployLatestLockAndReleaseTokenManager(
+        sourceTokenManager = deployLatestLockAndReleaseOrNativeTokenManager(
             address(sourceChainGateway),
             fees
         );

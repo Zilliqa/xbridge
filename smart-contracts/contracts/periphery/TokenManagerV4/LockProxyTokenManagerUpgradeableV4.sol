@@ -21,10 +21,6 @@ contract LockProxyTokenManagerUpgradeableV4 is TokenManagerUpgradeableV4, ILockP
     _disableInitializers();
   }
 
-  function reinitialize(uint fees) external reinitializer(2) {
-    _setFees(fees);
-  }
-
   // Incoming currency - transfer into the lock proxy (directly!)
   function _handleTransfer(address token, address from, uint amount) internal override {
     address lockProxyAddress = getLockProxy();

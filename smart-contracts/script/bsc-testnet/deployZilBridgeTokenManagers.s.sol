@@ -45,7 +45,7 @@ contract deployZilBridgeTokenManagers is Script, LockProxyTokenManagerDeployer, 
     allowedTokens[1] = bscBridgedZRC2Address;
     allowedTokens[2] = bscBridgedZILAddress;
     LockProxyProxy lockProxyProxy = new LockProxyProxy(allowedTokens, vm.addr(validatorPrivateKey), address(lockProxy));
-    LockProxyTokenManagerUpgradeableV3 tokenManager = deployLatestLockProxyTokenManager(address(chainGateway), address(lockProxy), address(lockProxyProxy), fees);
+    LockProxyTokenManagerUpgradeableV3 tokenManager = deployLockProxyTokenManagerV3(address(chainGateway), address(lockProxy), address(lockProxyProxy), fees);
     lockProxyProxy.addCaller(address(tokenManager));
     console.log(
         "    address public constant bscLockProxyTokenManagerAddress =  %s", address(tokenManager));

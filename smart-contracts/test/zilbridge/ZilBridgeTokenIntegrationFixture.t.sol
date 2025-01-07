@@ -4,8 +4,8 @@ pragma solidity 0.8.20;
 import "forge-std/console.sol";
 import {Tester, Vm} from "test/Tester.sol";
 import {ITokenManagerStructs, TokenManagerUpgradeable} from "contracts/periphery/TokenManagerUpgradeable.sol";
-import {LockAndReleaseTokenManagerUpgradeableV3} from "contracts/periphery/TokenManagerV3/LockAndReleaseTokenManagerUpgradeableV3.sol";
-import {MintAndBurnTokenManagerUpgradeableV3} from "contracts/periphery/TokenManagerV3/MintAndBurnTokenManagerUpgradeableV3.sol";
+import {LockAndReleaseOrNativeTokenManagerUpgradeableV4} from "contracts/periphery/TokenManagerV4/LockAndReleaseOrNativeTokenManagerUpgradeableV4.sol";
+import {MintAndBurnTokenManagerUpgradeableV4} from "contracts/periphery/TokenManagerV4/MintAndBurnTokenManagerUpgradeableV4.sol";
 import {BridgedToken} from "contracts/periphery/BridgedToken.sol";
 import { LockProxyProxy } from "contracts/periphery/LockProxyProxy.sol";
 import {CallMetadata, IRelayerEvents} from "contracts/core/Relayer.sol";
@@ -13,10 +13,10 @@ import {ValidatorManager} from "contracts/core/ValidatorManager.sol";
 import {ChainGateway} from "contracts/core/ChainGateway.sol";
 import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 import {TestToken} from "test/Helpers.sol";
-import {LockProxyTokenManagerUpgradeableV3} from "contracts/periphery/TokenManagerV3/LockProxyTokenManagerUpgradeableV3.sol";
+import {LockProxyTokenManagerUpgradeableV4} from "contracts/periphery/TokenManagerV4/LockProxyTokenManagerUpgradeableV4.sol";
 import {LockProxyTokenManagerDeployer} from "test/zilbridge/TokenManagerDeployers/LockProxyTokenManagerDeployer.sol";
 import {MintAndBurnTokenManagerDeployer} from "test/periphery/TokenManagerDeployers/MintAndBurnTokenManagerDeployer.sol";
-import {LockAndReleaseTokenManagerDeployer} from "test/periphery/TokenManagerDeployers/LockAndReleaseTokenManagerDeployer.sol";
+import {LockAndReleaseOrNativeTokenManagerDeployer} from "test/periphery/TokenManagerDeployers/LockAndReleaseOrNativeTokenManagerDeployer.sol";
 import { SwitcheoToken } from "test/zilbridge/tokens/switcheo/tokens/SwitcheoTokenETH.sol";
 import { ZilBridgeFixture } from "test/zilbridge/DeployZilBridge.t.sol";
 import { MockLockProxy } from "./MockLockProxy.sol";
@@ -29,7 +29,7 @@ import { MockLockProxy } from "./MockLockProxy.sol";
  * Since the word "native" is quite heavily overloaded, we use "gas" to describe the gas token - ETH on ethereum, for example.
  */
 contract ZilBridgeTokenBridgeIntegrationFixture is
-Tester, IRelayerEvents, LockAndReleaseTokenManagerDeployer, LockProxyTokenManagerDeployer, ZilBridgeFixture {
+Tester, IRelayerEvents, LockAndReleaseOrNativeTokenManagerDeployer, LockProxyTokenManagerDeployer, ZilBridgeFixture {
   using MessageHashUtils for bytes;
 
   // Gateway shared between the two chains
@@ -41,7 +41,7 @@ Tester, IRelayerEvents, LockAndReleaseTokenManagerDeployer, LockProxyTokenManage
   uint originalTokenSupply = 1000 ether;
   uint fees = 0.1 ether;
 
-  LockProxyTokenManagerUpgradeableV3 sourceTokenManager;
+  LockProxyTokenManagerUpgradeableV4 sourceTokenManager;
   LockProxyProxy lockProxyProxy;
 
   // There are "actually" three of these - native (which is lock/release), a mint/burn token and a conventional token.
@@ -54,7 +54,7 @@ Tester, IRelayerEvents, LockAndReleaseTokenManagerDeployer, LockProxyTokenManage
   // see doc/zilbridge.md
   MockLockProxy mockRemoteLockProxy;
   LockProxyProxy remoteLockProxyProxy;
-  LockProxyTokenManagerUpgradeableV3 remoteTokenManager;
+  LockProxyTokenManagerUpgradeableV4 remoteTokenManager;
   SwitcheoToken remoteNativelyOnSource;
   SwitcheoToken remoteBridgedGasToken;
   TestToken nativelyOnRemote;

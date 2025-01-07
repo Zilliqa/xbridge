@@ -89,12 +89,18 @@ abstract contract TokenManagerUpgradeableV4 is
         address gateway;
         // localTokenAddress => remoteChainId => RemoteToken
         mapping(address => mapping(uint => RemoteToken)) remoteTokens;
+        // This stores the scale for remote tokens, as remote_token.decimals-local_token.decimals.
+        // So, when sending a token with a +ve scale, we shift left.
+        // When sending a token with a -ve scale, we shift right.
+        // When receiving a token, we do nothing.
+        // This allows us to validate that the tokens can be exactly converted to the remote
+        // and revert the sending txn if not.
+        mapping(address => mapping(uint => int8)) scaleForRemoteTokens;
     }
 
     // keccak256(abi.encode(uint256(keccak256("zilliqa.storage.TokenManager")) - 1)) & ~bytes32(uint256(0xff))
     bytes32 private constant Token_Manager_Storage_Location =
         0x4a6c2e6a7e6518c249bdcd1d934ea16ea5325bbae105af814eb678f5f49f3400;
-
 
     function _getTokenManagerStorage()
         private
@@ -106,27 +112,6 @@ abstract contract TokenManagerUpgradeableV4 is
         }
     }
 
-    struct TokenManagerV4Storage {
-      // This stores the scale for remote tokens, as remote_token.decimals-local_token.decimals.
-      // So, when sending a token with a +ve scale, we shift left.
-      // When sending a token with a -ve scale, we shift right.
-      // When receiving a token, we do nothing.
-      // This allows us to validate that the tokens can be exactly converted to the remote
-      // and revert the sending txn if not.
-      mapping(address => mapping(uint => int8)) scaleForRemoteTokens;
-    }
-
-    // keccack256(abi.encode(uint256(keccak256("zilliqa.storage.TokenManagerV4"))-1))& ~bytes32(uint256(0xff))
-    bytes32 private constant Token_ManagerV4_Storage_Location =
-        0xe8b1c929e9ac4c16aaeb9d6494126adb9c7e3b297332aeb86accee6d41c67500;
-
-    function _getTokenManagerV4Storage()
-        private pure returns (TokenManagerV4Storage storage $)
-    {
-      assembly {
-          $.slot := Token_ManagerV4_Storage_Location
-        }
-    }
 
     function getGateway() public view returns (address) {
         TokenManagerStorage storage $ = _getTokenManagerStorage();
@@ -142,7 +127,7 @@ abstract contract TokenManagerUpgradeableV4 is
     }
 
     function getRemoteTokenScale(address token, uint remoteChainId) public view returns (int8) {
-      TokenManagerV4Storage storage $ = _getTokenManagerV4Storage();
+      TokenManagerStorage storage $ = _getTokenManagerStorage();
       return $.scaleForRemoteTokens[token][remoteChainId];
     }
 
@@ -172,8 +157,7 @@ abstract contract TokenManagerUpgradeableV4 is
     function _removeToken(address localToken, uint remoteChainId) internal {
         TokenManagerStorage storage $ = _getTokenManagerStorage();
         delete $.remoteTokens[localToken][remoteChainId];
-        TokenManagerV4Storage storage $$ = _getTokenManagerV4Storage();
-        delete $$.scaleForRemoteTokens[localToken][remoteChainId];
+        delete $.scaleForRemoteTokens[localToken][remoteChainId];
         emit TokenRemoved(localToken, remoteChainId);
     }
 
@@ -194,7 +178,7 @@ abstract contract TokenManagerUpgradeableV4 is
     function _setScaleForToken(address localToken,
                                uint remoteChainId,
                                int8 scale) internal {
-      TokenManagerV4Storage storage $ = _getTokenManagerV4Storage();
+      TokenManagerStorage storage $ = _getTokenManagerStorage();
       $.scaleForRemoteTokens[localToken][remoteChainId] = scale;
       emit TokenScaleChanged( localToken,
                               remoteChainId,
@@ -203,8 +187,8 @@ abstract contract TokenManagerUpgradeableV4 is
 
 
     function _getScaleForToken(address localToken,
-                               uint remoteChainId) internal returns (int8) {
-      TokenManagerV4Storage storage $ = _getTokenManagerV4Storage();
+                               uint remoteChainId) internal view returns (int8) {
+      TokenManagerStorage storage $ = _getTokenManagerStorage();
       return $.scaleForRemoteTokens[localToken][remoteChainId];
     }
 

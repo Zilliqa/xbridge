@@ -3,6 +3,7 @@ pragma solidity 0.8.20;
 
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import {LockProxyTokenManagerUpgradeableV3} from "contracts/periphery/TokenManagerV3/LockProxyTokenManagerUpgradeableV3.sol";
+import {LockProxyTokenManagerUpgradeableV4} from "contracts/periphery/TokenManagerV4/LockProxyTokenManagerUpgradeableV4.sol";
 import {LockProxyTokenManagerUpgradeable} from "contracts/periphery/LockProxyTokenManagerUpgradeable.sol";
 
 abstract contract LockProxyTokenManagerDeployer {
@@ -29,7 +30,18 @@ abstract contract LockProxyTokenManagerDeployer {
     return LockProxyTokenManagerUpgradeableV3(address(proxy));
   }
 
-  function deployLatestLockProxyTokenManager(address chainGateway, address lockProxy, address lockProxyProxy, uint fees) public returns (LockProxyTokenManagerUpgradeableV3) {
-    return deployLockProxyTokenManagerV3(chainGateway, lockProxy, lockProxyProxy, fees);
+  function deployLockProxyTokenManagerV4(
+      address chainGateway,
+      address lockProxyAddress,
+      address lockProxyProxyAddress,
+      uint fees) public returns (LockProxyTokenManagerUpgradeableV4) {
+    LockProxyTokenManagerUpgradeableV3 proxy = deployLockProxyTokenManagerV3(chainGateway, lockProxyAddress, lockProxyProxyAddress, fees);
+    address newImplementation = address(new LockProxyTokenManagerUpgradeableV4());
+    proxy.upgradeToAndCall(newImplementation, "");
+    return LockProxyTokenManagerUpgradeableV4(address(proxy));
+  }
+
+  function deployLatestLockProxyTokenManager(address chainGateway, address lockProxy, address lockProxyProxy, uint fees) public returns (LockProxyTokenManagerUpgradeableV4) {
+    return deployLockProxyTokenManagerV4(chainGateway, lockProxy, lockProxyProxy, fees);
   }
 }

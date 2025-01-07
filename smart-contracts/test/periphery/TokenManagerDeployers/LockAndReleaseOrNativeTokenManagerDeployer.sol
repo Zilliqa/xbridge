@@ -5,6 +5,7 @@ import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.s
 import {LockAndReleaseTokenManagerUpgradeable} from "contracts/periphery/LockAndReleaseTokenManagerUpgradeable.sol";
 import {LockAndReleaseTokenManagerUpgradeableV2} from "contracts/periphery/TokenManagerV2/LockAndReleaseTokenManagerUpgradeableV2.sol";
 import {LockAndReleaseOrNativeTokenManagerUpgradeableV3} from "contracts/periphery/TokenManagerV3/LockAndReleaseOrNativeTokenManagerUpgradeableV3.sol";
+import {LockAndReleaseOrNativeTokenManagerUpgradeableV4} from "contracts/periphery/TokenManagerV4/LockAndReleaseOrNativeTokenManagerUpgradeableV4.sol";
 import {LockAndReleaseTokenManagerDeployer} from "./LockAndReleaseTokenManagerDeployer.sol";
 
 abstract contract LockAndReleaseOrNativeTokenManagerDeployer is
@@ -27,10 +28,22 @@ abstract contract LockAndReleaseOrNativeTokenManagerDeployer is
         return LockAndReleaseOrNativeTokenManagerUpgradeableV3(payable(address(proxy)));
     }
 
+    function deployLockAndReleaseOrNativeTokenManagerV4(
+        address chainGateway,
+        uint fees
+     ) public returns (LockAndReleaseOrNativeTokenManagerUpgradeableV4) {
+      LockAndReleaseOrNativeTokenManagerUpgradeableV3 proxy = deployLockAndReleaseOrNativeTokenManagerV3(
+          chainGateway,
+          fees);
+      address newImplementation = address(new LockAndReleaseOrNativeTokenManagerUpgradeableV4());
+      proxy.upgradeToAndCall(newImplementation, "");
+      return LockAndReleaseOrNativeTokenManagerUpgradeableV4(payable(address(proxy)));
+    }
+
     function deployLatestLockAndReleaseOrNativeTokenManager(
         address chainGateway,
         uint fees
-    ) public returns (LockAndReleaseOrNativeTokenManagerUpgradeableV3) {
-        return deployLockAndReleaseOrNativeTokenManagerV3(chainGateway, fees);
+    ) public returns (LockAndReleaseOrNativeTokenManagerUpgradeableV4) {
+        return deployLockAndReleaseOrNativeTokenManagerV4(chainGateway, fees);
     }
 }
