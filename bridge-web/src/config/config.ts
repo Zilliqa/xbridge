@@ -1,5 +1,5 @@
 import { Chain } from "viem";
-import { bsc, bscTestnet, zilliqa, zilliqaTestnet } from "viem/chains";
+import { bsc, bscTestnet, zilliqa, zilliqaTestnet, polygon } from "viem/chains";
 import fps_token from "../assets/fps_token.png";
 import test_hrse_token from "../assets/salami_hrse.webp";
 import hrse_token from "../assets/hrse_token.webp";
@@ -11,7 +11,7 @@ export enum TokenManagerType {
   ZilBridge,
 }
 
-export type Chains = "bsc-testnet" | "zq-testnet" | "bsc" | "zq";
+export type Chains = "bsc-testnet" | "zq-testnet" | "bsc" | "zq" | "polygon";
 
 export const siteConfig: SiteConfig = {
   addTokensToMetamask: false,
@@ -66,13 +66,60 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
               tokenManagerAddress: "0x6D61eFb60C17979816E4cE12CD5D29054E755948",
               tokenManagerType: TokenManagerType.LockAndRelease,
             },
+              {
+              name: "zMATIC",
+              address: "0x4345472A0c6164F35808CDb7e7eCCd3d326CC50b",
+              blockExplorer: "https://otterscan.zilliqa.com/address/0x4345472A0c6164F35808CDb7e7eCCd3d326CC50b",
+              logo: test_hrse_token,
+              tokenManagerAddress: "0x4fa6148C9DAbC7A737422fb1b3AB9088c878d26C",
+              tokenManagerType: TokenManagerType.ZilBridge,
+            },
+            {
+              name: "ZIL",
+              address: null,
+              blockExplorer: "https://otterscan.testnet.zilliqa.com/",
+              logo: test_hrse_token,
+              tokenManagerAddress: "0x4fa6148C9DAbC7A737422fb1b3AB9088c878d26C",
+              tokenManagerType: TokenManagerType.ZilBridge,
+            },
           ],
           chainId: 32769,
           isZilliqa: true,
           blockExplorer: "https://otterscan.zilliqa.com/tx/",
           nativeTokenSymbol: "ZIL",
         },
-        bsc: {
+      polygon: {
+        chain: "polygon",
+        name: "POL",
+        wagmiChain: configureCustomRpcUrl(
+          polygon,
+            `${import.meta.env.VITE_POL_MAINNET_API}/${import.meta.env.VITE_POL_MAINNET_KEY}`,
+          ),
+        chainGatewayAddress: "0x796d796F28b3dB5287e560dDf75BC9B00F0CD609",
+        chainId: 137,
+        isZilliqa: false,
+        blockExplorer: "https://polygonscan.com/tx/",
+        nativeTokenSymbol: "POL",
+        tokens: [
+    {
+      name: "ZIL",
+      address: "0xCc88D28f7d4B0D5AFACCC77F6102d88EE630fA17",
+      blockExplorer: "https://polygonscan.com/token/0xCc88D28f7d4B0D5AFACCC77F6102d88EE630fA17",
+      logo: test_hrse_token, 
+      tokenManagerAddress: "0x3faC7cb5b45A3B59d76b6926bc704Cf3cc522437",
+      tokenManagerType: TokenManagerType.ZilBridge
+    },
+    {
+        name: "zMATIC",
+        address: null,
+        blockExplorer: "https://polygonscan.com/token/0x0000000000000000000000000000000000000000",
+        logo: test_hrse_token,
+        tokenManagerAddress : "0x7519550ae8b6f9d32E9c1A939Fb5C186f660BE5b",
+        tokenManagerType: TokenManagerType.LockAndRelease
+    },
+        ]
+      },
+      bsc: {
           chain: "bsc",
           name: "BSC",
           wagmiChain: configureCustomRpcUrl(

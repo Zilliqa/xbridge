@@ -196,8 +196,9 @@ impl ValidatorNode {
                 let gas_estimate = match function_call.estimate_gas().await {
                     Ok(estimate) => estimate,
                     Err(err) => {
-                        warn!("Failed to estimate gas, {:?}", err);
-                        return Ok(());
+                        warn!("Failed to estimate gas, {:?} - using built-in default", err);
+                        U256::from(2_000_000)
+                        // return Ok(());
                     }
                 };
                 info!("Legacy gas estimation: estimate {:?}", gas_estimate);
