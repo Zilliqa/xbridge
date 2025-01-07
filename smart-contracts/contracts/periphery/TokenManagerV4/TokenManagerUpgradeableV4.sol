@@ -9,15 +9,37 @@ import {ITokenManagerEvents, ITokenManagerStructs} from "contracts/periphery/Tok
 import {TokenManagerFees, ITokenManagerFees} from "contracts/periphery/TokenManagerV2/TokenManagerFees.sol";
 import {PausableUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 
+interface ITokenManagerV4Structs {
+  struct ScaledRemoteToken {
+    address token;
+    address tokenManager;
+    uint chainId;
+    int8 scale;
+  }
+}
+
+interface ITokenManagerV4Events {
+  event TokenScaleChanged (
+      address indexed token,
+      uint remoteChainId,
+      int8 remoteScale
+                           );
+}
+
 interface ITokenManager is
     ITokenManagerEvents,
     ITokenManagerStructs,
-    ITokenManagerFees
+    ITokenManagerFees,
+  ITokenManagerV4Structs,
+  ITokenManagerV4Events
 {
     error InvalidSourceChainId();
     error InvalidTokenManager();
     error NotGateway();
     error InvalidTokenRouting();
+    // the amount of local tokens we tried to send, the nearest scaled amount we could recieve on the target chain, and
+    // the amount of local tokens that would correspond to.
+    error InvalidTokenAmount(uint256 sent, uint256 adjusted, uint256 reconstructed);
 
     function getGateway() external view returns (address);
 
@@ -73,6 +95,7 @@ abstract contract TokenManagerUpgradeableV4 is
     bytes32 private constant Token_Manager_Storage_Location =
         0x4a6c2e6a7e6518c249bdcd1d934ea16ea5325bbae105af814eb678f5f49f3400;
 
+
     function _getTokenManagerStorage()
         private
         pure
@@ -80,6 +103,28 @@ abstract contract TokenManagerUpgradeableV4 is
     {
         assembly {
             $.slot := Token_Manager_Storage_Location
+        }
+    }
+
+    struct TokenManagerV4Storage {
+      // This stores the scale for remote tokens, as remote_token.decimals-local_token.decimals.
+      // So, when sending a token with a +ve scale, we shift left.
+      // When sending a token with a -ve scale, we shift right.
+      // When receiving a token, we do nothing.
+      // This allows us to validate that the tokens can be exactly converted to the remote
+      // and revert the sending txn if not.
+      mapping(address => mapping(uint => int8)) scaleForRemoteTokens;
+    }
+
+    // keccack256(abi.encode(uint256(keccak256("zilliqa.storage.TokenManagerV4"))-1))& ~bytes32(uint256(0xff))
+    bytes32 private constant Token_ManagerV4_Storage_Location =
+        0xe8b1c929e9ac4c16aaeb9d6494126adb9c7e3b297332aeb86accee6d41c67500;
+
+    function _getTokenManagerV4Storage()
+        private pure returns (TokenManagerV4Storage storage $)
+    {
+      assembly {
+          $.slot := Token_ManagerV4_Storage_Location
         }
     }
 
@@ -94,6 +139,11 @@ abstract contract TokenManagerUpgradeableV4 is
     ) public view returns (RemoteToken memory) {
         TokenManagerStorage storage $ = _getTokenManagerStorage();
         return $.remoteTokens[token][remoteChainId];
+    }
+
+    function getRemoteTokenScale(address token, uint remoteChainId) public view returns (int8) {
+      TokenManagerV4Storage storage $ = _getTokenManagerV4Storage();
+      return $.scaleForRemoteTokens[token][remoteChainId];
     }
 
     modifier onlyGateway() {
@@ -122,6 +172,8 @@ abstract contract TokenManagerUpgradeableV4 is
     function _removeToken(address localToken, uint remoteChainId) internal {
         TokenManagerStorage storage $ = _getTokenManagerStorage();
         delete $.remoteTokens[localToken][remoteChainId];
+        TokenManagerV4Storage storage $$ = _getTokenManagerV4Storage();
+        delete $$.scaleForRemoteTokens[localToken][remoteChainId];
         emit TokenRemoved(localToken, remoteChainId);
     }
 
@@ -139,6 +191,49 @@ abstract contract TokenManagerUpgradeableV4 is
         );
     }
 
+    function _setScaleForToken(address localToken,
+                               uint remoteChainId,
+                               int8 scale) internal {
+      TokenManagerV4Storage storage $ = _getTokenManagerV4Storage();
+      $.scaleForRemoteTokens[localToken][remoteChainId] = scale;
+      emit TokenScaleChanged( localToken,
+                              remoteChainId,
+                              scale );
+    }
+
+
+    function _getScaleForToken(address localToken,
+                               uint remoteChainId) internal returns (int8) {
+      TokenManagerV4Storage storage $ = _getTokenManagerV4Storage();
+      return $.scaleForRemoteTokens[localToken][remoteChainId];
+    }
+
+    function _scaleAmount(uint amount,
+                          address localToken,
+                          uint remoteChainId) internal returns (uint)
+    {
+      int8 scale = _getScaleForToken(localToken, remoteChainId);
+      uint adjusted;
+      uint reconstructed;
+
+      if (scale < 0) {
+        // Must be < 0 since the condition above requires it.
+        uint divisor = uint(10)**uint(int256(-scale));
+        adjusted = (amount / divisor);
+        reconstructed = amount * divisor;
+      } else if (scale > 0) {
+        // Must be > 0 since the condition above requires it.
+        uint multiplier = uint(10)**uint(int256(scale));
+        adjusted = amount * multiplier;
+        reconstructed = amount / multiplier;
+      }
+      // If scale == 0, nothing is done, which is what is intended.
+      if (adjusted != reconstructed) {
+        revert InvalidTokenAmount(amount, adjusted, reconstructed);
+      }
+      return adjusted;
+    }
+    
     // Token Overrides
     function registerToken(
         address token,
@@ -171,6 +266,13 @@ abstract contract TokenManagerUpgradeableV4 is
         _unpause();
     }
 
+    // V4 new function
+    function setScaleForToken(address localToken,
+                              uint remoteChainId,
+                              int8 scale) external virtual onlyOwner {
+      _setScaleForToken(localToken, remoteChainId, scale);
+    }
+
     // TO OVERRIDE – Incoming
     function _handleTransfer(
         address token,
@@ -197,19 +299,25 @@ abstract contract TokenManagerUpgradeableV4 is
             revert InvalidTokenRouting();
         }
 
+        // If this does not exactly correspond with amount, _scaleAmount() will revert.
+        uint scaledAmount = _scaleAmount(amount, token, remoteChainId);
+
+        // We take the original amount.
         _handleTransfer(token, _msgSender(), amount);
 
+        // .. and send the scaled amount.
         IRelayer(getGateway()).relayWithMetadata(
             remoteToken.chainId,
             remoteToken.tokenManager,
             this.accept.selector,
-            abi.encode(AcceptArgs(remoteToken.token, remoteRecipient, amount)),
+            abi.encode(AcceptArgs(remoteToken.token, remoteRecipient, scaledAmount)),
             1_000_000
         );
     }
 
     // Incoming
     // No pausing here because we want incoming txns to go through that have already initiated
+    // We cannot scale anything here, because there's no way to stop the tokens having been sent.
     function accept(
         CallMetadata calldata metadata,
         bytes calldata _args
