@@ -173,4 +173,15 @@ contract TokenManagerUpgradeableV4Tests is Tester, ITokenManagerStructs, ITokenM
     vm.stopPrank();
   }
 
+  function test_overflow() external {
+    startHoax(deployer);
+    tokenManager.registerTokenWithScale(address(token1), remoteToken, 30);
+    vm.stopPrank();
+    startHoax(user);
+    vm.expectRevert();
+    tokenManager.transfer{value: fees}(address(token1), remoteChainId, user2, type(uint256).max-100);
+    vm.stopPrank();
+  }
+
+  
 }
