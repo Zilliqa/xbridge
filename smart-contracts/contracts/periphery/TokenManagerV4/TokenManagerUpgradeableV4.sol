@@ -8,6 +8,7 @@ import {Ownable2StepUpgradeable} from "@openzeppelin/contracts-upgradeable/acces
 import {ITokenManagerEvents, ITokenManagerStructs} from "contracts/periphery/TokenManagerUpgradeable.sol";
 import {TokenManagerFees, ITokenManagerFees} from "contracts/periphery/TokenManagerV2/TokenManagerFees.sol";
 import {PausableUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
+import {console} from "forge-std/console.sol";
 
 interface ITokenManagerV4Events {
   event TokenRegisteredWithScale(
@@ -16,6 +17,15 @@ interface ITokenManagerV4Events {
       address remoteTokenManager,
       uint remoteChainId,
       int8 scale);
+
+    error InvalidSourceChainId();
+    error InvalidTokenManager();
+    error NotGateway();
+    error InvalidTokenRouting();
+
+    // the amount of local tokens we tried to send, the nearest scaled amount we could recieve on the target chain, and
+    // the amount of local tokens that would correspond to.
+    error InvalidTokenAmount(uint256 sent, uint256 adjusted, uint256 reconstructed);
 }
 
 interface ITokenManager is
@@ -24,13 +34,6 @@ interface ITokenManager is
     ITokenManagerFees,
     ITokenManagerV4Events
 {
-    error InvalidSourceChainId();
-    error InvalidTokenManager();
-    error NotGateway();
-    error InvalidTokenRouting();
-    // the amount of local tokens we tried to send, the nearest scaled amount we could recieve on the target chain, and
-    // the amount of local tokens that would correspond to.
-    error InvalidTokenAmount(uint256 sent, uint256 adjusted, uint256 reconstructed);
 
     function getGateway() external view returns (address);
 
@@ -200,17 +203,17 @@ abstract contract TokenManagerUpgradeableV4 is
         // Must be < 0 since the condition above requires it.
         uint divisor = uint(10)**uint(int256(-scale));
         adjusted = (amount / divisor);
-        reconstructed = amount * divisor;
+        reconstructed = adjusted * divisor;
       } else if (scale > 0) {
         // Must be > 0 since the condition above requires it.
         uint multiplier = uint(10)**uint(int256(scale));
         adjusted = amount * multiplier;
-        reconstructed = amount / multiplier;
+        reconstructed = adjusted / multiplier;
       } else {
         adjusted = amount;
         reconstructed = amount;
       }
-      if (adjusted != reconstructed) {
+      if (amount != reconstructed) {
         revert InvalidTokenAmount(amount, adjusted, reconstructed);
       }
       return adjusted;

@@ -12,18 +12,18 @@ import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {TestToken} from "test/Helpers.sol";
 import {LockAndReleaseTokenManagerDeployer} from "test/periphery/TokenManagerDeployers/LockAndReleaseTokenManagerDeployer.sol";
 
-
-contract TestTokenManagerUpgradeableV4 is TokenManagerUpgradeableV4 {
-  event Fish();
+interface ITestTokenManagerEvents {
   event TransferEvent(address indexed token, address indexed from, uint indexed amount);
   event AcceptEvent(address indexed token, address indexed from, uint indexed amount);
+}
 
+contract TestTokenManagerUpgradeableV4 is TokenManagerUpgradeableV4, ITestTokenManagerEvents {
   constructor() {
     _disableInitializers();
   }
 
-  function initialize(uint fees) external initializer {
-    __TokenManager_init(address(0));
+  function initialize(address relayer, uint fees) external initializer {
+    __TokenManager_init(relayer);
     _setFees(fees);
   }
 
@@ -38,12 +38,13 @@ contract TestTokenManagerUpgradeableV4 is TokenManagerUpgradeableV4 {
 }
 
 abstract contract TestTokenManagerDeployer {
-  function deployTestTokenManagerV4(uint fees) public returns (TestTokenManagerUpgradeableV4) {
+  function deployTestTokenManagerV4(address chainGateway, uint fees) public returns (TestTokenManagerUpgradeableV4) {
     address implementation = address(new TestTokenManagerUpgradeableV4());
     address proxy = address(new ERC1967Proxy(implementation,
                                              abi.encodeCall(
                                                  TestTokenManagerUpgradeableV4.initialize,
-                                                            fees)));
+                                                 (chainGateway,
+                                                  fees))));
     return TestTokenManagerUpgradeableV4(proxy);
   }
 

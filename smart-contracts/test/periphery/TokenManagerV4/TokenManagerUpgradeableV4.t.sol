@@ -5,23 +5,28 @@ import {Tester} from "test/Tester.sol";
 import {TokenManagerUpgradeableV4, ITokenManagerV4Events} from "contracts/periphery/TokenManagerV4/TokenManagerUpgradeableV4.sol";
 import {ITokenManager, ITokenManagerFees, ITokenManagerStructs, ITokenManagerEvents} from "contracts/periphery/TokenManagerV2/TokenManagerUpgradeableV2.sol";
 import {ITokenManagerFeesEvents} from "contracts/periphery/TokenManagerV2/TokenManagerFees.sol";
-import {IRelayer} from "contracts/core/Relayer.sol";
+import {CallMetadata, IRelayer, IRelayerEvents} from "contracts/core/Relayer.sol";
 import {PausableUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {TestToken} from "test/Helpers.sol";
-import { TestTokenManagerDeployer, TestTokenManagerUpgradeableV4 } from "test/periphery/TokenManagerDeployers/TestTokenManagerDeployer.sol";
+import {TestTokenManagerDeployer, ITestTokenManagerEvents, TestTokenManagerUpgradeableV4 } from "test/periphery/TokenManagerDeployers/TestTokenManagerDeployer.sol";
+import {ValidatorManager} from "contracts/core/ValidatorManager.sol";
+import {ChainGateway} from "contracts/core/ChainGateway.sol";
 
-
-contract TokenManagerUpgradeableV4Tests is Tester, ITokenManagerStructs, ITokenManagerEvents, ITokenManagerV4Events, TestTokenManagerDeployer {
+contract TokenManagerUpgradeableV4Tests is Tester, ITokenManagerStructs, ITokenManagerEvents, ITokenManagerV4Events, TestTokenManagerDeployer, IRelayerEvents, ITestTokenManagerEvents {
   address deployer = vm.addr(1);
   address user = vm.createWallet("user").addr;
+  address user2 = vm.createWallet("user2").addr;
   uint fees = 0.1 ether;
+  ValidatorManager validatorManager;
+  ChainGateway chainGateway;
   TokenManagerUpgradeableV4 tokenManager;
   TestToken token1;
   address remoteTokenAddr = vm.createWallet("remoteToken").addr;
   address remoteTokenManagerAddr = vm.createWallet("remoteTokenManager").addr;
   uint remoteChainId = 101;
+  uint sourceChainId = 21023;
   RemoteToken remoteToken =
       RemoteToken({
        token: remoteTokenAddr,
@@ -30,13 +35,13 @@ contract TokenManagerUpgradeableV4Tests is Tester, ITokenManagerStructs, ITokenM
         });
   uint transferAmount = 10 ether;
 
-  event TransferEvent(address indexed token, address indexed from, uint indexed amount);
-  event AcceptEvent(address indexed token, address indexed from, uint indexed amount);
-
-  
   function setUp() external {
+    vm.chainId(sourceChainId);
     vm.startPrank(deployer);
-    tokenManager = deployTestTokenManagerV4(fees);
+    validatorManager = new ValidatorManager(address(deployer));
+    chainGateway = new ChainGateway(address(validatorManager), address(deployer));
+    tokenManager = deployTestTokenManagerV4(address(chainGateway), fees);
+    chainGateway.register(address(tokenManager));
     token1 = new TestToken(transferAmount);
     vm.stopPrank();
   }
@@ -116,15 +121,56 @@ contract TokenManagerUpgradeableV4Tests is Tester, ITokenManagerStructs, ITokenM
     vm.stopPrank();
   }
 
-  function test_scaling() external {
+
+  function test_scalingUp() external {
     startHoax(deployer);
     tokenManager.registerTokenWithScale(address(token1), remoteToken, 2);
     vm.stopPrank();
     startHoax(user);
     vm.expectEmit();
-    emit TransferEvent(address(token1), user,1_000_000 );
-    tokenManager.transfer{value: fees}(address(token1), remoteChainId, remoteTokenAddr, 1_000_000);
+    emit ITestTokenManagerEvents.TransferEvent(address(token1), user,1_000_000 );
+    bytes4 acceptSelector = ITokenManager.accept.selector;
+    bytes memory expectedCall = abi.encodeWithSelector(acceptSelector,
+                                                       CallMetadata(sourceChainId, address(tokenManager)),
+                                                       abi.encode(ITokenManagerStructs.AcceptArgs(remoteTokenAddr, user2, 1_000_000_00)));
+    vm.expectEmit();
+    emit IRelayerEvents.Relayed(remoteChainId, remoteTokenManagerAddr,
+                 expectedCall, 1_000_000, 0);
+    tokenManager.transfer{value: fees}(address(token1), remoteChainId, user2, 1_000_000);
     vm.stopPrank();
   }
-  
+
+  function test_scalingDown() external {
+    startHoax(deployer);
+    tokenManager.registerTokenWithScale(address(token1), remoteToken, -4);
+    vm.stopPrank();
+    startHoax(user);
+    vm.expectEmit();
+    emit ITestTokenManagerEvents.TransferEvent(address(token1), user, 1_230_000 );
+    bytes4 acceptSelector = ITokenManager.accept.selector;
+    bytes memory expectedCall = abi.encodeWithSelector(acceptSelector,
+                                                       CallMetadata(sourceChainId, address(tokenManager)),
+                                                       abi.encode(ITokenManagerStructs.AcceptArgs(remoteTokenAddr, user2, 123)));
+    vm.expectEmit();
+    emit IRelayerEvents.Relayed(remoteChainId, remoteTokenManagerAddr,
+                 expectedCall, 1_000_000, 0);
+    tokenManager.transfer{value: fees}(address(token1), remoteChainId, user2, 1_230_000);
+    vm.stopPrank();
+  }
+
+
+  function test_notPrecise() external {
+    startHoax(deployer);
+    tokenManager.registerTokenWithScale(address(token1), remoteToken, -4);
+    vm.stopPrank();
+    startHoax(user);
+    vm.expectRevert(abi.encodeWithSelector(
+        ITokenManagerV4Events.InvalidTokenAmount.selector,
+        1_230_001,
+        123,
+        1_230_000));
+    tokenManager.transfer{value: fees}(address(token1), remoteChainId, user2, 1_230_001);
+    vm.stopPrank();
+  }
+
 }
