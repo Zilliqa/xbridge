@@ -96,6 +96,11 @@ abstract contract TokenManagerUpgradeableV4 is
     bytes32 private constant Token_Manager_Storage_Location =
         0x4a6c2e6a7e6518c249bdcd1d934ea16ea5325bbae105af814eb678f5f49f3400;
 
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+      _disableInitializers();
+    }
+
     function _getTokenManagerStorage()
         private
         pure

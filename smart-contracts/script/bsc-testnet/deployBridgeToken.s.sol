@@ -14,7 +14,7 @@ contract Deployment is Script, TestnetConfig {
         address owner = vm.addr(deployerPrivateKey);
         console.log("Owner is %s", owner);
 
-        address tokenManagerAddress = bscMintAndBurnTokenManagerAddress;
+        address tokenManagerAddress = bscNewMintAndBurnTokenManagerAddress;
 
         string memory tokenName = "test token";
         string memory tokenSymbol = "TST";

@@ -14,7 +14,7 @@ contract Transfer is Script,TestnetConfig {
         address owner = vm.addr(deployerPrivateKey);
         console.log("Owner is %s", owner);
 
-        address tokenManagerAddress = bscMintAndBurnTokenManagerAddress;
+        address tokenManagerAddress = bscNewMintAndBurnTokenManagerAddress;
         address tokenAddress = bscTestTokenAddress;
 
         uint remoteChainId = zqChainId;

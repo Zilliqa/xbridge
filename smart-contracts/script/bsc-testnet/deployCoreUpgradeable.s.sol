@@ -15,7 +15,7 @@ contract Deployment is Script, TestnetConfig {
         console.log("Owner is %s", owner);
 
         address[] memory validators = new address[](1);
-        address tokenManager = bscMintAndBurnTokenManagerAddress;
+        address tokenManager = bscNewMintAndBurnTokenManagerAddress;
         validators[0] = owner;
 
         vm.startBroadcast(deployerPrivateKey);

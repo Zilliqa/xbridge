@@ -13,6 +13,9 @@ abstract contract TestnetConfig {
   address public constant bscCCMAddress = 0x0EDb0830a5a28E60Bc28BCce3f4e1EC23b5E5783;
   address public constant bscCCMProxyAddress = 0xE19738378c75cf2b3D704472bE81d7e036F4Ee04;
   address public constant bscLockProxyAddress = 0x5B51e17837fc8F01b3C3ef29E882981e9414C159;
+  address public constant bscLockProxyProxyAddress = 0xCbE7630872D225a5BA6A32B59CaB8da3713806b0;
+
+  address public constant bscNewMintAndBurnTokenManagerAddress = 0xA6D73210AF20a59832F264fbD991D2abf28401d0;
   // Can't be verified.
   address public constant bscExtendCCMAddress = 0x32ffa2C4c670A0fd0e94CF6457ac2FA7Ef007d55;
   address public constant bscLockProxyTokenManagerAddress =  0x36b8A9cd6Bf9bfA5984093005cf81CAfB1Bf06F7;
@@ -23,7 +26,7 @@ abstract contract TestnetConfig {
 
   /// Deployed by the original XBridge testnet deployment (prior to zilBridge)
   address public constant bscChainGatewayAddress = 0xa9A14C90e53EdCD89dFd201A3bF94D867f8098fE;
-  address public constant bscMintAndBurnTokenManagerAddress = 0xd10077bCE4A9D19068965dE519CED8a2fC1B096C;
+  address public constant bscMintAndBurnTokenManagerAddressOld = 0xd10077bCE4A9D19068965dE519CED8a2fC1B096C;
   address public constant bscTestTokenAddress = 0x6d78c86D66DfE5Be5F55FBAA8B1d3FD28edfF396;
 
   /// Zilliqa testnet
@@ -56,4 +59,10 @@ abstract contract TestnetConfig {
 
   // Polygon
   address public constant polLockProxyProxy = 0xD819257C964A78A493DF93D5643E9490b54C5af2;
+
+
+  // Scaled token test
+  address public constant zqScaledTokenERC20Address = 0xd6B5231DC7A5c37461A21A8eB42610e09113aD1a;
+  address public constant bscBridgedScaledTokenAddress = 0xBA97f1F72b217BdC5684Ec175bE5615C0E50aBda;
+
 }

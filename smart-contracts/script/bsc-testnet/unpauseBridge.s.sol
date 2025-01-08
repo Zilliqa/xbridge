@@ -13,7 +13,7 @@ contract Unpause is Script, TestnetConfig {
         address owner = vm.addr(deployerPrivateKey);
         console.log("Deployer is %s", owner);
 
-        address tokenManagerAddress = bscMintAndBurnTokenManagerAddress;
+        address tokenManagerAddress = bscNewMintAndBurnTokenManagerAddress;
 
         vm.startBroadcast(deployerPrivateKey);
         {

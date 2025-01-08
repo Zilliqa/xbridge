@@ -23,6 +23,7 @@ contract TokenManagerUpgradeableV4Tests is Tester, ITokenManagerStructs, ITokenM
   ChainGateway chainGateway;
   TokenManagerUpgradeableV4 tokenManager;
   TestToken token1;
+  TestToken token2;
   address remoteTokenAddr = vm.createWallet("remoteToken").addr;
   address remoteTokenManagerAddr = vm.createWallet("remoteTokenManager").addr;
   uint remoteChainId = 101;
@@ -43,6 +44,26 @@ contract TokenManagerUpgradeableV4Tests is Tester, ITokenManagerStructs, ITokenM
     tokenManager = deployTestTokenManagerV4(address(chainGateway), fees);
     chainGateway.register(address(tokenManager));
     token1 = new TestToken(transferAmount);
+    token2 = new TestToken(transferAmount);
+    vm.stopPrank();
+  }
+
+  // You shouldn't be able to send a token for which a routing record doesn't exist.
+  function test_invalidRouting() external {
+    startHoax(deployer);
+    tokenManager.registerTokenWithScale(address(token1), remoteToken, 0);
+    vm.stopPrank();
+    startHoax(user);
+    // Legit transfers should succeeed
+    tokenManager.transfer{value: fees}(address(token1), remoteChainId, user2, 1_000_000);
+
+    // Transfers to the wrong chain id should fail.
+    vm.expectRevert();
+    tokenManager.transfer{value: fees}(address(token1), remoteChainId+1, user2, 1_000_000);
+
+    // Transfers for the wrong token should fail.
+    vm.expectRevert();
+    tokenManager.transfer{value: fees}(address(token2), remoteChainId, user2, 1_000_000);
     vm.stopPrank();
   }
 
@@ -182,6 +203,4 @@ contract TokenManagerUpgradeableV4Tests is Tester, ITokenManagerStructs, ITokenM
     tokenManager.transfer{value: fees}(address(token1), remoteChainId, user2, type(uint256).max-100);
     vm.stopPrank();
   }
-
-  
 }

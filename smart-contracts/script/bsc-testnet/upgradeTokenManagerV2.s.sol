@@ -14,7 +14,7 @@ contract Upgrade is Script, TestnetConfig {
         console.log("Signer is %s", owner);
 
         // Constants
-        address tokenManagerAddress = bscMintAndBurnTokenManagerAddress;
+        address tokenManagerAddress = bscNewMintAndBurnTokenManagerAddress;
         uint fees = 0.00025 ether; // 0.00025 BNB
 
         TokenManagerUpgradeable tokenManager = TokenManagerUpgradeable(

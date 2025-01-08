@@ -13,7 +13,7 @@ contract Update is Script, TestnetConfig {
         console.log("Deployer is %s", owner);
 
         address newChainGateway = bscChainGatewayAddress;
-        address tokenManagerAddress = bscMintAndBurnTokenManagerAddress;
+        address tokenManagerAddress = bscNewMintAndBurnTokenManagerAddress;
 
         vm.startBroadcast(deployerPrivateKey);
         MintAndBurnTokenManagerUpgradeableV3 tokenManager = MintAndBurnTokenManagerUpgradeableV3(

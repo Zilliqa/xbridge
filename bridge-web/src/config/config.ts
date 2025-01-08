@@ -231,6 +231,14 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
               tokenManagerAddress: "0x41823941D00f47Ea1a98D75586915BF828F4a038",
               tokenManagerType: TokenManagerType.ZilBridge,
             },
+            {
+              name: "SCLD",
+              address: "0xd6B5231DC7A5c37461A21A8eB42610e09113aD1a",
+              blockExplorer: "https://otterscan.testnet.zilliqa.com/",
+              logo: test_hrse_token,
+              tokenManagerAddress: "0x41823941D00f47Ea1a98D75586915BF828F4a038",
+              tokenManagerType: TokenManagerType.ZilBridge
+            }
           ],
           chainId: 33101,
           isZilliqa: true,
@@ -308,6 +316,15 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
               tokenManagerAddress: "0x36b8A9cd6Bf9bfA5984093005cf81CAfB1Bf06F7",
               tokenManagerType: TokenManagerType.MintAndBurn,
             },
+            {
+              name: "eSCLD",
+              address:"0xBA97f1F72b217BdC5684Ec175bE5615C0E50aBda",
+              blockExplorer:
+              "https://bscscan.com/address/0xBA97f1F72b217BdC5684Ec175bE5615C0E50aBda",
+              logo: test_hrse_token,
+              tokenManagerAddress: "0x36b8A9cd6Bf9bfA5984093005cf81CAfB1Bf06F7",
+              tokenManagerType: TokenManagerType.MintAndBurn,
+            }
           ],
           chainId: 97,
           isZilliqa: false,
