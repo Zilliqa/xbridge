@@ -782,4 +782,4 @@ export const tokenManagerAbi = [
         }
       ]
     }
-]
+] as const;

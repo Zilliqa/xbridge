@@ -102,7 +102,7 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
         nativeTokenSymbol: "POL",
         tokens: [
     {
-      name: "ZIL",
+      name: "eZIL",
       address: "0xCc88D28f7d4B0D5AFACCC77F6102d88EE630fA17",
       blockExplorer: "https://polygonscan.com/token/0xCc88D28f7d4B0D5AFACCC77F6102d88EE630fA17",
       logo: test_hrse_token, 
@@ -110,7 +110,7 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
       tokenManagerType: TokenManagerType.ZilBridge
     },
     {
-        name: "zMATIC",
+        name: "MATIC",
         address: null,
         blockExplorer: "https://polygonscan.com/token/0x0000000000000000000000000000000000000000",
         logo: test_hrse_token,

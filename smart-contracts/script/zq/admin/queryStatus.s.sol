@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 import {Script} from "forge-std/Script.sol";
 import {Ownable2StepUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
-import {LockAndReleaseTokenManagerUpgradeableV3} from "contracts/periphery/TokenManagerV3/LockAndReleaseTokenManagerUpgradeableV3.sol";
+import {LockAndReleaseOrNativeTokenManagerUpgradeableV4} from "contracts/periphery/TokenManagerV4/LockAndReleaseOrNativeTokenManagerUpgradeableV4.sol";
 import {ChainGateway} from "contracts/core/ChainGateway.sol";
 import {ChainDispatcherUpgradeable} from "contracts/core-upgradeable/ChainDispatcherUpgradeable.sol";
 import {ValidatorManagerUpgradeable} from "contracts/core-upgradeable/ValidatorManagerUpgradeable.sol";
@@ -13,7 +13,7 @@ import { MainnetConfig } from "script/mainnetConfig.s.sol";
 contract Update is Script, MainnetConfig {
   function run() public {
     ChainGateway gateway = ChainGateway(zilChainGatewayAddress);
-    LockAndReleaseTokenManagerUpgradeableV3 tokenMgr = LockAndReleaseTokenManagerUpgradeableV3(zilLockAndReleaseOrNativeTokenManagerUpgradeable);
+    LockAndReleaseOrNativeTokenManagerUpgradeableV4 tokenMgr = LockAndReleaseTokenManagerUpgradeableV4(zilLockAndReleaseOrNativeTokenManagerUpgradeable);
     ChainDispatcherUpgradeable chainDispatcher = ChainDispatcherUpgradeable(zilChainGatewayAddress);
     ValidatorManagerUpgradeable validatorManager = ValidatorManagerUpgradeable(chainDispatcher.validatorManager());
 
