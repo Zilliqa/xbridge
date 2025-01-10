@@ -1,5 +1,5 @@
 import { Chain } from "viem";
-import { bsc, bscTestnet, zilliqa, zilliqaTestnet, polygon } from "viem/chains";
+import { bsc, bscTestnet, zilliqa, zilliqaTestnet, polygon, arbitrum } from "viem/chains";
 import fps_token from "../assets/fps_token.png";
 import test_hrse_token from "../assets/salami_hrse.webp";
 import hrse_token from "../assets/hrse_token.webp";
@@ -11,7 +11,7 @@ export enum TokenManagerType {
   ZilBridge,
 }
 
-export type Chains = "bsc-testnet" | "zq-testnet" | "bsc" | "zq" | "polygon";
+export type Chains = "bsc-testnet" | "zq-testnet" | "bsc" | "zq" | "polygon" | "arbitrum";
 
 export const siteConfig: SiteConfig = {
   addTokensToMetamask: false,
@@ -80,8 +80,16 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
               blockExplorer: "https://otterscan.testnet.zilliqa.com/",
               logo: test_hrse_token,
               tokenManagerAddress: "0x4fa6148C9DAbC7A737422fb1b3AB9088c878d26C",
-              tokenManagerType: TokenManagerType.ZilBridge,
+              tokenManagerType: TokenManagerType.LockAndRelease,
             },
+            {
+              name: "zETH",
+              address: "0x17D5af5658A24bd964984b36d28e879a8626adC3",
+              blockExplorer: "https://otterscan.zilliqa.com/address/0x17D5af5658A24bd964984b36d28e879a8626adC3",
+              logo: fps_token,
+              tokenManagerAddress: "0x4fa6148C9DAbC7A737422fb1b3AB9088c878d26C",
+              tokenManagerType: TokenManagerType.LockAndRelease
+            }
           ],
           chainId: 32769,
           isZilliqa: true,
@@ -117,6 +125,37 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
         tokenManagerAddress : "0x7519550ae8b6f9d32E9c1A939Fb5C186f660BE5b",
         tokenManagerType: TokenManagerType.LockAndRelease
     },
+        ]
+      },
+      arbitrum: {
+        chain: "arbitrum",
+        name: "ARB",
+        wagmiChain: configureCustomRpcUrl(
+          arbitrum,
+          `${import.meta.env.VITE_ARB_MAINNET_API}/${import.meta.env.VITE_ARB_MAINNET_KEY}`,
+        ),
+        chainGatewayAddress: "0xA5AD439b10c3d7FBa00492745cA599250aC21619",
+        chainId: 42161,
+        isZilliqa: false,
+        blockExplorer: "https://arbiscan.io/tx/",
+        nativeTokenSymbol: "ARB",
+        tokens: [
+          {
+            name: "eZIL",
+            address: "0x1816a0f20bc996f643b1af078e8d84a0aabd772a",
+            blockExplorer: "https://arbiscan.io/token/0x1816a0f20bc996f643b1af078e8d84a0aabd772a",
+            logo: test_hrse_token,
+            tokenManagerAddress: "0x4fa6148C9DAbC7A737422fb1b3AB9088c878d26C",
+            tokenManagerType: TokenManagerType.ZilBridge
+          },
+          {
+            name: "ARB",
+            address: null,
+            blockExplorer: "https://arbiscan.io/token/0x0000000000000000000000000000000000000000",
+            logo: test_hrse_token,
+            tokenManagerAddress : "0x4345472A0c6164F35808CDb7e7eCCd3d326CC50b",
+            tokenManagerType: TokenManagerType.LockAndRelease
+          },
         ]
       },
       bsc: {

@@ -17,7 +17,7 @@ contract registerLockProxy is Script, MainnetConfig {
     LockAndReleaseOrNativeTokenManagerUpgradeableV3 lockAndReleaseOrNativeTokenManager = LockAndReleaseOrNativeTokenManagerUpgradeableV3(payable(arbLockAndReleaseOrNativeTokenManagerUpgradeable));
     ChainGatewayUpgradeable chainGateway = ChainGatewayUpgradeable(arbChainGatewayAddress);
 
-    lockProxyTokenManager.setLockProxyData(polLockProxy, polLockProxyProxy);
+    lockProxyTokenManager.setLockProxyData(arbLockProxy, arbLockProxyProxy);
     chainGateway.register(address(lockProxyTokenManager));
     chainGateway.register(address(lockAndReleaseOrNativeTokenManager));
     vm.stopBroadcast();

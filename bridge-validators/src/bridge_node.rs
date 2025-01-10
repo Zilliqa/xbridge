@@ -111,7 +111,7 @@ impl BridgeNode {
         let to_block_number = if let Some(v) = self.chain_client.to_block_number {
             if v > finalized_block_number.as_u64() {
                 warn!("to_block in config file {} was greater than latest finalized block {} - will terminate at {}",
-                      v, finalized_block_number, v);
+                      v, finalized_block_number, finalized_block_number);
             }
             std::cmp::min(v, finalized_block_number.as_u64())
         } else {

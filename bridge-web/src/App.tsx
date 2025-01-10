@@ -503,6 +503,9 @@ function App() {
                             if (chain === toChain) {
                               setToChain(fromChain);
                             }
+                            if (chain !== "zq") {
+                              setToChain("zq")
+                            }
                             setFromChain(chain);
                           }}
                         >
@@ -537,6 +540,9 @@ function App() {
                           onClick={() => {
                             if (chain === fromChain) {
                               setFromChain(toChain);
+                            }
+                            if (chain !== "zq") {
+                              setFromChain("zq");
                             }
                             setToChain(chain);
                             blur();
