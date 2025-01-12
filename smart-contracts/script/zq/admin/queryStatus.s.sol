@@ -13,7 +13,7 @@ import { MainnetConfig } from "script/mainnetConfig.s.sol";
 contract Update is Script, MainnetConfig {
   function run() public {
     ChainGateway gateway = ChainGateway(zilChainGatewayAddress);
-    LockAndReleaseOrNativeTokenManagerUpgradeableV4 tokenMgr = LockAndReleaseTokenManagerUpgradeableV4(zilLockAndReleaseOrNativeTokenManagerUpgradeable);
+    LockAndReleaseOrNativeTokenManagerUpgradeableV4 tokenMgr = LockAndReleaseOrNativeTokenManagerUpgradeableV4(payable(zilLockAndReleaseOrNativeTokenManagerUpgradeable));
     ChainDispatcherUpgradeable chainDispatcher = ChainDispatcherUpgradeable(zilChainGatewayAddress);
     ValidatorManagerUpgradeable validatorManager = ValidatorManagerUpgradeable(chainDispatcher.validatorManager());
 

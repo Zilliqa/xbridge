@@ -5,6 +5,7 @@ import {Script} from "forge-std/Script.sol";
 import {TokenManagerUpgradeable} from "contracts/periphery/TokenManagerUpgradeable.sol";
 import {LockAndReleaseOrNativeTokenManagerUpgradeableV4} from "contracts/periphery/TokenManagerV4/LockAndReleaseOrNativeTokenManagerUpgradeableV4.sol";
 import {LockProxyTokenManagerUpgradeableV4} from "contracts/periphery/TokenManagerV4/LockProxyTokenManagerUpgradeableV4.sol";
+import {MintAndBurnTokenManagerUpgradeableV4} from "contracts/periphery/TokenManagerV4/MintAndBurnTokenManagerUpgradeableV4.sol";
 import "forge-std/console.sol";
 import { MainnetConfig } from "script/mainnetConfig.s.sol";
 import { TokenManagerDeployerUtil } from "script/tokenManagerDeployerUtil.s.sol";
@@ -25,6 +26,7 @@ contract Upgrade is Script, MainnetConfig {
           tokenManager.upgradeToAndCall(
               newImplementation,
               encodedReinitializerCall);
+          address payable tokenManagerAddress = payable(address(tokenManager));
           LockAndReleaseOrNativeTokenManagerUpgradeableV4 tokenManagerV4 = LockAndReleaseOrNativeTokenManagerUpgradeableV4(tokenManagerAddress);
           console.log("New pending owner: %s", tokenManagerV4.pendingOwner());
           console.log("LockAndReleaseOrNative new implementation: %s", address(newImplementation));
@@ -38,6 +40,7 @@ contract Upgrade is Script, MainnetConfig {
           tokenManager.upgradeToAndCall(
               newImplementation,
               encodedReinitializerCall);
+          address tokenManagerAddress = address(tokenManager);
           MintAndBurnTokenManagerUpgradeableV4 tokenManagerV4 = MintAndBurnTokenManagerUpgradeableV4(tokenManagerAddress);
           console.log("New pending owner: %s", tokenManagerV4.pendingOwner());
           console.log("MintAndBurn new implementation: %s", address(newImplementation));

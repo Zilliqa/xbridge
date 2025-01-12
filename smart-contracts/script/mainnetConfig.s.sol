@@ -48,4 +48,9 @@ abstract contract MainnetConfig {
   address public constant ethLockProxy = 0x9a016Ce184a22DbF6c17daA59Eb7d3140DBd1c54;
   address public constant ethLockProxyProxy = 0xD819257C964A78A493DF93D5643E9490b54C5af2;
   address public constant ethLockProxyProxyOld = 0x405e42de24Dc4894dB22595D041EBb170dC21D60;
+  address public constant ethValidatorManager = 0x9F71303eE8E1aA74DEE0bC70a009420953E82915;
+  address public constant ethChainGatewayAddress = 0x49EA20823c953dd00619E2090DFa3965C89269C3;
+  address public constant ethLockAndReleaseOrNativeTokenManagerUpgradeable = 0x2EE8e8D7C113Bb7c180f4755f06ed50bE53BEDe5;
+  address public constant ethLockProxyTokenManager = 0x99bCB148BEC418Fc66ebF7ACA3668ec1C6289695;
+
 }

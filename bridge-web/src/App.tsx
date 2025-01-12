@@ -5,7 +5,7 @@ import {
   faChevronDown,
 } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
-import { Chains, TokenConfig, chainConfigs, siteConfig } from "./config/config";
+import {  Chains, TokenConfig, ChainConfig, chainConfigs, siteConfig } from "./config/config";
 import {
   erc20ABI,
   useAccount,
@@ -37,16 +37,26 @@ import AddToken from "./components/AddToken";
 
 type TxnType = "approve" | "bridge";
 
+function getAvailableTokens(fromChainConfig: ChainConfig, toChainConfig: ChainConfig) {
+  return fromChainConfig.tokens.filter((tok) =>
+      tok.bridgesTo.find((network) => network == toChainConfig.chain));
+}
+
 function App() {
   const { address: account } = useAccount();
-  const { switchNetwork } = useSwitchNetwork();
+  const { switchNetwork } = useSwitchNetwork({ onError({}) {
+    alert('Failed to switch networks');
+  }});
   const { chain } = useNetwork();
 
-  const [fromChain, setFromChain] = useState<Chains>(
-    Object.values(chainConfigs)[0].chain,
+  const [pendingChains, setPendingChains] = useState<[Chains, Chains]>(
+    [chainConfigs[siteConfig.defaultFromNetwork]!.chain,
+     chainConfigs[siteConfig.defaultToNetwork]!.chain]
   );
-  const [toChain, setToChain] = useState<Chains>(
-    Object.values(chainConfigs)[1].chain,
+
+  const [currentChains, setCurrentChains] = useState<[Chains, Chains]>(
+    [ chainConfigs[siteConfig.defaultFromNetwork]!.chain,
+      chainConfigs[siteConfig.defaultToNetwork]!.chain] 
   );
   const [amount, setAmount] = useState<string | undefined>();
   const isAmountNonZero = Number(amount) > 0;
@@ -58,64 +68,91 @@ function App() {
 
   const { recipientEth, isAddressValid } = useRecipientInput();
 
-  const fromChainConfig = chainConfigs[fromChain]!;
-  const toChainConfig = chainConfigs[toChain]!;
+  const fromChainConfig = chainConfigs[currentChains[0]]!;
+  const toChainConfig = chainConfigs[currentChains[1]]!;
+  const pendingFromChainConfig = chainConfigs[pendingChains[0]]!;
+  const pendingToChainConfig = chainConfigs[pendingChains[1]]!;
+  // Don't query whilst we're switching chains.
+  const pendingChainSwitch = chain != fromChainConfig.wagmiChain;
+
+  // console.log(`pending ${JSON.stringify(pendingChains)} current ${JSON.stringify(currentChains)} chain ${JSON.stringify(chain)} pending ${pendingChainSwitch}`);
 
   const fromChainClient = usePublicClient({ chainId: fromChainConfig.chainId });
   const toChainClient = usePublicClient({ chainId: toChainConfig.chainId });
 
+  // This fires when we set pendingChainsConfig() to trigger a from network switch.
   useEffect(() => {
-    switchNetwork && switchNetwork(fromChainConfig.chainId);
-  }, [fromChainConfig, switchNetwork]);
+    switchNetwork && switchNetwork(pendingFromChainConfig.chainId);
+  }, [pendingChains, switchNetwork]);
 
+  // This fires when switchNetwork() has completed and the chain has been changed in the wallet.
   useEffect(() => {
-    selectedToken(fromChainConfig.tokens[0]);
-  }, [fromChain, fromChainConfig.tokens]);
-
-  useEffect(() => {
+    let goTo = pendingToChainConfig.chain;
+    let goFrom = pendingFromChainConfig.chain;
     if (chain !== fromChainConfig.wagmiChain) {
+      // Because we can fire this on our own by switching networks in the wallet.
       const newFromChain = Object.values(chainConfigs).find(
         (chainConfig) => chainConfig.chainId == chain?.id,
       );
       if (!newFromChain?.chain) {
         return;
       }
-      if (newFromChain === toChainConfig) {
-        setToChain(fromChain);
+      if (newFromChain.chain != siteConfig.homeNetwork) {
+        goTo = siteConfig.homeNetwork;
+      } else {
+        if (goTo == siteConfig.homeNetwork) {
+          let firstNetwork = Object.values(chainConfigs).find((config) => config.chain !== siteConfig.homeNetwork);
+          goTo = firstNetwork!.chain;
+        }
       }
-      setFromChain(newFromChain?.chain);
+      goFrom = newFromChain?.chain;
     }
-  }, [chain, fromChain, fromChainConfig.wagmiChain, toChainConfig]);
+    if (toChainConfig.chain != goTo || fromChainConfig.chain != goFrom) {
+      setCurrentChains([goFrom, goTo]);
+    }
+  }, [chain]);
+
+
+  // Fires when currentChains is set - chooses a token.
+  useEffect(() => {
+    const availableTokens = getAvailableTokens(fromChainConfig, toChainConfig);
+    const newToken = availableTokens.find((tok) => tok.name == token.name);
+    if (newToken === undefined) {
+      selectedToken(availableTokens[0])
+    } else {
+      selectedToken(newToken)
+    }
+  }, [currentChains, toChainConfig.tokens, fromChainConfig.tokens]);
 
   const { data: contractDecimals } = useContractRead({
     abi: erc20ABI,
     functionName: "decimals",
     address: token.address ?? zeroAddress,
-    enabled: !!token.address,
+    enabled: !!token.address && !pendingChainSwitch,
   });
   const { data: contractSymbol } = useContractRead({
     abi: erc20ABI,
     functionName: "symbol",
     address: token.address ?? zeroAddress,
-    enabled: !!token.address,
+    enabled: !!token.address && !pendingChainSwitch,
   });
   const { data: fees } = useContractRead({
     abi: tokenManagerAbi,
     functionName: "getFees",
     address: token.tokenManagerAddress,
-    enabled: !!token.tokenManagerAddress,
+    enabled: !!token.tokenManagerAddress && !pendingChainSwitch,
   });
   const { data: paused } = useContractRead({
     abi: tokenManagerAbi,
     functionName: "paused",
     address: token.tokenManagerAddress,
-    enabled: !!token.tokenManagerAddress,
+    enabled: !!token.tokenManagerAddress && !pendingChainSwitch,
   });
 
   const isNative = token.address === null;
   const { data: nativeBalanceData } = useBalance({
     address: account,
-    enabled: !!account && !!token.address,
+    enabled: !!account && !!token.address && !pendingChainSwitch,
     watch: true,
   });
 
@@ -124,7 +161,7 @@ function App() {
     functionName: "balanceOf",
     args: account ? [account!] : undefined,
     address: token.address ?? zeroAddress,
-    enabled: !!account && !!token.address,
+    enabled: !!account && !!token.address && !pendingChainSwitch,
     watch: true,
   });
 
@@ -146,7 +183,7 @@ function App() {
     address: token.address ?? zeroAddress,
     args: [account!, token.tokenManagerAddress],
     enabled:
-      !isNative && !!account && !!token.address && !!token.tokenManagerAddress,
+      !isNative && !!account && !!token.address && !!token.tokenManagerAddress && !pendingChainSwitch,
     watch: true,
   });
   const hasEnoughAllowance = siteConfig.allowZeroValueTransfers || (
@@ -437,7 +474,6 @@ function App() {
     if (elem) {
       elem && (elem as any).blur();
     }
-
     selectedToken(token);
   };
 
@@ -500,13 +536,22 @@ function App() {
                         <li
                           key={`from${chain}`}
                           onClick={() => {
-                            if (chain === toChain) {
-                              setToChain(fromChain);
+                            if (fromChainConfig.chain != chain) {
+                              // If this chain is the home network
+                              let goToChain = toChainConfig.chain;
+                              if (chain == siteConfig.homeNetwork) {
+                                if (toChainConfig.chain == siteConfig.homeNetwork) {
+                                  let firstNetwork = Object.values(chainConfigs).find((config) => config.chain !== siteConfig.homeNetwork);
+                                  goToChain = firstNetwork!.chain;
+                                } else {
+                                  // Ignore
+                                }
+                              } else {
+                                goToChain = siteConfig.homeNetwork;
+                              }
+                              setPendingChains([chain, goToChain]);
                             }
-                            if (chain !== "zq") {
-                              setToChain("zq")
-                            }
-                            setFromChain(chain);
+                            blur();
                           }}
                         >
                           <a>{name}</a>
@@ -537,16 +582,28 @@ function App() {
                       .map(({ chain, name }) => (
                         <li
                           key={`to${chain}`}
-                          onClick={() => {
-                            if (chain === fromChain) {
-                              setFromChain(toChain);
+                        onClick={() => {
+                          // Sets the to chain.
+                          //  - if the new to chain is the home network
+                          //     - if the from chain is the home network, set it to the first non-home network.
+                          //     - if the from chain is not the home network, ignore.
+                          //  - if the new to chain is not the home network
+                          //     - set the from chain to the home network.
+                          let nextFromChain = fromChainConfig.chain;
+                          if (chain === siteConfig.homeNetwork) {
+                            if (fromChainConfig.chain === chain) {
+                              // Set the fromChain to the first non-home network, if there is one.
+                              let firstNetwork = Object.values(chainConfigs).find((config) => config.chain !== siteConfig.homeNetwork)
+                              nextFromChain = firstNetwork!.chain;
+                            } else {
+                              // Ignore.
                             }
-                            if (chain !== "zq") {
-                              setFromChain("zq");
-                            }
-                            setToChain(chain);
-                            blur();
-                          }}
+                          } else {
+                            nextFromChain = siteConfig.homeNetwork;
+                          }
+                          setPendingChains([nextFromChain, chain]);
+                          blur();
+                        }}
                         >
                           <a>{name}</a>
                         </li>
@@ -594,7 +651,7 @@ function App() {
                         tabIndex={0}
                         className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
                       >
-                        {fromChainConfig.tokens.map((token) => (
+      {getAvailableTokens(fromChainConfig, toChainConfig).map((token) => (
                           <li
                             key={token.address}
                             onClick={() => selectTokenOnDropdown(token)}
@@ -604,7 +661,7 @@ function App() {
                                 <img
                                   src={token.logo}
                                   className="h-8"
-                                  alt="Zilliqa Logo"
+                                  alt="Token Logo"
                                 />
                               )}
                               <p>{token.name}</p>

@@ -1,0 +1,49 @@
+{
+  "transactions": [
+    {
+      "hash": "0x9bcfd1560ec86569e31986834ea11f9e42fc2b49ab17ad628a93097f9bb55923",
+      "transactionType": "CALL",
+      "contractName": "LockProxyProxy",
+      "contractAddress": "0xd819257c964a78a493df93d5643e9490b54c5af2",
+      "function": "addCaller(address)",
+      "arguments": [
+        "0x99bCB148BEC418Fc66ebF7ACA3668ec1C6289695"
+      ],
+      "transaction": {
+        "from": "0xd89421cd5dd6d6269fbb9307535c386afe11a23e",
+        "to": "0xd819257c964a78a493df93d5643e9490b54c5af2",
+        "gas": "0x1e9a3",
+        "value": "0x0",
+        "input": "0x747293fb00000000000000000000000099bcb148bec418fc66ebf7aca3668ec1c6289695",
+        "nonce": "0x17",
+        "chainId": "0x1"
+      },
+      "additionalContracts": [],
+      "isFixedGasLimit": false
+    }
+  ],
+  "receipts": [
+    {
+      "status": "0x1",
+      "cumulativeGasUsed": "0xb9c723",
+      "logs": [],
+      "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "type": "0x2",
+      "transactionHash": "0x9bcfd1560ec86569e31986834ea11f9e42fc2b49ab17ad628a93097f9bb55923",
+      "transactionIndex": "0x52",
+      "blockHash": "0x9329d777c8aec1b830d27719f6c8b0e345e8bc46c5a18dcc1fbd58bfb2d15569",
+      "blockNumber": "0x1499fc6",
+      "gasUsed": "0x1627e",
+      "effectiveGasPrice": "0xe16cf165",
+      "from": "0xd89421cd5dd6d6269fbb9307535c386afe11a23e",
+      "to": "0xd819257c964a78a493df93d5643e9490b54c5af2",
+      "contractAddress": null
+    }
+  ],
+  "libraries": [],
+  "pending": [],
+  "returns": {},
+  "timestamp": 1736610638,
+  "chain": 1,
+  "commit": "5aa1251"
+}
