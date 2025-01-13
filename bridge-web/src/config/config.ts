@@ -189,6 +189,15 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
               tokenManagerType: TokenManagerType.LockAndRelease,
               bridgesTo: [ "ethereum" ]
             },
+            {
+              name: "BNB",
+              address: "0xea87bC6CcaE73bae35693639e22eF30667760F61",
+              blockExplorer: "https://otterscan.zilliqa.com/address/0xea87bC6CcaE73bae35693639e22eF30667760F16",
+              logo: seed_token,
+              tokenManagerAddress: "0x4fa6148C9DAbC7A737422fb1b3AB9088c878d26C",
+              tokenManagerType: TokenManagerType.LockAndRelease,
+              bridgesTo: [ "bsc" ]
+            },
           ],
           chainId: 32769,
           isZilliqa: true,
@@ -430,6 +439,24 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
               tokenManagerType: TokenManagerType.MintAndBurn,
               bridgesTo: [ "zq" ]
             },
+            {
+              name: "BNB",
+              address: null,
+              blockExplorer: "https://bscscan.com/address/0x0000000000000000000000000000000000000000",
+              logo: seed_token,
+              tokenManagerAddress: "0x1202078D298Ff0358A95b6fbf48Ec166dB414660",
+              tokenManagerType: TokenManagerType.LockAndRelease,
+              bridgesTo: [ "zq" ]
+            },
+            {
+              name: "ZIL",
+              address: "0xb1E6F8820826491FCc5519f84fF4E2bdBb6e3Cad",
+              blockExplorer: "https://otterscan.zilliqa.com/address/0xb1E6F8820826491FCc5519f84fF4E2bdBb6e3Cad",
+              logo: seed_token,
+              tokenManagerAddress: "0x2EE8e8D7C113Bb7c180f4755f06ed50bE53BEDe5",
+              tokenManagerType: TokenManagerType.ZilBridge,
+              bridgesTo: ["zq"]
+            }
           ],
           chainId: 56,
           isZilliqa: false,

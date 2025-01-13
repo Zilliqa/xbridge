@@ -41,7 +41,7 @@ function getAvailableTokens(fromChainConfig: ChainConfig, toChainConfig: ChainCo
   const avail = Array.from(fromChainConfig.tokens).filter((tok) =>
     tok.bridgesTo.find((network) => network == toChainConfig.chain))
     .sort((a,b) => a.name.localeCompare(b.name, 'en') );
-  let names = avail.map((x) => (x.name));
+  //let names = avail.map((x) => (x.name));
   return avail;
 
 }
@@ -102,17 +102,23 @@ function App() {
       if (!newFromChain?.chain) {
         return;
       }
+      console.log(`set[0] ${goFrom} ${goTo} ${newFromChain.chain}`);
       if (newFromChain.chain != siteConfig.homeNetwork) {
         goTo = siteConfig.homeNetwork;
       } else {
         if (goTo == siteConfig.homeNetwork) {
-          let firstNetwork = Object.values(chainConfigs).find((config) => config.chain !== siteConfig.homeNetwork);
-          goTo = firstNetwork!.chain;
+          if (goFrom != siteConfig.homeNetwork) {
+            goTo = goFrom;
+          } else {
+            let firstNetwork = Object.values(chainConfigs).find((config) => config.chain !== siteConfig.homeNetwork);
+            goTo = firstNetwork!.chain;
+          }
         }
       }
       goFrom = newFromChain?.chain;
     }
     if (toChainConfig.chain != goTo || fromChainConfig.chain != goFrom) {
+      console.log(`set[1] ${JSON.stringify(currentChains)}`);
       setCurrentChains([goFrom, goTo]);
     }
   }, [chain,pendingToChainConfig]);
@@ -121,6 +127,7 @@ function App() {
   // Fires when currentChains is set - chooses a token.
   useEffect(() => {
     const availableTokens = getAvailableTokens(fromChainConfig, toChainConfig);
+    console.log(`current ${JSON.stringify(currentChains)} avail ${JSON.stringify(availableTokens)}`);
     const newToken = availableTokens.find((tok) => tok.name == token.name);
     if (newToken === undefined) {
       selectedToken(availableTokens[0])
@@ -596,12 +603,13 @@ function App() {
                           //     - set the from chain to the home network.
                           let nextFromChain = fromChainConfig.chain;
                           if (chain === siteConfig.homeNetwork) {
-                            if (fromChainConfig.chain === chain) {
+                            if (toChainConfig.chain === siteConfig.homeNetwork) { 
                               // Set the fromChain to the first non-home network, if there is one.
                               let firstNetwork = Object.values(chainConfigs).find((config) => config.chain !== siteConfig.homeNetwork)
                               nextFromChain = firstNetwork!.chain;
                             } else {
-                              // Ignore.
+                              // Flip from and to chains.
+                              nextFromChain = toChainConfig.chain;
                             }
                           } else {
                             nextFromChain = siteConfig.homeNetwork;
