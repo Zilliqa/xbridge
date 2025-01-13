@@ -62,6 +62,7 @@ pub struct ChainConfig {
     pub scan_behind_blocks: Option<u64>,
     pub use_get_transactions: Option<bool>,
     pub to_block_number: Option<u64>,
+    pub priority_fee_per_gas_max: Option<u64>,
     pub exceptions: Option<Vec<Exception>>,
 }
 

@@ -38,6 +38,7 @@ pub struct ChainClient {
     pub scan_behind_blocks: u64,
     pub log_strategy: LogStrategy,
     pub to_block_number: Option<u64>,
+    pub priority_fee_per_gas_max: Option<u64>,
     pub except: exceptions::ExceptionProcessor,
 }
 
@@ -109,6 +110,7 @@ impl ChainClient {
             scan_behind_blocks: config.scan_behind_blocks.unwrap_or_default(),
             log_strategy: strategy,
             to_block_number: config.to_block_number,
+            priority_fee_per_gas_max: config.priority_fee_per_gas_max,
             except: exceptions::ExceptionProcessor::new(config, chain_id),
         })
     }
