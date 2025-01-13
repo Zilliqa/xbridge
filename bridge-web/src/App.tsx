@@ -38,8 +38,12 @@ import AddToken from "./components/AddToken";
 type TxnType = "approve" | "bridge";
 
 function getAvailableTokens(fromChainConfig: ChainConfig, toChainConfig: ChainConfig) {
-  return fromChainConfig.tokens.filter((tok) =>
-      tok.bridgesTo.find((network) => network == toChainConfig.chain));
+  const avail = Array.from(fromChainConfig.tokens).filter((tok) =>
+    tok.bridgesTo.find((network) => network == toChainConfig.chain))
+    .sort((a,b) => a.name.localeCompare(b.name, 'en') );
+  let names = avail.map((x) => (x.name));
+  return avail;
+
 }
 
 function App() {
@@ -73,9 +77,9 @@ function App() {
   const pendingFromChainConfig = chainConfigs[pendingChains[0]]!;
   const pendingToChainConfig = chainConfigs[pendingChains[1]]!;
   // Don't query whilst we're switching chains.
-  const pendingChainSwitch = chain != fromChainConfig.wagmiChain;
+  const pendingChainSwitch = chain?.id != fromChainConfig?.wagmiChain?.id;
 
-  // console.log(`pending ${JSON.stringify(pendingChains)} current ${JSON.stringify(currentChains)} chain ${JSON.stringify(chain)} pending ${pendingChainSwitch}`);
+  //console.log(`pending ${JSON.stringify(pendingChains)} current ${JSON.stringify(currentChains)} fromChainConfig.wagmiChain ${JSON.stringify(fromChainConfig.wagmiChain)} chain ${JSON.stringify(chain)} pending ${pendingChainSwitch}`);
 
   const fromChainClient = usePublicClient({ chainId: fromChainConfig.chainId });
   const toChainClient = usePublicClient({ chainId: toChainConfig.chainId });
@@ -85,7 +89,8 @@ function App() {
     switchNetwork && switchNetwork(pendingFromChainConfig.chainId);
   }, [pendingChains, switchNetwork]);
 
-  // This fires when switchNetwork() has completed and the chain has been changed in the wallet.
+  // This fires when switchNetwork() has completed and the chain has been changed in the wallet, or
+  // when we just change the to network.
   useEffect(() => {
     let goTo = pendingToChainConfig.chain;
     let goFrom = pendingFromChainConfig.chain;
@@ -110,7 +115,7 @@ function App() {
     if (toChainConfig.chain != goTo || fromChainConfig.chain != goFrom) {
       setCurrentChains([goFrom, goTo]);
     }
-  }, [chain]);
+  }, [chain,pendingToChainConfig]);
 
 
   // Fires when currentChains is set - chooses a token.
@@ -165,6 +170,7 @@ function App() {
     watch: true,
   });
 
+  //console.log(`contractBalance ${contractBalance} account ${account} address ${token.address} pending ${pendingChainSwitch}`);
   contractBalance = contractBalance ?? BigInt(0);
   let nativeBalance =
     nativeBalanceData && nativeBalanceData.value
@@ -470,7 +476,6 @@ function App() {
 
   const selectTokenOnDropdown = (token: TokenConfig) => {
     const elem = document.activeElement;
-
     if (elem) {
       elem && (elem as any).blur();
     }
@@ -651,23 +656,23 @@ function App() {
                         tabIndex={0}
                         className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
                       >
-      {getAvailableTokens(fromChainConfig, toChainConfig).map((token) => (
+      {getAvailableTokens(fromChainConfig, toChainConfig).filter((tok) => tok.name != token.name).map((tok) => (
                           <li
-                            key={token.address}
-                            onClick={() => selectTokenOnDropdown(token)}
+                            key={tok.address}
+                            onClick={() => selectTokenOnDropdown(tok)}
                           >
                             <div className="flex items-center gap-2">
-                              {token.logo && (
+                              {tok.logo && (
                                 <img
-                                  src={token.logo}
-                                  className="h-8"
-                                  alt="Token Logo"
-                                />
+                                  src={tok.logo}
+                                className="h-8"
+                                alt="Token Logo"
+                                 />
                               )}
-                              <p>{token.name}</p>
+                              <p>{tok.name}</p>
                             </div>
                           </li>
-                        ))}
+      ))}
                       </ul>
                     </div>
                   </div>

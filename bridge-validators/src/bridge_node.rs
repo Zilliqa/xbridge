@@ -313,7 +313,7 @@ impl BridgeNode {
         };
 
         if !self.validators.contains(&address) {
-            info!("Address not part of the validator set, {}", address);
+            info!("Address not part of the validator set, {:x}", address);
             return Ok(());
         }
 

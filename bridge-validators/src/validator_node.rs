@@ -181,7 +181,7 @@ impl ValidatorNode {
             event.target_chain_id, event.nonce
         );
 
-        let function_call = if client.legacy_gas_estimation_percent.is_some() {
+        let function_call = if client.use_legacy_transactions {
             function_call.legacy()
         } else {
             function_call
@@ -192,18 +192,10 @@ impl ValidatorNode {
 
             // Get gas estimate
             // TODO: refactor configs specifically for zilliqa
-            let _function_call = if let Some(percent) = client.legacy_gas_estimation_percent {
-                let gas_estimate = match function_call.estimate_gas().await {
-                    Ok(estimate) => estimate,
-                    Err(err) => {
-                        warn!("Failed to estimate gas, {:?} - using built-in default", err);
-                        U256::from(2_000_000)
-                        // return Ok(());
-                    }
-                };
-                info!("Legacy gas estimation: estimate {:?}", gas_estimate);
-                function_call.clone().gas(gas_estimate * percent / 100) // Apply multiplier
-            } else {
+            let gas_percent = client.gas_estimation_percent.unwrap_or(100);
+
+            // If we're not using legacy txns, try to simulate the txn.
+            if !client.use_legacy_transactions {
                 let function_call = function_call.clone();
                 // `eth_call` does not seem to work on ZQ so it had to be skipped
                 // Simulate call, if fails decode error and exit early
@@ -227,8 +219,23 @@ impl ValidatorNode {
                         }
                     }
                 }
-                function_call
+            }
+
+            // Now we need to estimate gas.
+            let gas_estimate = match function_call.estimate_gas().await {
+                Ok(estimate) => estimate,
+                Err(err) => {
+                    warn!("Failed to estimate gas, {:?} - using built-in default", err);
+                    U256::from(2_000_000)
+                    // return Ok(());
+                }
             };
+            let gas_to_use = (gas_estimate * U256::from(gas_percent)) / U256::from(100);
+            info!(
+                "Gas estimation: estimate {:?} calling with gas {:?}",
+                gas_estimate, gas_to_use
+            );
+            let _function_call = function_call.clone().gas(gas_to_use);
 
             // Make the actual call
             match _function_call.send().await {

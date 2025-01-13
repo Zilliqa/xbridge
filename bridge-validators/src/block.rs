@@ -316,7 +316,7 @@ impl<D: EthEvent> EventListener<D> {
             let mut interval = interval(Duration::from_secs(3));
             // Set this down 1 because we (almost) certainly haven't scanned this block
             // yet...
-            self.current_block = self.chain_client.client.get_block_number().await? - 1;
+            self.current_block = self.get_block_number().await? - 1;
 
             loop {
                 interval.tick().await;

@@ -73,7 +73,7 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
               bridgesTo: [ "bsc" ]
             },
               {
-              name: "zMATIC",
+              name: "MATIC",
               address: "0x4345472A0c6164F35808CDb7e7eCCd3d326CC50b",
               blockExplorer: "https://otterscan.zilliqa.com/address/0x4345472A0c6164F35808CDb7e7eCCd3d326CC50b",
               logo: test_hrse_token,
@@ -91,15 +91,6 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
               bridgesTo: [ "ethereum", "polygon", "arbitrum", "bsc" ]
             },
             {
-              name: "zETH",
-              address: "0x17D5af5658A24bd964984b36d28e879a8626adC3",
-              blockExplorer: "https://otterscan.zilliqa.com/address/0x17D5af5658A24bd964984b36d28e879a8626adC3",
-              logo: fps_token,
-              tokenManagerAddress: "0x4fa6148C9DAbC7A737422fb1b3AB9088c878d26C",
-              tokenManagerType: TokenManagerType.LockAndRelease,
-              bridgesTo: [ "ethereum" ]
-            },
-            {
               name: "XCAD",
               address: "0xCcF3Ea256d42Aeef0EE0e39Bfc94bAa9Fa14b0Ba",
               blockExplorer: "https://otterscan.zilliqa.com/address/0xCcF3Ea256d42Aeef0EE0e39Bfc94bAa9Fa14b0Ba",
@@ -108,9 +99,18 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
               tokenManagerType: TokenManagerType.LockAndRelease,
               bridgesTo: [ "ethereum" ]
             },
+             {
+               name: "ETH",
+               address: "0x17D5af5658A24bd964984b36d28e879a8626adC3",
+               blockExplorer: "https://otterscan.zilliqa.com/address/0x17D5af5658A24bd964984b36d28e879a8626adC3",
+               logo: fps_token,
+               tokenManagerAddress: "0x4fa6148C9DAbC7A737422fb1b3AB9088c878d26C",
+               tokenManagerType: TokenManagerType.LockAndRelease,
+               bridgesTo: [ "ethereum", "arbitrum" ]
+             },
             {
-              name: "zOPUL",
-              address: "0x17D5af5658A24bd964984b36d28e879a8626adC3",
+              name: "OPUL",
+              address: "0x8DEAdC20f7218994c86b59eE1D5c7979fFcAa893",
               blockExplorer: "https://otterscan.zilliqa.com/address/0x17D5af5658A24bd964984b36d28e879a8626adC3",
               logo: seed_token,
               tokenManagerAddress: "0x4fa6148C9DAbC7A737422fb1b3AB9088c878d26C",
@@ -118,7 +118,7 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
               bridgesTo: [ "ethereum" ]
             },
             {
-              name: "zBRKL",
+              name: "BRKL",
               address: "0xD819257C964A78A493DF93D5643E9490b54C5af2",
               blockExplorer: "https://otterscan.zilliqa.com/address/0xD819257C964A78A493DF93D5643E9490b54C5af2",
               logo: seed_token,
@@ -127,7 +127,7 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
               bridgesTo: [ "ethereum" ]
             },
             {
-              name: "zWBTC",
+              name: "WBTC",
               address: "0x2938fF251Aecc1dfa768D7d0276eB6d073690317",
               blockExplorer: "https://otterscan.zilliqa.com/address/0x2938fF251Aecc1dfa768D7d0276eB6d073690317",
               logo: seed_token,
@@ -136,7 +136,7 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
               bridgesTo: [ "ethereum" ]
             },
             {
-              name: "zUSDT",
+              name: "USDT",
               address: "0x2274005778063684fbB1BfA96a2b725dC37D75f9",
               blockExplorer: "https://otterscan.zilliqa.com/address/0x2274005778063684fbB1BfA96a2b725dC37D75f9",
               logo: seed_token,
@@ -145,7 +145,7 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
               bridgesTo: [ "ethereum" ]
             },
             {
-              name: "zTRAXX",
+              name: "TRAXX",
               address: "0x9121A67cA79B6778eAb477c5F76dF6de7C79cC4b",
               blockExplorer: "https://otterscan.zilliqa.com/address/0x9121A67cA79B6778eAb477c5F76dF6de7C79cC4b",
               logo: seed_token,
@@ -209,7 +209,7 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
         nativeTokenSymbol: "POL",
         tokens: [
     {
-      name: "eZIL",
+      name: "ZIL",
       address: "0xCc88D28f7d4B0D5AFACCC77F6102d88EE630fA17",
       blockExplorer: "https://polygonscan.com/token/0xCc88D28f7d4B0D5AFACCC77F6102d88EE630fA17",
       logo: test_hrse_token, 
@@ -242,7 +242,7 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
         nativeTokenSymbol: "ARB",
         tokens: [
           {
-            name: "eZIL",
+            name: "ZIL",
             address: "0x1816a0f20bc996f643b1af078e8d84a0aabd772a",
             blockExplorer: "https://arbiscan.io/token/0x1816a0f20bc996f643b1af078e8d84a0aabd772a",
             logo: test_hrse_token,
@@ -271,7 +271,7 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
         chainGatewayAddress: "0x49EA20823c953dd00619E2090DFa3965C89269C3",
         chainId: 1,
         isZilliqa: false,
-        blockExplorer: "https://etherscan.io",
+        blockExplorer: "https://etherscan.io/tx/",
         nativeTokenSymbol: "ETH",
         tokens: [
           {
@@ -363,7 +363,7 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
             bridgesTo: [ "zq" ]
           },
           {
-            name: "zWBTC",
+            name: "WBTC",
             address: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
             logo: seed_token,
             blockExplorer: "https://etherscan.io/token/0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
@@ -372,7 +372,7 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
             bridgesTo: [ "zq" ]
           },
           {
-            name: "zUSDT",
+            name: "USDT",
             address: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
             logo: seed_token,
             blockExplorer: "https://etherscan.io/token/0xdAC17F958D2ee523a2206206994597C13D831ec7",
@@ -381,7 +381,7 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
             bridgesTo: [ "zq" ]
           },
           {
-            name: "zTRAXX",
+            name: "TRAXX",
             address: "0xD43Be54C1aedf7Ee4099104f2DaE4eA88B18A249",
             logo: seed_token,
             blockExplorer: "https://etherscan.io/token/0xD43Be54C1aedf7Ee4099104f2DaE4eA88B18A249",
