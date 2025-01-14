@@ -236,15 +236,10 @@ impl ValidatorNode {
                 }
             };
             let gas_to_use = (gas_estimate * U256::from(gas_percent)) / U256::from(100);
-            info!(
-                "Gas estimation: estimate {:?} calling with gas {:?}",
-                gas_estimate, gas_to_use
-            );
-            let mut _function_call = function_call.clone().gas(gas_to_use);
 
             let provider = client.client.provider();
             let mut txn_to_send = function_call.tx.clone();
-            let outer_tx = _function_call.tx.as_eip1559_mut();
+            let outer_tx = txn_to_send.as_eip1559_mut();
             if let Some(tx) = outer_tx {
                 if let Some(max_val) = client.priority_fee_per_gas_max {
                     let max_prio = provider
@@ -271,6 +266,11 @@ impl ValidatorNode {
                     }
                 }
             };
+            info!(
+                "Gas estimation: estimate {:?} calling with gas {:?}",
+                gas_estimate, gas_to_use
+            );
+            txn_to_send.set_gas(gas_to_use);
 
             //match _function_call.send().await {
             match client.client.send_transaction(txn_to_send, None).await {

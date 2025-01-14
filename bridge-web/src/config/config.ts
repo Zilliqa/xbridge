@@ -1,5 +1,6 @@
 import { Chain } from "viem";
 import { bsc, bscTestnet, zilliqa, zilliqaTestnet, polygon, arbitrum, mainnet } from "viem/chains";
+import { USDTAbi } from "../abi/USDT.ts";
 import fps_token from "../assets/fps_token.png";
 import test_hrse_token from "../assets/salami_hrse.webp";
 import hrse_token from "../assets/hrse_token.webp";
@@ -110,8 +111,8 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
              },
             {
               name: "OPUL",
-              address: "0x8DEAdC20f7218994c86b59eE1D5c7979fFcAa893",
-              blockExplorer: "https://otterscan.zilliqa.com/address/0x17D5af5658A24bd964984b36d28e879a8626adC3",
+               address: "0x8DEAdC20f7218994c86b59eE1D5c7979fFcAa893",
+               blockExplorer: "https://otterscan.zilliqa.com/address/0x8DEAdC20f7218994c86b59eE1D5c7979fFcAa893",
               logo: seed_token,
               tokenManagerAddress: "0x4fa6148C9DAbC7A737422fb1b3AB9088c878d26C",
               tokenManagerType: TokenManagerType.LockAndRelease,
@@ -260,7 +261,7 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
             bridgesTo: [ "zq" ]
           },
           {
-            name: "ARB",
+            name: "ETH",
             address: null,
             blockExplorer: "https://arbiscan.io/token/0x0000000000000000000000000000000000000000",
             logo: test_hrse_token,
@@ -387,6 +388,7 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
             blockExplorer: "https://etherscan.io/token/0xdAC17F958D2ee523a2206206994597C13D831ec7",
             tokenManagerAddress: "0x2EE8e8D7C113Bb7c180f4755f06ed50bE53BEDe5",
             tokenManagerType: TokenManagerType.LockAndRelease,
+            abi: USDTAbi,
             bridgesTo: [ "zq" ]
           },
           {
@@ -671,6 +673,7 @@ export type TokenConfig = {
   tokenManagerAddress: `0x${string}`;
   tokenManagerType: TokenManagerType;
   bridgesTo: string[];
+  abi? : any;
 };
 
 export type SiteConfig = {

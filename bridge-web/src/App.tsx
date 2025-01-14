@@ -35,7 +35,7 @@ import RecipientInput from "./components/RecipientInput";
 import { chainGatewayAbi } from "./abi/ChainGateway";
 import AddToken from "./components/AddToken";
 
-type TxnType = "approve" | "bridge";
+type TxnType = "approve" | "bridge" | "approvalclearance";
 
 function getAvailableTokens(fromChainConfig: ChainConfig, toChainConfig: ChainConfig) {
   const avail = Array.from(fromChainConfig.tokens).filter((tok) =>
@@ -199,6 +199,7 @@ function App() {
       !isNative && !!account && !!token.address && !!token.tokenManagerAddress && !pendingChainSwitch,
     watch: true,
   });
+  console.log(`ALLOWANCE = ${allowance}`);
   const hasEnoughAllowance = siteConfig.allowZeroValueTransfers || (
     isNative ||
     (decimals && isAmountNonZero
@@ -238,11 +239,14 @@ function App() {
       recipientEth &&
       decimals
     ),
+    onSettled(data, error) {
+      console.log(`Transfer Settled ${data} ${error}`);
+    }
   });
 
   const { writeAsync: bridge, isLoading: isLoadingBridge } =
     useContractWrite(transferConfig);
-
+  
   // From Zilliqa Bridging
   const {
     writeAsync: bridgeFromZilliqa,
@@ -268,9 +272,34 @@ function App() {
   });
 
   // Approvals
+  const { config: approveZeroConfig } = usePrepareContractWrite({
+    address: token.address ?? zeroAddress,
+    abi: token.abi ?? erc20ABI,
+    args: [
+      token.tokenManagerAddress,
+      0n
+    ],
+    functionName: "approve",
+    gas: fromChainConfig.isZilliqa ? 400_000n : undefined,
+    type: fromChainConfig.isZilliqa ? "legacy" : "eip1559",
+    enabled: !hasEnoughAllowance,
+    onSettled(data, error) {
+      console.log(`XXSettled token.abi ${token.abi} ${data} ${error}`);
+    }
+  });
+
+  const { writeAsync: approveZero, isLoading: isLoadingApproveZero } =
+    useContractWrite(approveZeroConfig);
+
+  {
+    const fish = useContractWrite(approveZeroConfig);
+    console.log(`FOOX = ${JSON.stringify(fish)} writeAsync = ${fish.writeAsync} tok = ${token.address}, amt ${amount} ${parseUnits(amount ?? "0", decimals??0) ?? "null"}`);
+    console.log(`allowance ${hasEnoughAllowance} ${approveZero}`);
+  }
+
   const { config: approveConfig } = usePrepareContractWrite({
     address: token.address ?? zeroAddress,
-    abi: erc20ABI,
+    abi: token.abi ?? erc20ABI,
     args: [
       token.tokenManagerAddress,
       amount ? parseUnits(amount, decimals ?? 0) : 0n,
@@ -279,10 +308,22 @@ function App() {
     gas: fromChainConfig.isZilliqa ? 400_000n : undefined,
     type: fromChainConfig.isZilliqa ? "legacy" : "eip1559",
     enabled: !hasEnoughAllowance,
+    onSettled(data, error) {
+      console.log(`Settled ${data} ${error}`);
+    }
   });
 
   const { writeAsync: approve, isLoading: isLoadingApprove } =
     useContractWrite(approveConfig);
+
+  // Bit horrid - if approve isn't available, we'll assume we have to clear the old
+  // approval first. USDT on ethereum requires this.
+  const requiresApprovalClearance = (approve == undefined);
+{
+    const fish = useContractWrite(approveConfig);
+    console.log(`FOO = ${JSON.stringify(fish)} writeAsync = ${fish.writeAsync} tok = ${token.address}, amt ${amount} ${parseUnits(amount ?? "0", decimals??0) ?? "null"}`);
+    console.log(`allowance ${hasEnoughAllowance}`);
+  }
 
   const canBridge =
     (siteConfig.allowZeroValueTransfers || isAmountNonZero) &&
@@ -439,6 +480,23 @@ function App() {
             </a>
           </div>
         );
+      } else if (latestTxn[0] === "approvalclearance") {
+        description = (
+          <div>
+            Previous approval cleared. Ready for approval. View on{" "}
+            <a
+              className="link text-ellipsis w-10"
+              onClick={() =>
+                window.open(
+                  `${fromChainConfig.blockExplorer}${txnReceipt.transactionHash}`,
+                  "_blank",
+                )
+              }
+            >
+              block explorer
+            </a>
+          </div>
+        );
       } else {
         return;
       }
@@ -479,6 +537,7 @@ function App() {
     isLoadingBridgeFromZilliqa ||
     isLoadingBridge ||
     isLoadingApprove ||
+    isLoadingApproveZero ||
     isWaitingForTxn;
 
   const selectTokenOnDropdown = (token: TokenConfig) => {
@@ -767,24 +826,30 @@ function App() {
                 <button
                   className="btn w-5/6 mx-10 btn-outline"
                   disabled={showLoadingButton}
-                  onClick={async () => {
+                onClick={async () => {
                     if (approve) {
                       const tx = await approve();
                       if (siteConfig.logTxnHashes) {
                         console.log(tx.hash);
                       }
                       setLatestTxn(["approve", tx.hash]);
+                    } else if (approveZero) {
+                      const tx = await approveZero();
+                      if (siteConfig.logTxnHashes) {
+                        console.log("Approve zero - " + tx.hash);
+                      }
+                      setLatestTxn(["approvalclearance", tx.hash])
                     }
-                  }}
-                >
+                }}
+                  >
                   {showLoadingButton ? (
                     <>
                       <span className="loading loading-spinner"></span>
                       Loading
                     </>
-                  ) : (
+                  ) : (requiresApprovalClearance ? ("Clear existing approval") : (
                     "Approve"
-                  )}
+                  ))}
                 </button>
               ) : (
                 <button
