@@ -3,7 +3,7 @@ pragma solidity 0.8.20;
 
 import {Tester, Vm} from "test/Tester.sol";
 import {ITokenManagerStructs, TokenManagerUpgradeable} from "contracts/periphery/TokenManagerUpgradeable.sol";
-import {LockAndReleaseOrNativeTokenManagerUpgradeableV4} from "contracts/periphery/TokenManagerV4/LockAndReleaseOrNativeTokenManagerUpgradeableV4.sol";
+import {LockAndReleaseOrNativeTokenManagerUpgradeableV5} from "contracts/periphery/TokenManagerV5/LockAndReleaseOrNativeTokenManagerUpgradeableV5.sol";
 import {MintAndBurnTokenManagerUpgradeableV4} from "contracts/periphery/TokenManagerV4/MintAndBurnTokenManagerUpgradeableV4.sol";
 import {BridgedToken} from "contracts/periphery/BridgedToken.sol";
 import {CallMetadata, IRelayerEvents} from "contracts/core/Relayer.sol";
@@ -32,7 +32,7 @@ contract TokenBridgeIntegrationTests is
     uint originalTokenSupply = 1000 ether;
     uint fees = 0.1 ether;
 
-    LockAndReleaseOrNativeTokenManagerUpgradeableV4 sourceTokenManager;
+    LockAndReleaseOrNativeTokenManagerUpgradeableV5 sourceTokenManager;
     TestToken originalToken;
     ChainGateway sourceChainGateway;
     ValidatorManager sourceValidatorManager;
