@@ -29,7 +29,9 @@ abstract contract LockAndReleaseOrNativeTokenManagerDeployer is
         return LockAndReleaseOrNativeTokenManagerUpgradeableV3(payable(address(proxy)));
     }
 
-    function deployLockAndReleaseOrNativeTokenManagerV4(
+    // Named like this to prevent those who we don't want to have access constructing one.
+    // You should be using V5.
+    function deployLockAndReleaseOrNativeTokenManagerV4x(
         address chainGateway,
         uint fees
      ) public returns (LockAndReleaseOrNativeTokenManagerUpgradeableV4) {

@@ -20,6 +20,8 @@ contract LockAndReleaseOrNativeTokenManagerUpgradeableV5 is
     ILockAndReleaseOrNativeTokenManager,
     TokenManagerUpgradeableV4
 {
+    using SafeERC20 for IERC20;
+    
     address public constant NATIVE_ASSET_HASH = address(0);
 
     /// @custom:oz-upgrades-unsafe-allow constructor
@@ -40,7 +42,7 @@ contract LockAndReleaseOrNativeTokenManagerUpgradeableV5 is
         (bool success, ) = payable(this).call{ value: amount }("");
         require(success, "Native asset transfer failed");
       } else {
-        IERC20(token).transferFrom(from, address(this), amount);
+        IERC20(token).safeTransferFrom(from, address(this), amount);
       }
       emit Locked(token, from, amount);
     }
@@ -55,7 +57,7 @@ contract LockAndReleaseOrNativeTokenManagerUpgradeableV5 is
         (bool success, ) = recipient.call{value: amount}("");
         require(success, "Native asset transfer failed");
       } else {
-        IERC20(token).transfer(recipient, amount);
+        IERC20(token).safeTransfer(recipient, amount);
       }
       emit Released(token, recipient, amount);
     }

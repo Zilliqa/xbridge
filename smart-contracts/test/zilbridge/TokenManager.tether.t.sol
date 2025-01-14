@@ -78,7 +78,7 @@ contract TokenManagerTetherTest is Tester, IRelayerEvents, LockAndReleaseOrNativ
       console.log("balance ", address(this).balance);
       tokenManager.transfer{value: fees}( address(tetherToken), remoteChainId, remoteUser, AMOUNT);
       assertEq(tetherToken.balanceOf(address(tokenManager)), AMOUNT);
-      assertEq(tetherToken.balanceOf(sourceUser), 0);
+      assertEq(tetherToken.balanceOf(sourceUser), SUPPLY-AMOUNT);
       assertEq(address(tokenManager).balance, fees);
       vm.stopPrank();
     }
@@ -101,7 +101,7 @@ contract TokenManagerTetherTest is Tester, IRelayerEvents, LockAndReleaseOrNativ
                             address(tokenManager),
                             data,
                             1_000_000, 0, signatures);
-      assertEq(tetherToken.balanceOf(sourceUser), AMOUNT);
+      assertEq(tetherToken.balanceOf(sourceUser), SUPPLY);
       assertEq(tetherToken.balanceOf(address(tokenManager)), 0);
       vm.stopPrank();
     }
