@@ -21,6 +21,23 @@ export VITE_BSC_TESTNET_KEY=
 This is designed so that if you have a quiknode endpoint, you can set
 `VITE_BSC_TESTNET_KEY` to your key.
 
+## Environment variables required
+
+```
+VITE_BSC_MAINNET_API
+VITE_BSC_MAINNET_KEY
+
+VITE_POL_MAINNET_API
+VITE_POL_MAINNET_KEY
+
+VITE_ARB_MAINNET_API
+VITE_ARB_MAINNET_KEY
+
+VITE_ETH_MAINNET_API
+VITE_ETH_MAINNET_KEY
+```
+
+
 ## How to modify the encoded configuration
 
 The steps to modify secrets are:
