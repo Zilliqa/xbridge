@@ -691,7 +691,7 @@ function App() {
                           <img
                             src={token.logo}
                             className="h-8"
-                            alt="Zilliqa Logo"
+                            alt="Token Logo"
                           />
                         )}
                         <p>{token.name}</p>
@@ -782,14 +782,14 @@ function App() {
 
         <div className="flex justify-center">
         <label className="label-text-alt">
-        From {printAddress(token)} on {fromChainConfig.name}
+          From <a className="link text-white no-underline" target="_blank" rel="noopener noreferrer" href={token.blockExplorer}>{printAddress(token)}</a> on {fromChainConfig.name}
         </label>
         </div>
       {!!getTargetToken(toChainConfig, token) &&
         (<div className="flex justify-center">
                  <label className="label-text-alt">
 
-                To {printAddress(getTargetToken(toChainConfig, token))} on {toChainConfig.name}
+          To <a className="link text-white no-underline" target="_blank" rel="noopener noreferrer" href={getTargetToken(toChainConfig,token)?.blockExplorer}>{printAddress(getTargetToken(toChainConfig, token))}</a> on {toChainConfig.name}
                 </label>
                 </div>
           )}

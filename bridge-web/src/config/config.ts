@@ -196,7 +196,7 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
               bridgesTo: [ "ethereum" ]
             },
             {
-              name: "UNIFEES",
+              name: "FEES",
               address: "0xc99ECB82a27B45592eA02ACe9e3C42050f3c00C0",
               blockExplorer: "https://otterscan.zilliqa.com/address/0xc99ECB82a27B45592eA02ACe9e3C42050f3c00C0",
               logo: unifees_token,
