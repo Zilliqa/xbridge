@@ -37,13 +37,24 @@ import AddToken from "./components/AddToken";
 
 type TxnType = "approve" | "bridge" | "approvalclearance";
 
+function printAddress(token: TokenConfig | null) : string {
+  return token ? (token.address ?? "0x00000000000000000000") : "(none)";
+}
+
+function getTargetToken(toChainConfig: ChainConfig, token: TokenConfig | null) {
+  if (!token) {
+    return null;
+  }
+  const val = toChainConfig?.tokens.filter((tok) => tok.name == token.name)
+  return val ? val[0] : null;
+}
+
 function getAvailableTokens(fromChainConfig: ChainConfig, toChainConfig: ChainConfig) {
   const avail = Array.from(fromChainConfig.tokens).filter((tok) =>
     tok.bridgesTo.find((network) => network == toChainConfig.chain))
     .sort((a,b) => a.name.localeCompare(b.name, 'en') );
   //let names = avail.map((x) => (x.name));
   return avail;
-
 }
 
 function App() {
@@ -79,8 +90,6 @@ function App() {
   // Don't query whilst we're switching chains.
   const pendingChainSwitch = chain?.id != fromChainConfig?.wagmiChain?.id;
 
-  //console.log(`pending ${JSON.stringify(pendingChains)} current ${JSON.stringify(currentChains)} fromChainConfig.wagmiChain ${JSON.stringify(fromChainConfig.wagmiChain)} chain ${JSON.stringify(chain)} pending ${pendingChainSwitch}`);
-
   const fromChainClient = usePublicClient({ chainId: fromChainConfig.chainId });
   const toChainClient = usePublicClient({ chainId: toChainConfig.chainId });
 
@@ -102,7 +111,6 @@ function App() {
       if (!newFromChain?.chain) {
         return;
       }
-      console.log(`set[0] ${goFrom} ${goTo} ${newFromChain.chain}`);
       if (newFromChain.chain != siteConfig.homeNetwork) {
         goTo = siteConfig.homeNetwork;
       } else {
@@ -118,7 +126,6 @@ function App() {
       goFrom = newFromChain?.chain;
     }
     if (toChainConfig.chain != goTo || fromChainConfig.chain != goFrom) {
-      console.log(`set[1] ${JSON.stringify(currentChains)}`);
       setCurrentChains([goFrom, goTo]);
     }
   }, [chain,pendingToChainConfig]);
@@ -127,7 +134,6 @@ function App() {
   // Fires when currentChains is set - chooses a token.
   useEffect(() => {
     const availableTokens = getAvailableTokens(fromChainConfig, toChainConfig);
-    console.log(`current ${JSON.stringify(currentChains)} avail ${JSON.stringify(availableTokens)}`);
     const newToken = availableTokens.find((tok) => tok.name == token.name);
     if (newToken === undefined) {
       selectedToken(availableTokens[0])
@@ -177,7 +183,6 @@ function App() {
     watch: true,
   });
 
-  //console.log(`contractBalance ${contractBalance} account ${account} address ${token.address} pending ${pendingChainSwitch}`);
   contractBalance = contractBalance ?? BigInt(0);
   let nativeBalance =
     nativeBalanceData && nativeBalanceData.value
@@ -199,7 +204,6 @@ function App() {
       !isNative && !!account && !!token.address && !!token.tokenManagerAddress && !pendingChainSwitch,
     watch: true,
   });
-  console.log(`ALLOWANCE = ${allowance}`);
   const hasEnoughAllowance = siteConfig.allowZeroValueTransfers || (
     isNative ||
     (decimals && isAmountNonZero
@@ -239,9 +243,6 @@ function App() {
       recipientEth &&
       decimals
     ),
-    onSettled(data, error) {
-      console.log(`Transfer Settled ${data} ${error}`);
-    }
   });
 
   const { writeAsync: bridge, isLoading: isLoadingBridge } =
@@ -283,19 +284,10 @@ function App() {
     gas: fromChainConfig.isZilliqa ? 400_000n : undefined,
     type: fromChainConfig.isZilliqa ? "legacy" : "eip1559",
     enabled: !hasEnoughAllowance,
-    onSettled(data, error) {
-      console.log(`XXSettled token.abi ${token.abi} ${data} ${error}`);
-    }
   });
 
   const { writeAsync: approveZero, isLoading: isLoadingApproveZero } =
     useContractWrite(approveZeroConfig);
-
-  {
-    const fish = useContractWrite(approveZeroConfig);
-    console.log(`FOOX = ${JSON.stringify(fish)} writeAsync = ${fish.writeAsync} tok = ${token.address}, amt ${amount} ${parseUnits(amount ?? "0", decimals??0) ?? "null"}`);
-    console.log(`allowance ${hasEnoughAllowance} ${approveZero}`);
-  }
 
   const { config: approveConfig } = usePrepareContractWrite({
     address: token.address ?? zeroAddress,
@@ -308,9 +300,6 @@ function App() {
     gas: fromChainConfig.isZilliqa ? 400_000n : undefined,
     type: fromChainConfig.isZilliqa ? "legacy" : "eip1559",
     enabled: !hasEnoughAllowance,
-    onSettled(data, error) {
-      console.log(`Settled ${data} ${error}`);
-    }
   });
 
   const { writeAsync: approve, isLoading: isLoadingApprove } =
@@ -318,12 +307,7 @@ function App() {
 
   // Bit horrid - if approve isn't available, we'll assume we have to clear the old
   // approval first. USDT on ethereum requires this.
-  const requiresApprovalClearance = (approve == undefined);
-{
-    const fish = useContractWrite(approveConfig);
-    console.log(`FOO = ${JSON.stringify(fish)} writeAsync = ${fish.writeAsync} tok = ${token.address}, amt ${amount} ${parseUnits(amount ?? "0", decimals??0) ?? "null"}`);
-    console.log(`allowance ${hasEnoughAllowance}`);
-  }
+  const requiresApprovalClearance = (approve == undefined) && token.needsAllowanceClearing;
 
   const canBridge =
     (siteConfig.allowZeroValueTransfers || isAmountNonZero) &&
@@ -790,11 +774,33 @@ function App() {
               )}
             </div>
 
+
+
+      {!!token && (
+        <div className="flex flex-col gap-1">
+        <div className="divider"></div>
+
+        <div className="flex justify-center">
+        <label className="label-text-alt">
+        From {printAddress(token)} on {fromChainConfig.name}
+        </label>
+        </div>
+      {!!getTargetToken(toChainConfig, token) &&
+        (<div className="flex justify-center">
+                 <label className="label-text-alt">
+
+                To {printAddress(getTargetToken(toChainConfig, token))} on {toChainConfig.name}
+                </label>
+                </div>
+          )}
+        </div>)}
+
             {!!fees && !!amount && (
               <>
                 <div className="divider"></div>
                 <div className="flex flex-col gap-1">
-                  <div className="flex justify-between">
+
+                <div className="flex justify-between">
                     <label className="label-text-alt">Fees:</label>
                     <label className="label-text-alt">
                       {formatEther(fees).toString()}{" "}
@@ -816,8 +822,8 @@ function App() {
                     <label className="label-text-alt">
                       {amount} {token.name} + {formatEther(fees).toString()}{" "}
                       {fromChainConfig.nativeTokenSymbol}
-                    </label>
-                  </div>
+              </label>
+                </div>
                 </div>
               </>
             )}
