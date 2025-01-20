@@ -150,7 +150,7 @@ forge script script/bsc-testnet/deployZilBridgeTokens.s.sol \
 And, once we've recorded the token addresses (so that the
 `LockProxyProxy` knows about them):
 
-```
+```sh
 forge script scripts/bsc-testnet/deployZilBridgeTokenManagers.s.sol \
   --rpc-url https://bsc-testnet.bnbchain.org --broadcast
 forge verify-contract <address> --rpc-url https://bsc-testnet.bnbchain.org \

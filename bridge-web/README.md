@@ -23,7 +23,7 @@ This is designed so that if you have a quiknode endpoint, you can set
 
 ## Environment variables required
 
-```
+```sh
 VITE_BSC_MAINNET_API
 VITE_BSC_MAINNET_KEY
 
@@ -36,7 +36,6 @@ VITE_ARB_MAINNET_KEY
 VITE_ETH_MAINNET_API
 VITE_ETH_MAINNET_KEY
 ```
-
 
 ## How to modify the encoded configuration
 

@@ -5,7 +5,13 @@ import {
   faChevronDown,
 } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
-import {  Chains, TokenConfig, ChainConfig, chainConfigs, siteConfig } from "./config/config";
+import {
+  Chains,
+  TokenConfig,
+  ChainConfig,
+  chainConfigs,
+  siteConfig,
+} from "./config/config";
 import {
   erc20ABI,
   useAccount,
@@ -37,7 +43,7 @@ import AddToken from "./components/AddToken";
 
 type TxnType = "approve" | "bridge" | "approvalclearance";
 
-function printAddress(token: TokenConfig | null) : string {
+function printAddress(token: TokenConfig | null): string {
   return token ? (token.address ?? "0x00000000000000000000") : "(none)";
 }
 
@@ -45,34 +51,41 @@ function getTargetToken(toChainConfig: ChainConfig, token: TokenConfig | null) {
   if (!token) {
     return null;
   }
-  const val = toChainConfig?.tokens.filter((tok) => tok.name == token.name)
+  const val = toChainConfig?.tokens.filter((tok) => tok.name == token.name);
   return val ? val[0] : null;
 }
 
-function getAvailableTokens(fromChainConfig: ChainConfig, toChainConfig: ChainConfig) {
-  const avail = Array.from(fromChainConfig.tokens).filter((tok) =>
-    tok.bridgesTo.find((network) => network == toChainConfig.chain))
-    .sort((a,b) => a.name.localeCompare(b.name, 'en') );
+function getAvailableTokens(
+  fromChainConfig: ChainConfig,
+  toChainConfig: ChainConfig,
+) {
+  const avail = Array.from(fromChainConfig.tokens)
+    .filter((tok) =>
+      tok.bridgesTo.find((network) => network == toChainConfig.chain),
+    )
+    .sort((a, b) => a.name.localeCompare(b.name, "en"));
   //let names = avail.map((x) => (x.name));
   return avail;
 }
 
 function App() {
   const { address: account } = useAccount();
-  const { switchNetwork } = useSwitchNetwork({ onError({}) {
-    alert('Failed to switch networks');
-  }});
+  const { switchNetwork } = useSwitchNetwork({
+    onError({}) {
+      alert("Failed to switch networks");
+    },
+  });
   const { chain } = useNetwork();
 
-  const [pendingChains, setPendingChains] = useState<[Chains, Chains]>(
-    [chainConfigs[siteConfig.defaultFromNetwork]!.chain,
-     chainConfigs[siteConfig.defaultToNetwork]!.chain]
-  );
+  const [pendingChains, setPendingChains] = useState<[Chains, Chains]>([
+    chainConfigs[siteConfig.defaultFromNetwork]!.chain,
+    chainConfigs[siteConfig.defaultToNetwork]!.chain,
+  ]);
 
-  const [currentChains, setCurrentChains] = useState<[Chains, Chains]>(
-    [ chainConfigs[siteConfig.defaultFromNetwork]!.chain,
-      chainConfigs[siteConfig.defaultToNetwork]!.chain] 
-  );
+  const [currentChains, setCurrentChains] = useState<[Chains, Chains]>([
+    chainConfigs[siteConfig.defaultFromNetwork]!.chain,
+    chainConfigs[siteConfig.defaultToNetwork]!.chain,
+  ]);
   const [amount, setAmount] = useState<string | undefined>();
   const isAmountNonZero = Number(amount) > 0;
   const [latestTxn, setLatestTxn] = useState<[TxnType, `0x${string}`]>();
@@ -118,7 +131,9 @@ function App() {
           if (goFrom != siteConfig.homeNetwork) {
             goTo = goFrom;
           } else {
-            let firstNetwork = Object.values(chainConfigs).find((config) => config.chain !== siteConfig.homeNetwork);
+            let firstNetwork = Object.values(chainConfigs).find(
+              (config) => config.chain !== siteConfig.homeNetwork,
+            );
             goTo = firstNetwork!.chain;
           }
         }
@@ -128,17 +143,16 @@ function App() {
     if (toChainConfig.chain != goTo || fromChainConfig.chain != goFrom) {
       setCurrentChains([goFrom, goTo]);
     }
-  }, [chain,pendingToChainConfig]);
-
+  }, [chain, pendingToChainConfig]);
 
   // Fires when currentChains is set - chooses a token.
   useEffect(() => {
     const availableTokens = getAvailableTokens(fromChainConfig, toChainConfig);
     const newToken = availableTokens.find((tok) => tok.name == token.name);
     if (newToken === undefined) {
-      selectedToken(availableTokens[0])
+      selectedToken(availableTokens[0]);
     } else {
-      selectedToken(newToken)
+      selectedToken(newToken);
     }
   }, [currentChains, toChainConfig.tokens, fromChainConfig.tokens]);
 
@@ -201,17 +215,23 @@ function App() {
     address: token.address ?? zeroAddress,
     args: [account!, token.tokenManagerAddress],
     enabled:
-      !isNative && !!account && !!token.address && !!token.tokenManagerAddress && !pendingChainSwitch,
+      !isNative &&
+      !!account &&
+      !!token.address &&
+      !!token.tokenManagerAddress &&
+      !pendingChainSwitch,
     watch: true,
   });
-  const hasEnoughAllowance = siteConfig.allowZeroValueTransfers || (
+  const hasEnoughAllowance =
+    siteConfig.allowZeroValueTransfers ||
     isNative ||
     (decimals && isAmountNonZero
       ? (allowance ?? 0n) >= parseUnits(amount!, decimals)
-      : true));
+      : true);
 
-  const hasEnoughBalance = siteConfig.allowZeroValueTransfers || (
-    decimals && balance && amount
+  const hasEnoughBalance =
+    siteConfig.allowZeroValueTransfers ||
+    (decimals && balance && amount
       ? parseUnits(amount, decimals) <= balance
       : false);
 
@@ -247,7 +267,7 @@ function App() {
 
   const { writeAsync: bridge, isLoading: isLoadingBridge } =
     useContractWrite(transferConfig);
-  
+
   // From Zilliqa Bridging
   const {
     writeAsync: bridgeFromZilliqa,
@@ -276,10 +296,7 @@ function App() {
   const { config: approveZeroConfig } = usePrepareContractWrite({
     address: token.address ?? zeroAddress,
     abi: token.abi ?? erc20ABI,
-    args: [
-      token.tokenManagerAddress,
-      0n
-    ],
+    args: [token.tokenManagerAddress, 0n],
     functionName: "approve",
     gas: fromChainConfig.isZilliqa ? 400_000n : undefined,
     type: fromChainConfig.isZilliqa ? "legacy" : "eip1559",
@@ -307,7 +324,8 @@ function App() {
 
   // Bit horrid - if approve isn't available, we'll assume we have to clear the old
   // approval first. USDT on ethereum requires this.
-  const requiresApprovalClearance = (approve == undefined) && token.needsAllowanceClearing;
+  const requiresApprovalClearance =
+    approve == undefined && token.needsAllowanceClearing;
 
   const canBridge =
     (siteConfig.allowZeroValueTransfers || isAmountNonZero) &&
@@ -595,8 +613,15 @@ function App() {
                               // If this chain is the home network
                               let goToChain = toChainConfig.chain;
                               if (chain == siteConfig.homeNetwork) {
-                                if (toChainConfig.chain == siteConfig.homeNetwork) {
-                                  let firstNetwork = Object.values(chainConfigs).find((config) => config.chain !== siteConfig.homeNetwork);
+                                if (
+                                  toChainConfig.chain == siteConfig.homeNetwork
+                                ) {
+                                  let firstNetwork = Object.values(
+                                    chainConfigs,
+                                  ).find(
+                                    (config) =>
+                                      config.chain !== siteConfig.homeNetwork,
+                                  );
                                   goToChain = firstNetwork!.chain;
                                 } else {
                                   // Ignore
@@ -637,29 +662,36 @@ function App() {
                       .map(({ chain, name }) => (
                         <li
                           key={`to${chain}`}
-                        onClick={() => {
-                          // Sets the to chain.
-                          //  - if the new to chain is the home network
-                          //     - if the from chain is the home network, set it to the first non-home network.
-                          //     - if the from chain is not the home network, ignore.
-                          //  - if the new to chain is not the home network
-                          //     - set the from chain to the home network.
-                          let nextFromChain = fromChainConfig.chain;
-                          if (chain === siteConfig.homeNetwork) {
-                            if (toChainConfig.chain === siteConfig.homeNetwork) { 
-                              // Set the fromChain to the first non-home network, if there is one.
-                              let firstNetwork = Object.values(chainConfigs).find((config) => config.chain !== siteConfig.homeNetwork)
-                              nextFromChain = firstNetwork!.chain;
+                          onClick={() => {
+                            // Sets the to chain.
+                            //  - if the new to chain is the home network
+                            //     - if the from chain is the home network, set it to the first non-home network.
+                            //     - if the from chain is not the home network, ignore.
+                            //  - if the new to chain is not the home network
+                            //     - set the from chain to the home network.
+                            let nextFromChain = fromChainConfig.chain;
+                            if (chain === siteConfig.homeNetwork) {
+                              if (
+                                toChainConfig.chain === siteConfig.homeNetwork
+                              ) {
+                                // Set the fromChain to the first non-home network, if there is one.
+                                let firstNetwork = Object.values(
+                                  chainConfigs,
+                                ).find(
+                                  (config) =>
+                                    config.chain !== siteConfig.homeNetwork,
+                                );
+                                nextFromChain = firstNetwork!.chain;
+                              } else {
+                                // Flip from and to chains.
+                                nextFromChain = toChainConfig.chain;
+                              }
                             } else {
-                              // Flip from and to chains.
-                              nextFromChain = toChainConfig.chain;
+                              nextFromChain = siteConfig.homeNetwork;
                             }
-                          } else {
-                            nextFromChain = siteConfig.homeNetwork;
-                          }
-                          setPendingChains([nextFromChain, chain]);
-                          blur();
-                        }}
+                            setPendingChains([nextFromChain, chain]);
+                            blur();
+                          }}
                         >
                           <a>{name}</a>
                         </li>
@@ -707,23 +739,25 @@ function App() {
                         tabIndex={0}
                         className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
                       >
-      {getAvailableTokens(fromChainConfig, toChainConfig).filter((tok) => tok.name != token.name).map((tok) => (
-                          <li
-                            key={tok.address}
-                            onClick={() => selectTokenOnDropdown(tok)}
-                          >
-                            <div className="flex items-center gap-2">
-                              {tok.logo && (
-                                <img
-                                  src={tok.logo}
-                                className="h-8"
-                                alt="Token Logo"
-                                 />
-                              )}
-                              <p>{tok.name}</p>
-                            </div>
-                          </li>
-      ))}
+                        {getAvailableTokens(fromChainConfig, toChainConfig)
+                          .filter((tok) => tok.name != token.name)
+                          .map((tok) => (
+                            <li
+                              key={tok.address}
+                              onClick={() => selectTokenOnDropdown(tok)}
+                            >
+                              <div className="flex items-center gap-2">
+                                {tok.logo && (
+                                  <img
+                                    src={tok.logo}
+                                    className="h-8"
+                                    alt="Token Logo"
+                                  />
+                                )}
+                                <p>{tok.name}</p>
+                              </div>
+                            </li>
+                          ))}
                       </ul>
                     </div>
                   </div>
@@ -774,33 +808,50 @@ function App() {
               )}
             </div>
 
+            {!!token && (
+              <div className="flex flex-col gap-1">
+                <div className="divider"></div>
 
-
-      {!!token && (
-        <div className="flex flex-col gap-1">
-        <div className="divider"></div>
-
-        <div className="flex justify-center">
-        <label className="label-text-alt">
-          From <a className="link text-white no-underline" target="_blank" rel="noopener noreferrer" href={token.blockExplorer}>{printAddress(token)}</a> on {fromChainConfig.name}
-        </label>
-        </div>
-      {!!getTargetToken(toChainConfig, token) &&
-        (<div className="flex justify-center">
-                 <label className="label-text-alt">
-
-          To <a className="link text-white no-underline" target="_blank" rel="noopener noreferrer" href={getTargetToken(toChainConfig,token)?.blockExplorer}>{printAddress(getTargetToken(toChainConfig, token))}</a> on {toChainConfig.name}
-                </label>
+                <div className="flex justify-center">
+                  <label className="label-text-alt">
+                    From{" "}
+                    <a
+                      className="link text-white no-underline"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      href={token.blockExplorer}
+                    >
+                      {printAddress(token)}
+                    </a>{" "}
+                    on {fromChainConfig.name}
+                  </label>
                 </div>
-          )}
-        </div>)}
+                {!!getTargetToken(toChainConfig, token) && (
+                  <div className="flex justify-center">
+                    <label className="label-text-alt">
+                      To{" "}
+                      <a
+                        className="link text-white no-underline"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        href={
+                          getTargetToken(toChainConfig, token)?.blockExplorer
+                        }
+                      >
+                        {printAddress(getTargetToken(toChainConfig, token))}
+                      </a>{" "}
+                      on {toChainConfig.name}
+                    </label>
+                  </div>
+                )}
+              </div>
+            )}
 
             {!!fees && !!amount && (
               <>
                 <div className="divider"></div>
                 <div className="flex flex-col gap-1">
-
-                <div className="flex justify-between">
+                  <div className="flex justify-between">
                     <label className="label-text-alt">Fees:</label>
                     <label className="label-text-alt">
                       {formatEther(fees).toString()}{" "}
@@ -822,8 +873,8 @@ function App() {
                     <label className="label-text-alt">
                       {amount} {token.name} + {formatEther(fees).toString()}{" "}
                       {fromChainConfig.nativeTokenSymbol}
-              </label>
-                </div>
+                    </label>
+                  </div>
                 </div>
               </>
             )}
@@ -832,7 +883,7 @@ function App() {
                 <button
                   className="btn w-5/6 mx-10 btn-outline"
                   disabled={showLoadingButton}
-                onClick={async () => {
+                  onClick={async () => {
                     if (approve) {
                       const tx = await approve();
                       if (siteConfig.logTxnHashes) {
@@ -844,18 +895,20 @@ function App() {
                       if (siteConfig.logTxnHashes) {
                         console.log("Approve zero - " + tx.hash);
                       }
-                      setLatestTxn(["approvalclearance", tx.hash])
+                      setLatestTxn(["approvalclearance", tx.hash]);
                     }
-                }}
-                  >
+                  }}
+                >
                   {showLoadingButton ? (
                     <>
                       <span className="loading loading-spinner"></span>
                       Loading
                     </>
-                  ) : (requiresApprovalClearance ? ("Clear existing approval") : (
+                  ) : requiresApprovalClearance ? (
+                    "Clear existing approval"
+                  ) : (
                     "Approve"
-                  ))}
+                  )}
                 </button>
               ) : (
                 <button

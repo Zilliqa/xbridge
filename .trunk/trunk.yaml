@@ -65,6 +65,7 @@ lint:
         - "**/templates/*"
         - "templates/**"
         - "**/templates/**"
+        - smart-contracts/broadcast/**
         - smart-contracts/test/zilbridge/tokens/switcheo/**
 
 actions:
