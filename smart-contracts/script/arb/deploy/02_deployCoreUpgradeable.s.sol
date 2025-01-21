@@ -6,13 +6,14 @@ import {ValidatorManagerUpgradeable} from "contracts/core-upgradeable/ValidatorM
 import {ChainGatewayUpgradeable} from "contracts/core-upgradeable/ChainGatewayUpgradeable.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import "forge-std/console.sol";
+import { MainnetConfig } from "script/mainnetConfig.s.sol";
 
-contract Deployment is Script {
+contract Deployment is Script, MainnetConfig {
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY_OWNER");
         address owner = vm.addr(deployerPrivateKey);
         console.log("Owner is %s", owner);
-        address validator = address(0x250572Ed005BaD64Ff24FbDc0d41875dAF58944f);
+        address validator = address(primaryValidatorAddress);
         console.log("Validator is %s", validator);
 
         address[] memory validators = new address[](1);
