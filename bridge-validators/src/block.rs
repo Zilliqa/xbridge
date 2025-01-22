@@ -112,7 +112,11 @@ impl ChainClient {
                             }
                             if matches {
                                 info!("Event matches; pushing for transit");
-                                result.push(log);
+                                if let Some(v) = self.except.transform_log(&log) {
+                                    result.push(v);
+                                } else {
+                                    info!("Log {log:?} could not be sent for transit due transform_log() failure");
+                                }
                             }
                         }
                     } else {
@@ -202,6 +206,7 @@ impl BlockPolling for ChainClient {
 
         let events: Vec<D> = logs
             .into_iter()
+            .filter_map(|log| self.except.transform_log(&log))
             .map(|log| Ok(parse_log::<D>(log)?))
             .collect::<Result<Vec<D>>>()?;
 
@@ -311,7 +316,7 @@ impl<D: EthEvent> EventListener<D> {
             let mut interval = interval(Duration::from_secs(3));
             // Set this down 1 because we (almost) certainly haven't scanned this block
             // yet...
-            self.current_block = self.chain_client.client.get_block_number().await? - 1;
+            self.current_block = self.get_block_number().await? - 1;
 
             loop {
                 interval.tick().await;

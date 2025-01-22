@@ -1,7 +1,11 @@
 use std::{collections::HashMap, time::Duration};
 
 use anyhow::Result;
-use ethers::{providers::StreamExt, signers::Signer, types::U256};
+use ethers::{
+    providers::StreamExt,
+    signers::Signer,
+    types::{transaction::eip2718::TypedTransaction, U256},
+};
 use libp2p::{Multiaddr, PeerId};
 use tokio::{
     select,
@@ -19,6 +23,7 @@ use crate::{
     signature::SignatureTracker,
     ChainConfig, ChainGateway, ChainGatewayErrors,
 };
+use ethers::middleware::Middleware;
 
 type ChainID = U256;
 
@@ -181,7 +186,7 @@ impl ValidatorNode {
             event.target_chain_id, event.nonce
         );
 
-        let function_call = if client.legacy_gas_estimation_percent.is_some() {
+        let function_call = if client.use_legacy_transactions {
             function_call.legacy()
         } else {
             function_call
@@ -192,17 +197,10 @@ impl ValidatorNode {
 
             // Get gas estimate
             // TODO: refactor configs specifically for zilliqa
-            let _function_call = if let Some(percent) = client.legacy_gas_estimation_percent {
-                let gas_estimate = match function_call.estimate_gas().await {
-                    Ok(estimate) => estimate,
-                    Err(err) => {
-                        warn!("Failed to estimate gas, {:?}", err);
-                        return Ok(());
-                    }
-                };
-                info!("Legacy gas estimation: estimate {:?}", gas_estimate);
-                function_call.clone().gas(gas_estimate * percent / 100) // Apply multiplier
-            } else {
+            let gas_percent = client.gas_estimation_percent.unwrap_or(100);
+
+            // If we're not using legacy txns, try to simulate the txn.
+            if !client.use_legacy_transactions {
                 let function_call = function_call.clone();
                 // `eth_call` does not seem to work on ZQ so it had to be skipped
                 // Simulate call, if fails decode error and exit early
@@ -226,11 +224,56 @@ impl ValidatorNode {
                         }
                     }
                 }
-                function_call
-            };
+            }
 
-            // Make the actual call
-            match _function_call.send().await {
+            // Now we need to estimate gas.
+            let gas_estimate = match function_call.estimate_gas().await {
+                Ok(estimate) => estimate,
+                Err(err) => {
+                    warn!("Failed to estimate gas, {:?} - using built-in default", err);
+                    U256::from(2_000_000)
+                    // return Ok(());
+                }
+            };
+            let gas_to_use = (gas_estimate * U256::from(gas_percent)) / U256::from(100);
+
+            let provider = client.client.provider();
+            let mut txn_to_send = function_call.tx.clone();
+            let outer_tx = txn_to_send.as_eip1559_mut();
+            if let Some(tx) = outer_tx {
+                if let Some(max_val) = client.priority_fee_per_gas_max {
+                    let max_prio = provider
+                        .request::<(), U256>("eth_maxPriorityFeePerGas", ())
+                        .await;
+                    match max_prio {
+                        Ok(val) => {
+                            if val > U256::from(0) {
+                                let to_offer = std::cmp::min(U256::from(max_val), val);
+                                // Must set both of these.
+                                txn_to_send = TypedTransaction::Eip1559(
+                                    tx.clone()
+                                        .max_fee_per_gas(to_offer)
+                                        .max_priority_fee_per_gas(to_offer),
+                                );
+                                info!("maxPriorityFeePerGas() returned a positive value - {val}; setting {to_offer} subject to max limit in config.");
+                            } else {
+                                info!("maxPriorityFeePerGas() returned 0. Using classic gas estimation");
+                            }
+                        }
+                        Err(v) => {
+                            info!("Couldn't quer1y maxPriorityFeePerGas() {v:?} - using default.");
+                        }
+                    }
+                }
+            };
+            info!(
+                "Gas estimation: estimate {:?} calling with gas {:?}",
+                gas_estimate, gas_to_use
+            );
+            txn_to_send.set_gas(gas_to_use);
+
+            //match _function_call.send().await {
+            match client.client.send_transaction(txn_to_send, None).await {
                 Ok(tx) => {
                     info!(
                         "Transaction Sent {}.{} {:?}",

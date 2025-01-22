@@ -3,6 +3,7 @@ mod bridge_node;
 mod client;
 mod crypto;
 mod event;
+mod exceptions;
 mod message;
 mod p2p_node;
 mod signature;
@@ -12,9 +13,14 @@ use std::{fs, path::PathBuf};
 
 use anyhow::Result;
 use clap::Parser;
-use ethers::{contract::abigen, types::Address};
+use ethers::{
+    contract::abigen,
+    types::{Address, Bytes, H256, U256},
+    utils::hex,
+};
 use libp2p::{Multiaddr, PeerId};
 use serde::Deserialize;
+use serde::{de::Error, Deserializer};
 use tracing::info;
 use tracing_subscriber::EnvFilter;
 use validator_node::ValidatorNodeConfig;
@@ -25,16 +31,39 @@ abigen!(ChainGateway, "abi/ChainGateway.json",);
 abigen!(ValidatorManager, "abi/ValidatorManager.json");
 
 #[derive(Debug, Clone, Deserialize)]
+pub struct Exception {
+    pub transaction_id: H256,
+    pub block_hash: H256,
+    pub block_number: u64,
+    pub chain_id: U256,
+    #[serde(deserialize_with = "from_hex")]
+    pub replacement_bytes: Bytes,
+    pub replacement_chainid: H256,
+}
+
+fn from_hex<'de, D>(deserializer: D) -> Result<Bytes, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s: String = Deserialize::deserialize(deserializer)?;
+    let some_bytes = hex::decode(s).map_err(D::Error::custom)?;
+    Ok(Bytes::from(some_bytes))
+}
+
+#[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ChainConfig {
     pub rpc_url: String,
     pub chain_gateway_address: Address,
     pub chain_gateway_block_deployed: u64,
     pub block_instant_finality: Option<bool>,
-    pub legacy_gas_estimation_percent: Option<u64>,
+    pub gas_estimation_percent: Option<u64>,
+    pub use_legacy_transactions: Option<bool>,
     pub scan_behind_blocks: Option<u64>,
     pub use_get_transactions: Option<bool>,
     pub to_block_number: Option<u64>,
+    pub priority_fee_per_gas_max: Option<u64>,
+    pub exceptions: Option<Vec<Exception>>,
 }
 
 #[derive(Debug, Clone, Deserialize)]

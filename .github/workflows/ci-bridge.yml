@@ -24,7 +24,7 @@ jobs:
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
         with:
-          version: nightly
+          version: stable
 
       - name: Run Foundry tests
         run: forge test --gas-limit 2000000000000 # arbitrary, but seemingly no way to disable entirely.

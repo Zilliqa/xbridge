@@ -1,0 +1,54 @@
+{
+  "transactions": [
+    {
+      "hash": null,
+      "transactionType": "CALL",
+      "contractName": null,
+      "contractAddress": "0x99bcb148bec418fc66ebf7aca3668ec1c6289695",
+      "function": "setLockProxyData(address,address)",
+      "arguments": [
+        "0x9a016Ce184a22DbF6c17daA59Eb7d3140DBd1c54",
+        "0x405e42de24Dc4894dB22595D041EBb170dC21D60"
+      ],
+      "transaction": {
+        "from": "0xd89421cd5dd6d6269fbb9307535c386afe11a23e",
+        "to": "0x99bcb148bec418fc66ebf7aca3668ec1c6289695",
+        "gas": "0xd029",
+        "value": "0x0",
+        "input": "0x766a1b7b0000000000000000000000009a016ce184a22dbf6c17daa59eb7d3140dbd1c54000000000000000000000000405e42de24dc4894db22595d041ebb170dc21d60",
+        "nonce": "0x27",
+        "chainId": "0x1"
+      },
+      "additionalContracts": [],
+      "isFixedGasLimit": false
+    },
+    {
+      "hash": null,
+      "transactionType": "CALL",
+      "contractName": "LockProxyProxy",
+      "contractAddress": "0x405e42de24dc4894db22595d041ebb170dc21d60",
+      "function": "addCaller(address)",
+      "arguments": [
+        "0x99bCB148BEC418Fc66ebF7ACA3668ec1C6289695"
+      ],
+      "transaction": {
+        "from": "0xd89421cd5dd6d6269fbb9307535c386afe11a23e",
+        "to": "0x405e42de24dc4894db22595d041ebb170dc21d60",
+        "gas": "0x1e9a3",
+        "value": "0x0",
+        "input": "0x747293fb00000000000000000000000099bcb148bec418fc66ebf7aca3668ec1c6289695",
+        "nonce": "0x28",
+        "chainId": "0x1"
+      },
+      "additionalContracts": [],
+      "isFixedGasLimit": false
+    }
+  ],
+  "receipts": [],
+  "libraries": [],
+  "pending": [],
+  "returns": {},
+  "timestamp": 1736760353,
+  "chain": 1,
+  "commit": "05b8b5a"
+}

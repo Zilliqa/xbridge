@@ -5,6 +5,7 @@ import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.s
 import {MintAndBurnTokenManagerUpgradeable} from "contracts/periphery/MintAndBurnTokenManagerUpgradeable.sol";
 import {MintAndBurnTokenManagerUpgradeableV2} from "contracts/periphery/TokenManagerV2/MintAndBurnTokenManagerUpgradeableV2.sol";
 import {MintAndBurnTokenManagerUpgradeableV3} from "contracts/periphery/TokenManagerV3/MintAndBurnTokenManagerUpgradeableV3.sol";
+import {MintAndBurnTokenManagerUpgradeableV4} from "contracts/periphery/TokenManagerV4/MintAndBurnTokenManagerUpgradeableV4.sol";
 
 abstract contract MintAndBurnTokenManagerDeployer {
     function deployMintAndBurnTokenManagerV1(
@@ -66,10 +67,23 @@ abstract contract MintAndBurnTokenManagerDeployer {
         return MintAndBurnTokenManagerUpgradeableV3(address(proxy));
     }
 
+    function deployMintAndBurnTokenManagerV4(
+        address chainGateway,
+        uint fees
+    ) public returns (MintAndBurnTokenManagerUpgradeableV4) {
+      MintAndBurnTokenManagerUpgradeableV3 proxy = deployMintAndBurnTokenManagerV3(
+          chainGateway,
+          fees
+       );
+      address newImplementation = address(
+          new MintAndBurnTokenManagerUpgradeableV4()
+      );
+      return MintAndBurnTokenManagerUpgradeableV4(address(proxy));
+    }
     function deployLatestMintAndBurnTokenManager(
         address chainGateway,
         uint fees
-    ) public returns (MintAndBurnTokenManagerUpgradeableV3) {
-        return deployMintAndBurnTokenManagerV3(chainGateway, fees);
+    ) public returns (MintAndBurnTokenManagerUpgradeableV4) {
+        return deployMintAndBurnTokenManagerV4(chainGateway, fees);
     }
 }

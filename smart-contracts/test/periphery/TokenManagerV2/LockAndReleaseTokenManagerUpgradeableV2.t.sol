@@ -386,3 +386,4 @@ contract LockAndReleaseTokenManagerUpgradeableV2Tests is
         assertEq(tokenManagerV2.paused(), true);
     }
 }
+

@@ -9,6 +9,34 @@ npm install
 npm run dev
 ```
 
+## Running locally
+
+```sh
+mitmweb --mode reverse:https://data-seed-prebsc-1-s1.binance.org:8545/ \
+  --no-web-open-browser --listen-port 5556 --web-port 5557
+export VITE_BSC_TESTNET_API=http://localhost:5556
+export VITE_BSC_TESTNET_KEY=
+```
+
+This is designed so that if you have a quiknode endpoint, you can set
+`VITE_BSC_TESTNET_KEY` to your key.
+
+## Environment variables required
+
+```sh
+VITE_BSC_MAINNET_API
+VITE_BSC_MAINNET_KEY
+
+VITE_POL_MAINNET_API
+VITE_POL_MAINNET_KEY
+
+VITE_ARB_MAINNET_API
+VITE_ARB_MAINNET_KEY
+
+VITE_ETH_MAINNET_API
+VITE_ETH_MAINNET_KEY
+```
+
 ## How to modify the encoded configuration
 
 The steps to modify secrets are:

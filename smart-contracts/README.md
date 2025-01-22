@@ -97,6 +97,14 @@ classDiagram
   }
 ```
 
+## Testing
+
+When testing, you'll need to artificially raise the gas limit for `forge test` to make the `largeValidatorSet()` tests run:
+
+```sh
+forge test --gas-limit 2000000000000
+```
+
 ## Deployments
 
 ### Core
@@ -277,15 +285,20 @@ Deterministic deployer not available, simple CREATE was used
 
 ### Zilliqa Testnet
 
+See `script/configTestnet.s.sol` for up to date information.
+
 - `ChainId`: 33101
 - `ChainGateway`: `0x7370e69565BB2313C4dA12F9062C282513919230`
 - `ValidatorManager`: `0x782F8afa1bA3137a214D49840688215a8A379fA8`
 - `LockAndReleaseTokenManager`: `0x1509988c41f02014aA59d455c6a0D67b5b50f129`
 - `TestTokenZRC2Proxy`: `0x8618d39a8276D931603c6Bc7306af6A53aD2F1F3`
+- `LockAndReleaseOrNativeTokenManager`: `0xBe90AB2cd65E207F097bEF733F8D239A59698b8A`
 
 Deterministic deployer not available, simple CREATE was used
 
 ### BSC Testnet
+
+See `script/configTestnet.s.sol` for up to date information.
 
 - `ChainId`: 97
 - `ChainGateway`: `0xa9A14C90e53EdCD89dFd201A3bF94D867f8098fE`

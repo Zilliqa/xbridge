@@ -86,6 +86,14 @@ impl BridgeNode {
     }
 
     pub async fn sync_historic_events(&mut self) -> Result<()> {
+        if self.chain_client.chain_gateway_block_deployed == 0 {
+            warn!(
+                "block_deployed=0 , so not synchronising historic events for chain id {}",
+                self.chain_client.chain_id
+            );
+            return Ok(());
+        }
+
         let max_block_specifier = if self.chain_client.block_instant_finality {
             BlockNumber::Latest
         } else {
@@ -103,7 +111,7 @@ impl BridgeNode {
         let to_block_number = if let Some(v) = self.chain_client.to_block_number {
             if v > finalized_block_number.as_u64() {
                 warn!("to_block in config file {} was greater than latest finalized block {} - will terminate at {}",
-                      v, finalized_block_number, v);
+                      v, finalized_block_number, finalized_block_number);
             }
             std::cmp::min(v, finalized_block_number.as_u64())
         } else {
@@ -305,7 +313,7 @@ impl BridgeNode {
         };
 
         if !self.validators.contains(&address) {
-            info!("Address not part of the validator set, {}", address);
+            info!("Address not part of the validator set, {:x}", address);
             return Ok(());
         }
 

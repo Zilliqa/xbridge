@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::{ChainGateway, ValidatorManager};
+use crate::{exceptions, ChainGateway, ValidatorManager};
 use anyhow::Result;
 use ethers::{
     middleware::{MiddlewareBuilder, NonceManagerMiddleware, SignerMiddleware},
@@ -33,10 +33,13 @@ pub struct ChainClient {
     pub wallet: LocalWallet,
     pub chain_gateway_block_deployed: u64,
     pub block_instant_finality: bool,
-    pub legacy_gas_estimation_percent: Option<u64>,
+    pub gas_estimation_percent: Option<u64>,
+    pub use_legacy_transactions: bool,
     pub scan_behind_blocks: u64,
     pub log_strategy: LogStrategy,
     pub to_block_number: Option<u64>,
+    pub priority_fee_per_gas_max: Option<u64>,
+    pub except: exceptions::ExceptionProcessor,
 }
 
 impl fmt::Display for ChainClient {
@@ -102,10 +105,13 @@ impl ChainClient {
             wallet,
             chain_gateway_block_deployed: config.chain_gateway_block_deployed,
             block_instant_finality: config.block_instant_finality.unwrap_or_default(),
-            legacy_gas_estimation_percent: config.legacy_gas_estimation_percent,
+            gas_estimation_percent: config.gas_estimation_percent,
+            use_legacy_transactions: config.use_legacy_transactions.unwrap_or(false),
             scan_behind_blocks: config.scan_behind_blocks.unwrap_or_default(),
             log_strategy: strategy,
             to_block_number: config.to_block_number,
+            priority_fee_per_gas_max: config.priority_fee_per_gas_max,
+            except: exceptions::ExceptionProcessor::new(config, chain_id),
         })
     }
 }
