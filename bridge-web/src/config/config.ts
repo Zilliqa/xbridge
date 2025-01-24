@@ -7,6 +7,8 @@ import {
   polygon,
   arbitrum,
   mainnet,
+  baseSepolia,
+  base
 } from "viem/chains";
 import { USDTAbi } from "../abi/USDT.ts";
 import fps_token from "../assets/fps_token.png";
@@ -37,11 +39,13 @@ export enum TokenManagerType {
 export type Chains =
   | "bsc-testnet"
   | "zq-testnet"
+  | "base-testnet"
   | "bsc"
   | "zq"
   | "polygon"
   | "arbitrum"
-  | "ethereum";
+  | "ethereum"
+  | "base";
 
 export const siteConfig: SiteConfig = {
   addTokensToMetamask: false,
@@ -92,7 +96,7 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
               logo: hrse_token,
               tokenManagerAddress: "0x6D61eFb60C17979816E4cE12CD5D29054E755948",
               tokenManagerType: TokenManagerType.LockAndRelease,
-              bridgesTo: ["bsc"],
+              bridgesTo: ["bsc", "base"],
             },
             {
               name: "FPS",
@@ -521,7 +525,31 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
           blockExplorer: "https://bscscan.com/tx/",
           nativeTokenSymbol: "BNB",
         },
+      "base": {
+        chain: "base",
+        name: "Base",
+        wagmiChain: configureCustomRpcUrl(
+          base,
+          `${import.meta.env.VITE_BASE_MAINNET_API}/${import.meta.env.VITE_BASE_MAINNET_KEY}`,
+        ),
+        chainGatewayAddress: "0x0a190efdC152e0f66d633cE1B20820E4Db1090C3",
+        tokens: [
+          {
+            name: "HRSE",
+            address: "0xfBfd50DB16B3a72db010641EE008A275ef2456ae",
+            blockExplorer: "https://basescan.org/token/0xfBfd50DB16B3a72db010641EE008A275ef2456ae",
+            logo: hrse_token,
+            tokenManagerAddress: "0x5E734196B1fa96710A9e64ed9224dD4830d2A5EE",
+            tokenManagerType: TokenManagerType.MintAndBurn,
+            bridgesTo: ["zq"]
+          }
+        ],
+        chainId: 8453,
+        isZilliqa: false,
+        blockExplorer: "https://basescan.org/tx/",
+        nativeTokenSymbol: "ETH",
       }
+    }
     : {
         "zq-testnet": {
           chain: "zq-testnet",
@@ -577,7 +605,7 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
               logo: test_hrse_token,
               tokenManagerAddress: "0x41823941D00f47Ea1a98D75586915BF828F4a038",
               tokenManagerType: TokenManagerType.ZilBridge,
-              bridgesTo: ["bsc-testnet"],
+              bridgesTo: ["bsc-testnet", "base-testnet"],
             },
             {
               name: "BNB",
@@ -707,7 +735,31 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
           blockExplorer: "https://testnet.bscscan.com/tx/",
           nativeTokenSymbol: "BNB",
         },
-      };
+      "base-testnet": {
+        chain: "base-testnet",
+        name: "Base testnet",
+        wagmiChain: configureCustomRpcUrl(
+          baseSepolia,
+          `${import.meta.env.VITE_BASE_TESTNET_API}/${import.meta.env.VITE_BASE_TESTNET_KEY}`,
+        ),
+        chainGatewayAddress: "0xaa084F6EE63B6f5F4c9F84cDbEC3C690DA00d56D",
+        tokens: [
+          {
+            name: "ZBTST",
+            address: "0x9DFe189ed442cCfB6c929d1b1a25e4c13354C27e",
+            blockExplorer: "https://sepolia.basescan.org/token/0x9DFe189ed442cCfB6c929d1b1a25e4c13354C27e",
+            logo: test_hrse_token,
+            tokenManagerAddress: "0x236D120c50b9498422842E6D7DF0A9D6040507aa",
+            tokenManagerType: TokenManagerType.MintAndBurn,
+            bridgesTo: ["zq-testnet"]
+          },
+        ],
+        chainId: 84532,
+        isZilliqa: false,
+        blockExplorer: "https://sepolia.basescan.org/tx/",
+        nativeTokenSymbol: "ETH",
+      },
+    };
 
 export type ChainConfig = {
   name: string;

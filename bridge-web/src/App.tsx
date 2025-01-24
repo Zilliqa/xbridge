@@ -287,7 +287,7 @@ function App() {
       account: account!,
       value: transferAmount ?? 0n,
       functionName: "transfer",
-      gas: 6_000_000n,
+      gas: 8_000_000n,
       type: "legacy",
     },
   });
