@@ -70,7 +70,7 @@ function getAvailableTokens(
 
 function App() {
   const { address: account } = useAccount();
-  const { switchNetwork } = useSwitchNetwork({
+  const { chains: walletChains, error: switchNetworkError, switchNetworkLoading: isLoading, switchNetworkPendingId: pendingChainId, switchNetwork } = useSwitchNetwork({
     onError({}) {
       alert("Failed to switch networks");
     },
@@ -535,6 +535,8 @@ function App() {
     }
   }, [isWaitingForTxn, latestTxn, loadingId]);
 
+  const walletConnected = !!chain;
+
   const showLoadingButton =
     isLoadingBridgeFromZilliqa ||
     isLoadingBridge ||
@@ -596,7 +598,7 @@ function App() {
                       className="ml-auto"
                       color="white"
                     />
-                  </div>
+      </div>
                   <ul
                     tabIndex={0}
                     className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-full"
@@ -608,7 +610,8 @@ function App() {
                       .map(({ chain, name }) => (
                         <li
                           key={`from${chain}`}
-                          onClick={() => {
+                        onClick={() => {
+                          console.log(`fromChainConfig ${fromChainConfig.chain} chain ${chain}`);
                             if (fromChainConfig.chain != chain) {
                               // If this chain is the home network
                               let goToChain = toChainConfig.chain;
@@ -629,7 +632,12 @@ function App() {
                               } else {
                                 goToChain = siteConfig.homeNetwork;
                               }
-                              setPendingChains([chain, goToChain]);
+                              if (walletConnected) {
+                                setPendingChains([chain, goToChain]);
+                              } else {
+                                setPendingChains([chain, goToChain]);
+                                setCurrentChains([chain, goToChain]);
+                              }
                             }
                             blur();
                           }}
@@ -689,7 +697,12 @@ function App() {
                             } else {
                               nextFromChain = siteConfig.homeNetwork;
                             }
-                            setPendingChains([nextFromChain, chain]);
+                            if (walletConnected) {
+                              setPendingChains([nextFromChain, chain]);
+                            } else {
+                              setPendingChains([nextFromChain, chain]);
+                              setCurrentChains([nextFromChain, chain]);
+                            }
                             blur();
                           }}
                         >
@@ -878,8 +891,11 @@ function App() {
                 </div>
               </>
             )}
-            <div className="card-actions mt-auto pt-4">
-              {!hasEnoughAllowance && hasEnoughBalance ? (
+      <div className="card-actions mt-auto pt-4">
+      { !walletConnected ? (
+        <button className="btn w-5/6 mx-10 btn-outline" disabled>Please connect your wallet</button>
+      ) :
+        (!hasEnoughAllowance && hasEnoughBalance ? (
                 <button
                   className="btn w-5/6 mx-10 btn-outline"
                   disabled={showLoadingButton}
@@ -938,7 +954,7 @@ function App() {
                     "Bridge"
                   )}
                 </button>
-              )}
+        ))}
             </div>
             {paused && (
               <div role="alert" className="alert alert-warning mt-3">
