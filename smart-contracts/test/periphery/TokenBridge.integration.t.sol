@@ -4,8 +4,8 @@ pragma solidity 0.8.20;
 import {Tester, Vm} from "test/Tester.sol";
 import {ITokenManagerStructs, TokenManagerUpgradeable} from "contracts/periphery/TokenManagerUpgradeable.sol";
 import {LockAndReleaseOrNativeTokenManagerUpgradeableV5} from "contracts/periphery/TokenManagerV5/LockAndReleaseOrNativeTokenManagerUpgradeableV5.sol";
-import {MintAndBurnTokenManagerUpgradeableV4} from "contracts/periphery/TokenManagerV4/MintAndBurnTokenManagerUpgradeableV4.sol";
-import {BridgedToken} from "contracts/periphery/BridgedToken.sol";
+import {MintAndBurnTokenManagerUpgradeableV6} from "contracts/periphery/TokenManagerV6/MintAndBurnTokenManagerUpgradeableV6.sol";
+import {BridgedTokenV3} from "contracts/periphery/BridgedTokenV3.sol";
 import {CallMetadata, IRelayerEvents} from "contracts/core/Relayer.sol";
 import {ValidatorManager} from "contracts/core/ValidatorManager.sol";
 import {ChainGateway} from "contracts/core/ChainGateway.sol";
@@ -37,8 +37,8 @@ contract TokenBridgeIntegrationTests is
     ChainGateway sourceChainGateway;
     ValidatorManager sourceValidatorManager;
 
-    MintAndBurnTokenManagerUpgradeableV4 remoteTokenManager;
-    BridgedToken bridgedToken;
+    MintAndBurnTokenManagerUpgradeableV6 remoteTokenManager;
+    BridgedTokenV3 bridgedToken;
     ChainGateway remoteChainGateway;
     ValidatorManager remoteValidatorManager;
 
