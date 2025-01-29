@@ -6,8 +6,8 @@ import {ITokenManagerStructs, TokenManagerUpgradeable} from "contracts/periphery
 import {LockAndReleaseOrNativeTokenManagerUpgradeableV3} from "contracts/periphery/TokenManagerV3/LockAndReleaseOrNativeTokenManagerUpgradeableV3.sol";
 import {LockAndReleaseOrNativeTokenManagerUpgradeableV5} from "contracts/periphery/TokenManagerV5/LockAndReleaseOrNativeTokenManagerUpgradeableV5.sol";
 import {MintAndBurnTokenManagerUpgradeableV3} from "contracts/periphery/TokenManagerV3/MintAndBurnTokenManagerUpgradeableV3.sol";
-import {MintAndBurnTokenManagerUpgradeableV5} from "contracts/periphery/TokenManagerV5/MintAndBurnTokenManagerUpgradeableV5.sol";
-import {BridgedTokenV2} from "contracts/periphery/BridgedTokenV2.sol";
+import {MintAndBurnTokenManagerUpgradeableV6} from "contracts/periphery/TokenManagerV6/MintAndBurnTokenManagerUpgradeableV6.sol";
+import {BridgedTokenV3} from "contracts/periphery/BridgedTokenV3.sol";
 import {CallMetadata, IRelayerEvents} from "contracts/core/Relayer.sol";
 import {ValidatorManager} from "contracts/core/ValidatorManager.sol";
 import {ChainGateway} from "contracts/core/ChainGateway.sol";
@@ -39,8 +39,8 @@ contract TokenBridgeNativeTests is
     ChainGateway sourceChainGateway;
     ValidatorManager sourceValidatorManager;
 
-    MintAndBurnTokenManagerUpgradeableV5 remoteTokenManager;
-    BridgedTokenV2 bridgedToken;
+    MintAndBurnTokenManagerUpgradeableV6 remoteTokenManager;
+    BridgedTokenV3 bridgedToken;
     ChainGateway remoteChainGateway;
     ValidatorManager remoteValidatorManager;
 

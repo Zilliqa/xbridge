@@ -7,6 +7,7 @@ import {MintAndBurnTokenManagerUpgradeableV2} from "contracts/periphery/TokenMan
 import {MintAndBurnTokenManagerUpgradeableV3} from "contracts/periphery/TokenManagerV3/MintAndBurnTokenManagerUpgradeableV3.sol";
 import {MintAndBurnTokenManagerUpgradeableV4} from "contracts/periphery/TokenManagerV4/MintAndBurnTokenManagerUpgradeableV4.sol";
 import {MintAndBurnTokenManagerUpgradeableV5} from "contracts/periphery/TokenManagerV5/MintAndBurnTokenManagerUpgradeableV5.sol";
+import {MintAndBurnTokenManagerUpgradeableV6} from "contracts/periphery/TokenManagerV6/MintAndBurnTokenManagerUpgradeableV6.sol";
 
 abstract contract MintAndBurnTokenManagerDeployer {
     function deployMintAndBurnTokenManagerV1(
@@ -97,10 +98,24 @@ abstract contract MintAndBurnTokenManagerDeployer {
       return MintAndBurnTokenManagerUpgradeableV5(address(proxy));
     }
 
+    function deployMintAndBurnTokenManagerV6(
+        address chainGateway,
+        uint fees
+     ) public returns (MintAndBurnTokenManagerUpgradeableV6) {
+      MintAndBurnTokenManagerUpgradeableV3 proxy = deployMintAndBurnTokenManagerV3(
+          chainGateway, fees);
+      // We can go straight to v6.
+      address newImplementation = address(
+          new MintAndBurnTokenManagerUpgradeableV6()
+                                          );
+      proxy.upgradeToAndCall(newImplementation, "");
+      return MintAndBurnTokenManagerUpgradeableV6(address(proxy));
+    }
+
     function deployLatestMintAndBurnTokenManager(
         address chainGateway,
         uint fees
-    ) public returns (MintAndBurnTokenManagerUpgradeableV5) {
-       return deployMintAndBurnTokenManagerV5(chainGateway, fees);
+    ) public returns (MintAndBurnTokenManagerUpgradeableV6) {
+       return deployMintAndBurnTokenManagerV6(chainGateway, fees);
     }
 }
