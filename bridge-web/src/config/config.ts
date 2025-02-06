@@ -585,7 +585,7 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
               logo: test_hrse_token,
               tokenManagerAddress: "0x1509988c41f02014aA59d455c6a0D67b5b50f129",
               tokenManagerType: TokenManagerType.LockAndRelease,
-              bridgesTo: ["bsc-testnet", "base-testnet"],
+              bridgesTo: ["bsc-testnet"],
             },
             {
               name: "TST2",
@@ -605,7 +605,7 @@ export const chainConfigs: Partial<Record<Chains, ChainConfig>> =
               logo: test_hrse_token,
               tokenManagerAddress: "0x41823941D00f47Ea1a98D75586915BF828F4a038",
               tokenManagerType: TokenManagerType.ZilBridge,
-              bridgesTo: ["bsc-testnet"],
+              bridgesTo: ["bsc-testnet", "base-testnet"],
             },
             {
               name: "BNB",
