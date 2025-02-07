@@ -1,0 +1,55 @@
+{
+  "transactions": [
+    {
+      "hash": null,
+      "transactionType": "CALL",
+      "contractName": null,
+      "contractAddress": "0x6d61efb60c17979816e4ce12cd5d29054e755948",
+      "function": "registerToken(address,(address,address,uint256))",
+      "arguments": [
+        "0x63B991C17010C21250a0eA58C6697F696a48cdf3",
+        "(0xfBfd50DB16B3a72db010641EE008A275ef2456ae, 0x5E734196B1fa96710A9e64ed9224dD4830d2A5EE, 8453)"
+      ],
+      "transaction": {
+        "from": "0xd89421cd5dd6d6269fbb9307535c386afe11a23e",
+        "to": "0x6d61efb60c17979816e4ce12cd5d29054e755948",
+        "gas": "0x23458",
+        "value": "0x0",
+        "input": "0x8bc76f7400000000000000000000000063b991c17010c21250a0ea58c6697f696a48cdf3000000000000000000000000fbfd50db16b3a72db010641ee008a275ef2456ae0000000000000000000000005e734196b1fa96710a9e64ed9224dd4830d2a5ee0000000000000000000000000000000000000000000000000000000000002105",
+        "nonce": "0x90",
+        "chainId": "0x8001"
+      },
+      "additionalContracts": [],
+      "isFixedGasLimit": false
+    },
+    {
+      "hash": null,
+      "transactionType": "CALL",
+      "contractName": null,
+      "contractAddress": "0x4fa6148c9dabc7a737422fb1b3ab9088c878d26c",
+      "function": "removeToken(address,uint256)",
+      "arguments": [
+        "0xfBfd50DB16B3a72db010641EE008A275ef2456ae",
+        "8453"
+      ],
+      "transaction": {
+        "from": "0xd89421cd5dd6d6269fbb9307535c386afe11a23e",
+        "to": "0x4fa6148c9dabc7a737422fb1b3ab9088c878d26c",
+        "gas": "0xd4bb",
+        "value": "0x0",
+        "input": "0x13baf1e6000000000000000000000000fbfd50db16b3a72db010641ee008a275ef2456ae0000000000000000000000000000000000000000000000000000000000002105",
+        "nonce": "0x91",
+        "chainId": "0x8001"
+      },
+      "additionalContracts": [],
+      "isFixedGasLimit": false
+    }
+  ],
+  "receipts": [],
+  "libraries": [],
+  "pending": [],
+  "returns": {},
+  "timestamp": 1737719836,
+  "chain": 32769,
+  "commit": "b05cfaa"
+}

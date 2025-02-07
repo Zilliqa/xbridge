@@ -10,6 +10,8 @@ abstract contract MainnetConfig {
   uint public constant polChainId = 137;
   uint public constant arbChainId = 42161;
   uint public constant ethChainId = 1;
+  uint public constant baseChainId = 8453;
+
 
   address public constant primaryValidatorAddress = 0x250572Ed005BaD64Ff24FbDc0d41875dAF58944f;
   address public constant deployerAddress = 0xD89421Cd5dD6d6269FbB9307535c386AFe11a23E;
@@ -53,4 +55,14 @@ abstract contract MainnetConfig {
   address public constant ethChainGatewayAddress = 0x49EA20823c953dd00619E2090DFa3965C89269C3;
   address public constant ethLockAndReleaseOrNativeTokenManagerUpgradeable = 0x2EE8e8D7C113Bb7c180f4755f06ed50bE53BEDe5;
   address public constant ethLockProxyTokenManager = 0x99bCB148BEC418Fc66ebF7ACA3668ec1C6289695;
+
+  address public constant baseChainGatewayAddress = 0x0a190efdC152e0f66d633cE1B20820E4Db1090C3;
+  address public constant baseValidatorManagerAddress = 0xFbCaeB4742Dd34C222f726BADaD1955617078Cf8;
+  address public constant baseLockAndReleaseOrNativeTokenManagerUpgradeable = 0xc99ECB82a27B45592eA02ACe9e3C42050f3c00C0;
+  address public constant baseMintAndBurnTokenManagerUpgradeable = 0x5E734196B1fa96710A9e64ed9224dD4830d2A5EE;
+
+  // Tokens
+  address public constant zqHRSETokenAddress = 0x63B991C17010C21250a0eA58C6697F696a48cdf3;
+  address public constant baseHRSETokenAddress = 0xfBfd50DB16B3a72db010641EE008A275ef2456ae;
+
 }

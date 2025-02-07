@@ -24,7 +24,7 @@ chain_gateway_address = "0xa9A14C90e53EdCD89dFd201A3bF94D867f8098fE"
 ## Most chains seem to have problems with this, and so this key exists to allow you to
 ## submit legacy_gas_estimation_percent percent of the estimated gas, so as to ensure that
 ## relay txns don't run out of gas. A value of 130-150 seems to work for coin transfers.
-legacy_gas_estimation_percent = 130
+gas_estimation_percent = 130
 ## If this key is present, we delay scanning a block until N blocks ahead of it have been
 ## produced, to give some chains time to propagate block data to the nodes from which we are
 ## attempting to read them.
@@ -70,7 +70,16 @@ chain_gateway_block_deployed = 6542681
 rpc_url = "https://dev-api.zilliqa.com"
 chain_gateway_address = "0x7370e69565BB2313C4dA12F9062C282513919230"
 block_instant_finality = true
-legacy_gas_estimation_percent = 130
+gas_estimation_percent = 130
+
+[[chain_configs]]
+# Base sepolia
+rpc_url = "https://sepolia.base.org"
+chain_gateway_address = "0xaa084F6EE63B6f5F4c9F84cDbEC3C690DA00d56D"
+gas_estimation_percent = 150
+chain_gateway_block_deployed = 20931700
+# to_block_number=
+
 
 # Zilliqa Mainnet
 # [[chain_configs]]

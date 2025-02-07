@@ -5,6 +5,8 @@ pragma solidity ^0.8.20;
  * chains that I haven't,  yet.
  */
 abstract contract TestnetConfig {
+  address public constant primaryValidatorAddress = 0xb494D016F2CF329224e2dB445aA748Cf96C18C29;
+ 
   // bsc testnet
   address public constant bscEthCrossChainDataAddress = 0xd77a160f954AbF8154f80EA53378ACa55bcAD548;
 
@@ -64,5 +66,13 @@ abstract contract TestnetConfig {
   // Scaled token test
   address public constant zqScaledTokenERC20Address = 0xd6B5231DC7A5c37461A21A8eB42610e09113aD1a;
   address public constant bscBridgedScaledTokenAddress = 0xBA97f1F72b217BdC5684Ec175bE5615C0E50aBda;
+
+  // Base sepolia
+  uint public constant baseChainId = 84532;
+  address public constant baseChainGatewayAddress = 0xaa084F6EE63B6f5F4c9F84cDbEC3C690DA00d56D;
+  address public constant baseValidatorManagerAddress =  0xC2A3A607a5E48fF65900a466B16F8F69402ed467;
+  address public constant baseLockAndReleaseOrNativeTokenManagerUpgradeable = 0x3Be6E686397f04901Be15e3e02EDC0c7565e4b13;
+  address public constant baseMintAndBurnTokenManagerUpgradeable = 0x236D120c50b9498422842E6D7DF0A9D6040507aa;
+  address public constant basezbTestTokenAddress = 0x9DFe189ed442cCfB6c929d1b1a25e4c13354C27e;
 
 }
