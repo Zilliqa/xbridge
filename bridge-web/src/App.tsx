@@ -576,7 +576,7 @@ function App() {
 
   return (
     <>
-      <div className="h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center pt-16 md:pt-20 lg:pt-24">
         <Navbar />
         <div className="card min-h-96 bg-neutral shadow-xl">
           <div className="card-body">
