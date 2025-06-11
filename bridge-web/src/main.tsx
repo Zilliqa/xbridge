@@ -8,7 +8,7 @@ import "./index.css";
 
 import { RainbowKitProvider, darkTheme } from "@rainbow-me/rainbowkit";
 import { WagmiConfig } from "wagmi";
-import { chains, wagmiConfig } from "./config/wallet.ts";
+import { wagmiConfig } from "./config/wallet.ts";
 import { ToastContainer, Bounce } from "react-toastify";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
@@ -20,7 +20,6 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           accentColorForeground: "white",
         })}
         showRecentTransactions
-        chains={chains}
       >
         <App />
         <ToastContainer
