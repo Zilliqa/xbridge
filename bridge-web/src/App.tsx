@@ -63,7 +63,6 @@ function getAvailableTokens(
       tok.bridgesTo.find((network) => network == toChainConfig.chain),
     )
     .sort((a, b) => a.name.localeCompare(b.name, "en"));
-  //let names = avail.map((x) => (x.name));
   return avail;
 }
 
@@ -95,24 +94,19 @@ function App() {
   const toChainConfig = chainConfigs[currentChains[1]]!;
   const pendingFromChainConfig = chainConfigs[pendingChains[0]]!;
   const pendingToChainConfig = chainConfigs[pendingChains[1]]!;
-  // Don't query whilst we're switching chains.
   const pendingChainSwitch = chainId != fromChainConfig?.wagmiChain?.id;
 
   const fromChainClient = usePublicClient({ chainId: fromChainConfig.chainId });
   const toChainClient = usePublicClient({ chainId: toChainConfig.chainId });
 
-  // This fires when we set pendingChainsConfig() to trigger a from network switch.
   useEffect(() => {
     switchChain && switchChain({ chainId: pendingFromChainConfig.chainId });
   }, [pendingChains, switchChain]);
 
-  // This fires when switchNetwork() has completed and the chain has been changed in the wallet, or
-  // when we just change the to network.
   useEffect(() => {
     let goTo = pendingToChainConfig.chain;
     let goFrom = pendingFromChainConfig.chain;
     if (chainId !== fromChainConfig.wagmiChain?.id) {
-      // Because we can fire this on our own by switching networks in the wallet.
       const newFromChain = Object.values(chainConfigs).find(
         (chainConfig) => chainConfig.chainId == chainId,
       );
@@ -126,8 +120,8 @@ function App() {
           if (goFrom != siteConfig.homeNetwork) {
             goTo = goFrom;
           } else {
-            let firstNetwork = Object.values(chainConfigs).find(
-              (config) => config.chain !== siteConfig.homeNetwork, // Corrected: compare chain names
+            const firstNetwork = Object.values(chainConfigs).find(
+              (config) => config.chain !== siteConfig.homeNetwork, 
             );
             goTo = firstNetwork!.chain;
           }
@@ -140,7 +134,6 @@ function App() {
     }
   }, [chainId, pendingToChainConfig, fromChainConfig.wagmiChain?.id, toChainConfig.chain, fromChainConfig.chain]);
 
-  // Fires when currentChains is set - chooses a token.
   useEffect(() => {
     const availableTokens = getAvailableTokens(fromChainConfig, toChainConfig);
     const newToken = availableTokens.find((tok) => tok.name == token.name);
@@ -181,7 +174,6 @@ function App() {
     address: account,
     query: {
       enabled: !!account && !!token.address && !pendingChainSwitch,
-      // watch: true, // Removed as it's not a direct query option in TanStack Query v5
     },
   });
 
@@ -192,22 +184,20 @@ function App() {
     address: token.address ?? zeroAddress,
     query: {
       enabled: !!account && !!token.address && !pendingChainSwitch,
-      // watch: true, // Removed
     },
   });
 
   contractBalance = contractBalance ?? BigInt(0);
-  let nativeBalance =
+  const nativeBalance =
     nativeBalanceData && nativeBalanceData.value
       ? nativeBalanceData.value
       : BigInt(0);
-  let nativeDecimals =
+  const nativeDecimals =
     nativeBalanceData && nativeBalanceData.decimals
       ? nativeBalanceData.decimals
       : 0;
   const balance = isNative ? nativeBalance : contractBalance;
   const decimals = isNative ? nativeDecimals : contractDecimals;
-  // We always say that native token transfers have enough allowance.
   const { data: allowance } = useContractRead({
     abi: erc20Abi,
     functionName: "allowance",
@@ -220,7 +210,6 @@ function App() {
         !!token.address &&
         !!token.tokenManagerAddress &&
         !pendingChainSwitch,
-      // watch: true, // Removed
     },
   });
   const hasEnoughAllowance =
@@ -242,7 +231,7 @@ function App() {
     transferAmount = transferAmount + BigInt(toTransfer);
   }
 
-  let addressForTokenManager = isNative
+  const addressForTokenManager = isNative
     ? zeroAddress
     : getAddress(token.address ?? zeroAddress);
 
@@ -251,10 +240,8 @@ function App() {
   const { writeContractAsync: approveZero, isPending: isLoadingApproveZero } = useContractWrite();
   const { writeContractAsync: approve, isPending: isLoadingApprove } = useContractWrite();
 
-  // Bit horrid - if approve isn't available, we'll assume we have to clear the old
-  // approval first. USDT on ethereum requires this.
   const requiresApprovalClearance =
-    approve == undefined && token.needsAllowanceClearing; // This logic might need revisiting due to usePrepareContractWrite removal
+    approve == undefined && token.needsAllowanceClearing; 
 
   const canBridge =
     (siteConfig.allowZeroValueTransfers || isAmountNonZero) &&
@@ -278,7 +265,6 @@ function App() {
 
   useEffect(() => {
     if (error) {
-      // Little hack to get Zilliqa to refetch the pending txns
       refetch();
     }
   }, [error, refetch]);
@@ -542,13 +528,12 @@ function App() {
                           key={`from${chain}`}
                           onClick={() => {
                             if (fromChainConfig.chain != chain) {
-                              // If this chain is the home network
                               let goToChain = toChainConfig.chain;
                               if (chain == siteConfig.homeNetwork) {
                                 if (
                                   toChainConfig.chain == siteConfig.homeNetwork
                                 ) {
-                                  let firstNetwork = Object.values(
+                                  const firstNetwork = Object.values(
                                     chainConfigs,
                                   ).find(
                                     (config) =>
@@ -556,14 +541,12 @@ function App() {
                                   );
                                   goToChain = firstNetwork!.chain;
                                 } else {
-                                  // Ignore
                                 }
                               } else {
                                 goToChain = siteConfig.homeNetwork;
                               }
                               setPendingChains([chain, goToChain]);
                             }
-                            blur();
                           }}
                         >
                           <a>{name}</a>
@@ -595,19 +578,12 @@ function App() {
                         <li
                           key={`to${chain}`}
                           onClick={() => {
-                            // Sets the to chain.
-                            //  - if the new to chain is the home network
-                            //     - if the from chain is the home network, set it to the first non-home network.
-                            //     - if the from chain is not the home network, ignore.
-                            //  - if the new to chain is not the home network
-                            //     - set the from chain to the home network.
                             let nextFromChain = fromChainConfig.chain;
                             if (chain === siteConfig.homeNetwork) {
                               if (
                                 toChainConfig.chain === siteConfig.homeNetwork
                               ) {
-                                // Set the fromChain to the first non-home network, if there is one.
-                                let firstNetwork = Object.values(
+                                const firstNetwork = Object.values(
                                   chainConfigs,
                                 ).find(
                                   (config) =>
@@ -615,14 +591,12 @@ function App() {
                                 );
                                 nextFromChain = firstNetwork!.chain;
                               } else {
-                                // Flip from and to chains.
                                 nextFromChain = toChainConfig.chain;
                               }
                             } else {
                               nextFromChain = siteConfig.homeNetwork;
                             }
                             setPendingChains([nextFromChain, chain]);
-                            blur();
                           }}
                         >
                           <a>{name}</a>

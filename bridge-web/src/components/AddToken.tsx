@@ -6,7 +6,6 @@ import { getConnectorClient } from "@wagmi/core";
 import { wagmiConfig } from "../config/wallet";
 import { toast } from "react-toastify";
 import { FC } from "react";
-// import { EIP1193Provider } from "viem"; // No longer needed
 
 interface AddTokenProps {
   info: TokenConfig;
@@ -19,10 +18,10 @@ const AddToken: FC<{ info: TokenConfig; decimals: number; symbol: string }> = ({
   decimals,
   symbol,
 }: AddTokenProps) => {
-  const { connector, chainId } = useAccount(); // Added chainId
+  const { connector, chainId } = useAccount(); 
 
-  let addToMetamask = async () => {
-    let toastOpts = { autoClose: 5000 };
+  const addToMetamask = async () => {
+    const toastOpts = { autoClose: 5000 };
     if (!connector || !chainId) {
       toast.error("Wallet not connected or chainId is undefined.", toastOpts);
       return;
@@ -30,15 +29,12 @@ const AddToken: FC<{ info: TokenConfig; decimals: number; symbol: string }> = ({
     try {
       toast.info("Confirm token add in wallet", toastOpts);
       const client = await getConnectorClient(wagmiConfig, { chainId }); // pass chainId
-      // Type guard to ensure client is not undefined (though getConnectorClient should throw if connector not found)
       if (!client) {
         toast.error("Could not get wallet client.", toastOpts);
         return;
       }
-      // const provider = client.transport?.provider as EIP1193Provider | undefined; // client itself is the provider
-
-      // if (provider && typeof provider.request === 'function') {
-      const wasAdded = await client.request({ // Use client.request directly
+      
+      const wasAdded = await client.request({ 
         method: "wallet_watchAsset",
         params: {
           type: "ERC20",
@@ -56,16 +52,13 @@ const AddToken: FC<{ info: TokenConfig; decimals: number; symbol: string }> = ({
       } else {
         toast.error(`Couldn't add token ${info.name}. User may have rejected the request.`, toastOpts);
       }
-      // } else {
-      //   toast.error("Wallet provider is not available or does not support direct requests.", toastOpts);
-      // }
     } catch (e: unknown) {
       console.error("Error watching asset:", e);
       toast.error(`Failed to add token ${info.name}: ${(e as Error)?.message || 'Unknown error'}`, toastOpts);
     }
   };
 
-  var result = <div />;
+  let result = <div />;
   if (connector) {
     result = (
       <button
