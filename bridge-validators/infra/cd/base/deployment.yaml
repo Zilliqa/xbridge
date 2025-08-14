@@ -6,7 +6,7 @@ metadata:
   labels:
     "app.kubernetes.io/name": "validator-node0"
 spec:
-  replicas: 1
+  replicas: 0
   selector:
     matchLabels:
       "app.kubernetes.io/name": "validator-node0"
