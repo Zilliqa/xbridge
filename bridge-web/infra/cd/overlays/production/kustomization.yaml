@@ -5,6 +5,7 @@ namespace: xbridge-fe-prd
 
 resources:
   - ../../base
+  - backendpolicy.yaml
   - httproute.yaml
 
 patches:
