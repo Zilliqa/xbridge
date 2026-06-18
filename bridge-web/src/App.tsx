@@ -13,17 +13,16 @@ import {
   siteConfig,
 } from "./config/config";
 import {
-  erc20ABI,
   useAccount,
   useBalance,
   useContractRead,
   useContractWrite,
-  useNetwork,
-  usePrepareContractWrite,
+  useChainId,
   usePublicClient,
-  useSwitchNetwork,
-  useWaitForTransaction,
+  useSwitchChain,
+  useWaitForTransactionReceipt,
 } from "wagmi";
+import { erc20Abi } from "viem";
 import {
   getAddress,
   formatEther,
@@ -64,18 +63,13 @@ function getAvailableTokens(
       tok.bridgesTo.find((network) => network == toChainConfig.chain),
     )
     .sort((a, b) => a.name.localeCompare(b.name, "en"));
-  //let names = avail.map((x) => (x.name));
   return avail;
 }
 
 function App() {
   const { address: account } = useAccount();
-  const { switchNetwork } = useSwitchNetwork({
-    onError({}) {
-      alert("Failed to switch networks");
-    },
-  });
-  const { chain } = useNetwork();
+  const { switchChain } = useSwitchChain();
+  const chainId = useChainId();
 
   const [pendingChains, setPendingChains] = useState<[Chains, Chains]>([
     chainConfigs[siteConfig.defaultFromNetwork]!.chain,
@@ -100,26 +94,21 @@ function App() {
   const toChainConfig = chainConfigs[currentChains[1]]!;
   const pendingFromChainConfig = chainConfigs[pendingChains[0]]!;
   const pendingToChainConfig = chainConfigs[pendingChains[1]]!;
-  // Don't query whilst we're switching chains.
-  const pendingChainSwitch = chain?.id != fromChainConfig?.wagmiChain?.id;
+  const pendingChainSwitch = chainId != fromChainConfig?.wagmiChain?.id;
 
   const fromChainClient = usePublicClient({ chainId: fromChainConfig.chainId });
   const toChainClient = usePublicClient({ chainId: toChainConfig.chainId });
 
-  // This fires when we set pendingChainsConfig() to trigger a from network switch.
   useEffect(() => {
-    switchNetwork && switchNetwork(pendingFromChainConfig.chainId);
-  }, [pendingChains, switchNetwork]);
+    switchChain && switchChain({ chainId: pendingFromChainConfig.chainId });
+  }, [pendingChains, switchChain]);
 
-  // This fires when switchNetwork() has completed and the chain has been changed in the wallet, or
-  // when we just change the to network.
   useEffect(() => {
     let goTo = pendingToChainConfig.chain;
     let goFrom = pendingFromChainConfig.chain;
-    if (chain !== fromChainConfig.wagmiChain) {
-      // Because we can fire this on our own by switching networks in the wallet.
+    if (chainId !== fromChainConfig.wagmiChain?.id) {
       const newFromChain = Object.values(chainConfigs).find(
-        (chainConfig) => chainConfig.chainId == chain?.id,
+        (chainConfig) => chainConfig.chainId == chainId,
       );
       if (!newFromChain?.chain) {
         return;
@@ -131,8 +120,8 @@ function App() {
           if (goFrom != siteConfig.homeNetwork) {
             goTo = goFrom;
           } else {
-            let firstNetwork = Object.values(chainConfigs).find(
-              (config) => config.chain !== siteConfig.homeNetwork,
+            const firstNetwork = Object.values(chainConfigs).find(
+              (config) => config.chain !== siteConfig.homeNetwork, 
             );
             goTo = firstNetwork!.chain;
           }
@@ -143,9 +132,8 @@ function App() {
     if (toChainConfig.chain != goTo || fromChainConfig.chain != goFrom) {
       setCurrentChains([goFrom, goTo]);
     }
-  }, [chain, pendingToChainConfig]);
+  }, [chainId, pendingToChainConfig, fromChainConfig.wagmiChain?.id, toChainConfig.chain, fromChainConfig.chain]);
 
-  // Fires when currentChains is set - chooses a token.
   useEffect(() => {
     const availableTokens = getAvailableTokens(fromChainConfig, toChainConfig);
     const newToken = availableTokens.find((tok) => tok.name == token.name);
@@ -157,70 +145,72 @@ function App() {
   }, [currentChains, toChainConfig.tokens, fromChainConfig.tokens]);
 
   const { data: contractDecimals } = useContractRead({
-    abi: erc20ABI,
+    abi: erc20Abi,
     functionName: "decimals",
     address: token.address ?? zeroAddress,
-    enabled: !!token.address && !pendingChainSwitch,
+    query: { enabled: !!token.address && !pendingChainSwitch },
   });
   const { data: contractSymbol } = useContractRead({
-    abi: erc20ABI,
+    abi: erc20Abi,
     functionName: "symbol",
     address: token.address ?? zeroAddress,
-    enabled: !!token.address && !pendingChainSwitch,
+    query: { enabled: !!token.address && !pendingChainSwitch },
   });
   const { data: fees } = useContractRead({
     abi: tokenManagerAbi,
     functionName: "getFees",
     address: token.tokenManagerAddress,
-    enabled: !!token.tokenManagerAddress && !pendingChainSwitch,
+    query: { enabled: !!token.tokenManagerAddress && !pendingChainSwitch },
   });
   const { data: paused } = useContractRead({
     abi: tokenManagerAbi,
     functionName: "paused",
     address: token.tokenManagerAddress,
-    enabled: !!token.tokenManagerAddress && !pendingChainSwitch,
+    query: { enabled: !!token.tokenManagerAddress && !pendingChainSwitch },
   });
 
   const isNative = token.address === null;
   const { data: nativeBalanceData } = useBalance({
     address: account,
-    enabled: !!account && !!token.address && !pendingChainSwitch,
-    watch: true,
+    query: {
+      enabled: !!account && !!token.address && !pendingChainSwitch,
+    },
   });
 
   let { data: contractBalance } = useContractRead({
-    abi: erc20ABI,
+    abi: erc20Abi,
     functionName: "balanceOf",
     args: account ? [account!] : undefined,
     address: token.address ?? zeroAddress,
-    enabled: !!account && !!token.address && !pendingChainSwitch,
-    watch: true,
+    query: {
+      enabled: !!account && !!token.address && !pendingChainSwitch,
+    },
   });
 
   contractBalance = contractBalance ?? BigInt(0);
-  let nativeBalance =
+  const nativeBalance =
     nativeBalanceData && nativeBalanceData.value
       ? nativeBalanceData.value
       : BigInt(0);
-  let nativeDecimals =
+  const nativeDecimals =
     nativeBalanceData && nativeBalanceData.decimals
       ? nativeBalanceData.decimals
       : 0;
   const balance = isNative ? nativeBalance : contractBalance;
   const decimals = isNative ? nativeDecimals : contractDecimals;
-  // We always say that native token transfers have enough allowance.
   const { data: allowance } = useContractRead({
-    abi: erc20ABI,
+    abi: erc20Abi,
     functionName: "allowance",
     address: token.address ?? zeroAddress,
     args: [account!, token.tokenManagerAddress],
-    enabled:
-      !isNative &&
-      !!account &&
-      !!token.address &&
-      !!token.tokenManagerAddress &&
-      !pendingChainSwitch,
-    watch: true,
+    query: {
+      enabled:
+        !isNative &&
+        !!account &&
+        !!token.address &&
+        !!token.tokenManagerAddress &&
+        !pendingChainSwitch,
+    },
   });
   const hasEnoughAllowance =
     siteConfig.allowZeroValueTransfers ||
@@ -241,91 +231,17 @@ function App() {
     transferAmount = transferAmount + BigInt(toTransfer);
   }
 
-  let addressForTokenManager = isNative
+  const addressForTokenManager = isNative
     ? zeroAddress
     : getAddress(token.address ?? zeroAddress);
-  const { config: transferConfig } = usePrepareContractWrite({
-    address: token.tokenManagerAddress,
-    abi: tokenManagerAbi,
-    args: recipientEth && [
-      addressForTokenManager,
-      BigInt(toChainConfig.chainId),
-      recipientEth,
-      amount ? parseUnits(amount, decimals ?? 0) : 0n,
-    ],
-    functionName: "transfer",
-    value: transferAmount ?? 0n,
-    enabled: !!(
-      hasEnoughAllowance &&
-      toChainConfig &&
-      fromChainConfig &&
-      !fromChainConfig.isZilliqa &&
-      recipientEth &&
-      decimals
-    ),
-  });
 
-  const { writeAsync: bridge, isLoading: isLoadingBridge } =
-    useContractWrite(transferConfig);
+  const { writeContractAsync: bridge, isPending: isLoadingBridge } = useContractWrite();
+  const { writeContractAsync: bridgeFromZilliqa, isPending: isLoadingBridgeFromZilliqa } = useContractWrite();
+  const { writeContractAsync: approveZero, isPending: isLoadingApproveZero } = useContractWrite();
+  const { writeContractAsync: approve, isPending: isLoadingApprove } = useContractWrite();
 
-  // From Zilliqa Bridging
-  const {
-    writeAsync: bridgeFromZilliqa,
-    isLoading: isLoadingBridgeFromZilliqa,
-  } = useContractWrite({
-    mode: "prepared",
-    request: {
-      address: token.tokenManagerAddress,
-      abi: ZilTokenManagerAbi,
-      args: [
-        addressForTokenManager,
-        BigInt(toChainConfig.chainId),
-        recipientEth!,
-        amount ? parseUnits(amount, decimals ?? 0) : 0n,
-      ],
-      chain: fromChainConfig.wagmiChain,
-      account: account!,
-      value: transferAmount ?? 0n,
-      functionName: "transfer",
-      gas: 8_000_000n,
-      type: "legacy",
-    },
-  });
-
-  // Approvals
-  const { config: approveZeroConfig } = usePrepareContractWrite({
-    address: token.address ?? zeroAddress,
-    abi: token.abi ?? erc20ABI,
-    args: [token.tokenManagerAddress, 0n],
-    functionName: "approve",
-    gas: fromChainConfig.isZilliqa ? 400_000n : undefined,
-    type: fromChainConfig.isZilliqa ? "legacy" : "eip1559",
-    enabled: !hasEnoughAllowance,
-  });
-
-  const { writeAsync: approveZero, isLoading: isLoadingApproveZero } =
-    useContractWrite(approveZeroConfig);
-
-  const { config: approveConfig } = usePrepareContractWrite({
-    address: token.address ?? zeroAddress,
-    abi: token.abi ?? erc20ABI,
-    args: [
-      token.tokenManagerAddress,
-      amount ? parseUnits(amount, decimals ?? 0) : 0n,
-    ],
-    functionName: "approve",
-    gas: fromChainConfig.isZilliqa ? 400_000n : undefined,
-    type: fromChainConfig.isZilliqa ? "legacy" : "eip1559",
-    enabled: !hasEnoughAllowance,
-  });
-
-  const { writeAsync: approve, isLoading: isLoadingApprove } =
-    useContractWrite(approveConfig);
-
-  // Bit horrid - if approve isn't available, we'll assume we have to clear the old
-  // approval first. USDT on ethereum requires this.
   const requiresApprovalClearance =
-    approve == undefined && token.needsAllowanceClearing;
+    approve == undefined && token.needsAllowanceClearing; 
 
   const canBridge =
     (siteConfig.allowZeroValueTransfers || isAmountNonZero) &&
@@ -342,14 +258,13 @@ function App() {
     isLoading: isWaitingForTxn,
     error,
     refetch,
-  } = useWaitForTransaction({
+  } = useWaitForTransactionReceipt({
     hash: latestTxn?.[1],
-    enabled: !!latestTxn?.[1],
+    query: { enabled: !!latestTxn?.[1] },
   });
 
   useEffect(() => {
     if (error) {
-      // Little hack to get Zilliqa to refetch the pending txns
       refetch();
     }
   }, [error, refetch]);
@@ -376,12 +291,15 @@ function App() {
           </div>
         );
         (async () => {
+          if (!fromChainClient || !toChainClient) {
+            toast.error("Failed to get logs: chainClient is not available.");
+            return;
+          }
           const logs = await fromChainClient.getLogs({
             address: fromChainConfig.chainGatewayAddress,
             event: getAbiItem({
               abi: chainGatewayAbi,
               name: "Relayed",
-              args: [toChainConfig.chainId],
             }),
             blockHash: txnReceipt.blockHash,
           });
@@ -389,27 +307,66 @@ function App() {
             (log) => log.transactionHash === txnReceipt.transactionHash,
           )?.args.nonce;
 
-          const id = toast.loading(`Bridging to ${toChainConfig.name}...`);
+          if (nonce !== undefined) {
+            const id = toast.loading(`Bridging to ${toChainConfig.name}...`);
 
-          // TODO: find a way to stop watching once event arrives
-          toChainClient.watchContractEvent({
-            abi: chainGatewayAbi,
-            address: toChainConfig.chainGatewayAddress,
-            eventName: "Dispatched",
-            args: {
-              nonce,
-            },
-            onLogs: (logs) => {
+            toChainClient.watchContractEvent({
+              abi: chainGatewayAbi,
+              address: toChainConfig.chainGatewayAddress,
+              eventName: "Dispatched",
+              args: {
+                nonce,
+              },
+              onLogs: (logs) => {
+                toast.update(id, {
+                  render: (
+                    <div>
+                      Bridge txn complete, funds arrived on {toChainConfig.name}{" "}
+                      chain. View on{" "}
+                      <a
+                        className="link text-ellipsis w-10"
+                        onClick={() =>
+                          window.open(
+                            `${toChainConfig.blockExplorer}${logs[0].transactionHash}`,
+                            "_blank",
+                          )
+                        }
+                      >
+                        block explorer
+                      </a>
+                    </div>
+                  ),
+                  type: "success",
+                  isLoading: false,
+                });
+              },
+            });
+
+            const blockNumber = await toChainClient.getBlockNumber();
+            const dispatched = await toChainClient.getLogs({
+              address: toChainConfig.chainGatewayAddress,
+              event: getAbiItem({
+                abi: chainGatewayAbi,
+                name: "Dispatched",
+              }),
+              args: {
+                nonce,
+              },
+              fromBlock: blockNumber - 50n,
+              toBlock: "latest",
+            });
+
+            if (dispatched.length > 0) {
               toast.update(id, {
                 render: (
                   <div>
-                    Bridge txn complete, funds arrived on {toChainConfig.name}{" "}
+                    Bridge txn complete, funds arrived at {toChainConfig.name}{" "}
                     chain. View on{" "}
                     <a
                       className="link text-ellipsis w-10"
                       onClick={() =>
                         window.open(
-                          `${toChainConfig.blockExplorer}${logs[0].transactionHash}`,
+                          `${toChainConfig.blockExplorer}${dispatched[0].transactionHash}`,
                           "_blank",
                         )
                       }
@@ -421,46 +378,7 @@ function App() {
                 type: "success",
                 isLoading: false,
               });
-            },
-          });
-
-          // Double check if it has already been dispatched before event listener catches it
-          const blockNumber = await toChainClient.getBlockNumber();
-          const dispatched = await toChainClient.getLogs({
-            address: toChainConfig.chainGatewayAddress,
-            event: getAbiItem({
-              abi: chainGatewayAbi,
-              name: "Dispatched",
-            }),
-            args: {
-              nonce,
-            },
-            fromBlock: blockNumber - 50n,
-            toBlock: "latest",
-          });
-
-          if (dispatched.length > 0) {
-            toast.update(id, {
-              render: (
-                <div>
-                  Bridge txn complete, funds arrived at {toChainConfig.name}{" "}
-                  chain. View on{" "}
-                  <a
-                    className="link text-ellipsis w-10"
-                    onClick={() =>
-                      window.open(
-                        `${toChainConfig.blockExplorer}${dispatched[0].transactionHash}`,
-                        "_blank",
-                      )
-                    }
-                  >
-                    block explorer
-                  </a>
-                </div>
-              ),
-              type: "success",
-              isLoading: false,
-            });
+            }
           }
         })();
 
@@ -610,13 +528,12 @@ function App() {
                           key={`from${chain}`}
                           onClick={() => {
                             if (fromChainConfig.chain != chain) {
-                              // If this chain is the home network
                               let goToChain = toChainConfig.chain;
                               if (chain == siteConfig.homeNetwork) {
                                 if (
                                   toChainConfig.chain == siteConfig.homeNetwork
                                 ) {
-                                  let firstNetwork = Object.values(
+                                  const firstNetwork = Object.values(
                                     chainConfigs,
                                   ).find(
                                     (config) =>
@@ -624,14 +541,12 @@ function App() {
                                   );
                                   goToChain = firstNetwork!.chain;
                                 } else {
-                                  // Ignore
                                 }
                               } else {
                                 goToChain = siteConfig.homeNetwork;
                               }
                               setPendingChains([chain, goToChain]);
                             }
-                            blur();
                           }}
                         >
                           <a>{name}</a>
@@ -663,19 +578,12 @@ function App() {
                         <li
                           key={`to${chain}`}
                           onClick={() => {
-                            // Sets the to chain.
-                            //  - if the new to chain is the home network
-                            //     - if the from chain is the home network, set it to the first non-home network.
-                            //     - if the from chain is not the home network, ignore.
-                            //  - if the new to chain is not the home network
-                            //     - set the from chain to the home network.
                             let nextFromChain = fromChainConfig.chain;
                             if (chain === siteConfig.homeNetwork) {
                               if (
                                 toChainConfig.chain === siteConfig.homeNetwork
                               ) {
-                                // Set the fromChain to the first non-home network, if there is one.
-                                let firstNetwork = Object.values(
+                                const firstNetwork = Object.values(
                                   chainConfigs,
                                 ).find(
                                   (config) =>
@@ -683,14 +591,12 @@ function App() {
                                 );
                                 nextFromChain = firstNetwork!.chain;
                               } else {
-                                // Flip from and to chains.
                                 nextFromChain = toChainConfig.chain;
                               }
                             } else {
                               nextFromChain = siteConfig.homeNetwork;
                             }
                             setPendingChains([nextFromChain, chain]);
-                            blur();
                           }}
                         >
                           <a>{name}</a>
@@ -884,18 +790,35 @@ function App() {
                   className="btn w-5/6 mx-10 btn-outline"
                   disabled={showLoadingButton}
                   onClick={async () => {
-                    if (approve) {
-                      const tx = await approve();
+                      if (requiresApprovalClearance && approveZero) {
+                        const txHash = await approveZero({
+                          address: token.address ?? zeroAddress,
+                          abi: token.abi ?? erc20Abi,
+                          functionName: "approve",
+                          args: [token.tokenManagerAddress, 0n],
+                          gas: fromChainConfig.isZilliqa ? 400_000n : undefined,
+                          type: fromChainConfig.isZilliqa ? "legacy" : "eip1559",
+                        });
                       if (siteConfig.logTxnHashes) {
-                        console.log(tx.hash);
+                          console.log("Approve zero - " + txHash);
                       }
-                      setLatestTxn(["approve", tx.hash]);
-                    } else if (approveZero) {
-                      const tx = await approveZero();
-                      if (siteConfig.logTxnHashes) {
-                        console.log("Approve zero - " + tx.hash);
-                      }
-                      setLatestTxn(["approvalclearance", tx.hash]);
+                        setLatestTxn(["approvalclearance", txHash]);
+                      } else if (approve) {
+                        const txHash = await approve({
+                          address: token.address ?? zeroAddress,
+                          abi: token.abi ?? erc20Abi,
+                          functionName: "approve",
+                          args: [
+                            token.tokenManagerAddress,
+                            amount ? parseUnits(amount, decimals ?? 0) : 0n,
+                          ],
+                          gas: fromChainConfig.isZilliqa ? 400_000n : undefined,
+                          type: fromChainConfig.isZilliqa ? "legacy" : "eip1559",
+                        });
+                        if (siteConfig.logTxnHashes) {
+                          console.log(txHash);
+                        }
+                        setLatestTxn(["approve", txHash]);
                     }
                   }}
                 >
@@ -915,18 +838,49 @@ function App() {
                   className="btn w-5/6 mx-10 btn-primary text-primary-content"
                   disabled={!canBridge || showLoadingButton}
                   onClick={async () => {
-                    let tx: { hash: `0x${string}` };
+                    let txHash: `0x${string}`;
                     if (fromChainConfig.isZilliqa && bridgeFromZilliqa) {
-                      tx = await bridgeFromZilliqa();
+                      txHash = await bridgeFromZilliqa({
+                        address: token.tokenManagerAddress,
+                        abi: ZilTokenManagerAbi,
+                        functionName: "transfer",
+                        args: [
+                          addressForTokenManager,
+                          BigInt(toChainConfig.chainId),
+                          recipientEth!,
+                          amount ? parseUnits(amount, decimals ?? 0) : 0n,
+                        ],
+                        value: transferAmount ?? 0n,
+                        gas: 8_000_000n,
+                        type: "legacy",
+                        chainId: fromChainConfig.wagmiChain.id, // Corrected: chain to chainId
+                        account: account!,
+                      });
                     } else if (bridge) {
-                      tx = await bridge();
+                      const bridgeArgs = recipientEth && [
+                        addressForTokenManager,
+                        BigInt(toChainConfig.chainId),
+                        recipientEth!, // Added non-null assertion as it's checked by canBridge
+                        amount ? parseUnits(amount, decimals ?? 0) : 0n,
+                      ] as const; // Added 'as const' for readonly tuple
+                      if (!bridgeArgs) {
+                        toast.error("Missing arguments for bridge transaction.");
+                        return;
+                      }
+                      txHash = await bridge({
+                        address: token.tokenManagerAddress,
+                        abi: tokenManagerAbi,
+                        functionName: "transfer",
+                        args: bridgeArgs,
+                        value: transferAmount ?? 0n,
+                      });
                     } else {
                       return;
                     }
                     if (siteConfig.logTxnHashes) {
-                      console.log(tx.hash);
+                      console.log(txHash);
                     }
-                    setLatestTxn(["bridge", tx.hash]);
+                    setLatestTxn(["bridge", txHash]);
                   }}
                 >
                   {showLoadingButton ? (
